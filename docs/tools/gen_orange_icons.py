@@ -24,7 +24,7 @@ def col(kind,front):
     if kind=='rline':  return f'<path d="{RPIN}" fill="none" stroke="{W}" stroke-width="8" stroke-linejoin="round"/>'+mark(front,W,OR,50,44,0.84)
     if kind=='fill':   return f'<path d="{PIN}" fill="{W}" stroke="{W}" stroke-width="4" stroke-linejoin="round"/>'+mark(front,OR,W,50,43,0.8)
     if kind=='rfill':  return f'<path d="{RPIN}" fill="{W}" stroke="{W}" stroke-width="3" stroke-linejoin="round"/>'+mark(front,OR,W,50,44,0.84)
-    if kind=='badge':  return f'<path d="{PIN}" fill="{W}" stroke="{W}" stroke-width="4" stroke-linejoin="round"/><circle cx="50" cy="41" r="19" fill="{OR}"/>'+mark(front,W,OR,50,41,0.5)
+    if kind=='badge':  return f'<path d="{PIN}" fill="{W}" stroke="{W}" stroke-width="4" stroke-linejoin="round"/><circle cx="50" cy="41" r="23" fill="{OR}"/>'+mark(front,W,OR,50,41,0.62)
 cols=[('line','1'),('rline','2'),('fill','3'),('rfill','4'),('badge','5')]
 heads=['① 흰 테두리 · 안 주황','② 흰 테두리 · 둥근 굵은 핀','③ 흰 핀 · 주황 도안','④ 흰 핀 · 둥근 핀','⑤ 흰 핀 · 주황 원 배지']
 rows=[('sticks','A','A 젓가락 앞','숟가락 위로 젓가락이 지나감' if not MIRROR else '숟가락과 젓가락 자리를 서로 바꿈'),('spoon','B','B 숟가락 앞','젓가락 위로 숟가락이 올라옴' if not MIRROR else '숟가락과 젓가락 자리를 서로 바꿈')]
