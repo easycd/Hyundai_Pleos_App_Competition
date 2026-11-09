@@ -1,0 +1,333 @@
+<!DOCTYPE html>
+<html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>다음에 가게 — 화면 설계서</title>
+<style>
+:root{--bg:#fff;--fg:#1f2328;--muted:#59636e;--line:#d1d9e0;--head:#f6f8fa;--accent:#0969da;--accent-bg:#ddf4ff}
+@media (prefers-color-scheme: dark){:root{--bg:#0d1117;--fg:#e6edf3;--muted:#9198a1;--line:#3d444d;--head:#161b22;--accent:#4493f8;--accent-bg:#121d2f}}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--fg);font-family:"Pretendard","Apple SD Gothic Neo","Malgun Gothic","Noto Sans KR",system-ui,sans-serif;font-size:16px;line-height:1.65;word-break:keep-all}
+main{max-width:1180px;margin:0 auto;padding:40px 24px 80px}
+h1{font-size:2em;border-bottom:1px solid var(--line);padding-bottom:.3em;margin:0 0 .4em}
+h2{font-size:1.45em;border-bottom:1px solid var(--line);padding-bottom:.3em;margin-top:2.2em}
+h3{font-size:1.2em;margin:1.8em 0 .6em}
+.meta{color:var(--muted)}
+table{border-collapse:collapse;width:100%;font-size:.93em;margin:.6em 0 1em}
+th,td{border:1px solid var(--line);padding:7px 11px;vertical-align:top;text-align:left}
+th{background:var(--head);font-weight:600;white-space:nowrap}
+.tbl{overflow-x:auto}
+.sw{display:inline-block;width:14px;height:14px;border-radius:4px;vertical-align:-2px;margin-right:6px;border:1px solid rgba(128,128,128,.4)}
+.screen{display:grid;grid-template-columns:640px 1fr;gap:28px;align-items:start}
+@media (max-width:1000px){.screen{grid-template-columns:1fr}}
+.shot{width:640px;height:540px;overflow:hidden;border-radius:12px;border:1px solid var(--line);background:#0B0F17;position:relative}
+.shot .frame{transform:scale(.5);transform-origin:0 0}
+.cap{color:var(--muted);font-size:.9em;margin-top:6px}
+.spec table{margin-top:0}
+.spec .co{display:inline-flex;width:22px;height:22px;border-radius:50%;background:#F59E0B;color:#111;font-weight:700;font-size:13px;align-items:center;justify-content:center}
+.note{color:var(--muted);font-size:.93em;margin:.3em 0 0}
+.flow{width:100%;height:auto;display:block;margin:.6em 0}
+.flow text{fill:var(--fg);font-family:inherit}.flow .q{fill:var(--muted)}
+.flow .lane rect{fill:none;stroke:var(--line);stroke-dasharray:6 6}.flow .lanelab{fill:var(--muted);font-size:15px}
+.flow .node rect{fill:var(--bg);stroke:var(--muted);stroke-width:1.5}.flow .node rect.main{fill:var(--accent-bg);stroke:var(--accent);stroke-width:2}
+.flow .node rect.ext{stroke-dasharray:5 5}.flow .node rect.warn{stroke:#B45309}
+.flow .edges path{fill:none;stroke:var(--muted);stroke-width:1.5}.flow .ah{fill:var(--muted)}
+.kv td:first-child{white-space:nowrap;color:var(--muted)}
+.toc{columns:2;font-size:.95em}.toc a{color:var(--accent);text-decoration:none}
+@media print{.shot{break-inside:avoid}h2{break-before:page}h2:first-of-type{break-before:auto}}
+
+.frame{position:relative;width:1280px;height:1080px;background:#0B0F17;color:#F3F5F8;overflow:hidden;
+  font-family:"Pretendard","Apple SD Gothic Neo","Malgun Gothic","Noto Sans KR",system-ui,sans-serif;font-size:28px;line-height:1.3;word-break:keep-all}
+.frame *{box-sizing:border-box}
+.frame .ic{flex:none}
+.top{position:absolute;left:0;top:0;right:0;height:96px;display:flex;align-items:center;gap:16px;padding:0 24px 0 16px;border-bottom:2px solid #2C3646}
+.top .title{font-size:36px;font-weight:600;flex:1}
+.top .iconbtn{width:80px;height:80px;display:flex;align-items:center;justify-content:center;border-radius:20px;color:#F3F5F8}
+.top .textbtn{height:72px;padding:0 28px;display:flex;align-items:center;gap:12px;border-radius:20px;border:2px solid #2C3646;font-size:30px;font-weight:600}
+.body{position:absolute;left:0;right:0;bottom:0;top:96px;padding:48px}
+.body.full{top:0}
+.btn{display:flex;align-items:center;justify-content:center;gap:16px;height:88px;padding:0 40px;border-radius:24px;border:2px solid #3A4557;background:#1E2635;font-size:32px;font-weight:600;color:#F3F5F8}
+.btn.primary{background:#2563EB;border-color:#2563EB;color:#fff}
+.btn.big{height:112px;font-size:36px}
+.btn.danger{background:transparent;border-color:#7F1D1D;color:#F87171}
+.btn.ghost{background:transparent;border-color:transparent;color:#A6B0C0}
+.card{background:#151B26;border:2px solid #2C3646;border-radius:28px;padding:32px}
+.muted{color:#A6B0C0}.small{font-size:24px}.h40{font-size:40px;font-weight:600}.h48{font-size:48px;font-weight:600}.h64{font-size:64px;font-weight:700;line-height:1.15}
+.chip{display:inline-flex;align-items:center;height:48px;padding:0 20px;border-radius:24px;border:2px solid #3A4557;font-size:24px;color:#C8D0DC;white-space:nowrap}
+.chip.on{background:#2563EB;border-color:#2563EB;color:#fff}
+.chip.warn{border-color:#B45309;color:#FCD34D}
+.chip.ok{border-color:#15803D;color:#86EFAC}
+.row{display:flex;align-items:center;gap:24px;height:104px;padding:0 24px;border-bottom:2px solid #1E2635}
+.row .name{font-size:32px;font-weight:600}
+.row.sel{background:#1B2A45;border-radius:20px;border-bottom-color:transparent}
+.toggle{width:96px;height:52px;border-radius:26px;background:#2563EB;position:relative;flex:none}
+.toggle::after{content:"";position:absolute;top:6px;right:6px;width:40px;height:40px;border-radius:50%;background:#fff}
+.toggle.off{background:#3A4557}.toggle.off::after{right:auto;left:6px}
+.seg{display:flex;border:2px solid #3A4557;border-radius:20px;overflow:hidden;height:72px}
+.seg div{padding:0 32px;display:flex;align-items:center;font-size:28px;color:#C8D0DC}
+.seg .on{background:#2563EB;color:#fff}
+.mapph{background:repeating-linear-gradient(45deg,#121926 0 24px,#161E2C 24px 48px);border:2px solid #2C3646;border-radius:28px;position:relative;color:#A6B0C0}
+.mapph .lab{position:absolute;left:24px;top:20px;font-size:24px}
+.mapph .pin{position:absolute;color:#4F8DFF}
+.mapph .pin.me{color:#F3F5F8}
+.overlay{position:absolute;inset:0;background:rgba(5,8,14,.72)}
+.toast{position:absolute;left:140px;right:140px;height:120px;border-radius:28px;background:#151B26;border:2px solid #2C3646;display:flex;align-items:center;gap:24px;padding:0 40px;font-size:32px;font-weight:600}
+.toast .ok{color:#4ADE80}
+[data-co]{position:relative}
+[data-co]::after{content:attr(data-co);position:absolute;left:-18px;top:-18px;width:44px;height:44px;border-radius:50%;background:#F59E0B;color:#111;font-size:26px;font-weight:700;display:flex;align-items:center;justify-content:center;z-index:5;font-family:system-ui,sans-serif;line-height:1}
+.wave{display:flex;align-items:center;gap:12px;height:120px}
+.wave i{display:block;width:16px;border-radius:8px;background:#4F8DFF}
+.ring{width:72px;height:72px;border-radius:50%;border:8px solid #3A4557;border-top-color:#4F8DFF;flex:none}
+.mic{width:360px;height:360px;border-radius:50%;background:#2563EB;display:flex;align-items:center;justify-content:center;color:#fff;box-shadow:0 0 0 24px rgba(37,99,235,.18)}
+.qr{width:280px;height:280px;border-radius:20px;background:
+  repeating-linear-gradient(90deg,#F3F5F8 0 20px,transparent 20px 40px),repeating-linear-gradient(0deg,#F3F5F8 0 20px,#0B0F17 20px 40px);border:12px solid #F3F5F8}
+.input{height:88px;border:2px solid #3A4557;border-radius:20px;background:#0F141D;display:flex;align-items:center;padding:0 24px;font-size:32px}
+.check{width:56px;height:56px;border-radius:14px;border:3px solid #6B7686;flex:none;display:flex;align-items:center;justify-content:center;color:#fff}
+.check.on{background:#2563EB;border-color:#2563EB}
+.radio{width:56px;height:56px;border-radius:50%;border:3px solid #6B7686;flex:none;position:relative}
+.radio.on{border-color:#2563EB}.radio.on::after{content:"";position:absolute;inset:10px;border-radius:50%;background:#2563EB}
+.num{width:72px;height:72px;border-radius:20px;background:#2563EB;color:#fff;font-size:40px;font-weight:700;display:flex;align-items:center;justify-content:center;flex:none}
+.slider{height:16px;border-radius:8px;background:#3A4557;position:relative;flex:1}
+.slider::before{content:"";position:absolute;left:0;top:0;bottom:0;width:60%;border-radius:8px;background:#2563EB}
+.slider::after{content:"";position:absolute;left:calc(60% - 28px);top:-20px;width:56px;height:56px;border-radius:50%;background:#fff}
+.hint{position:absolute;left:48px;right:48px;bottom:40px;text-align:center;color:#A6B0C0;font-size:28px}
+.progress{position:absolute;left:0;right:0;bottom:0;height:12px;background:#1E2635}
+.progress i{display:block;height:100%;width:62%;background:#2563EB}
+.top .iconbtn[data-co]::after{left:2px;top:2px}
+.mapph .lab.bot{top:auto;bottom:20px}
+.copad{padding:0 52px}
+</style></head>
+<body><main>
+<h1>다음에 가게 — 화면 설계서</h1><p class="meta">작성일 2026-11-09 · 작성자 재원 (easycd) · 기준 문서: <a href="01_개발기획서.md">01_개발기획서</a>의 기능 ID(F-xx)를 그대로 쓴다.</p><p>주행 중에 쓰는 화면은 말하기 버튼과 큰 카드 몇 장으로 끝내고, 목록·편집·지도는 정차 중에만 연다. 화면 12개, 흐름 2개(주행 중·정차 중)다.</p><h2 id="base">1. 설계 기준</h2><div class="tbl"><table><thead><tr><th>항목</th><th>기준</th><th>근거</th></tr></thead><tbody><tr><td>캔버스</td><td>1280 × 1080 (앱 영역). 전체 화면은 1920 × 1080 16:9를 좌우 1:2로 나눈 오른쪽</td><td>Pleos Connect 17인치 16:9, 좌우 1:2 분할(현대차그룹 시승기). 해상도 값은 가정이며 에뮬레이터 확인 뒤 조정</td></tr><tr><td>테마</td><td>다크 고정. 배경 #0B0F17, 카드 #151B26, 글자 #F3F5F8, 보조 글자 #A6B0C0</td><td>야간 운전 눈부심 방지. UI/UX Pro Max: Dark Mode(OLED) 스타일, Minimalism 스타일</td></tr><tr><td>강조색</td><td>1순위 동작 파랑 #2563EB(흰 글자, 대비 5.2:1). 삭제만 빨강 #DC2626. 미확인 주황, 방문 초록</td><td>UI/UX Pro Max 추천 팔레트. 빨강은 차량에서 경고색이라 삭제에만 사용</td></tr><tr><td>글꼴</td><td>Pretendard (없으면 Noto Sans KR). 본문 28dp, 버튼 32dp, 카드 제목 40dp, 질문 48dp, 가게 이름 64dp, 최소 24dp</td><td>UI/UX Pro Max 글꼴 추천 Noto Sans KR. 70cm 시청 거리 기준</td></tr><tr><td>터치 크기</td><td>버튼 높이 88dp 기본, 1순위 112dp, 목록 줄 104dp, 최소 76dp, 간격 24dp 이상</td><td>Android Automotive 주행 중 최소 76dp. UI/UX Pro Max: 최소 48dp·간격 8dp 이상</td></tr><tr><td>한 화면 규칙</td><td>1순위 버튼은 1개(파랑), 주행 중 글자 줄 수 3줄 이내, 목록 스크롤·키보드는 정차 중에만</td><td>기획서 8장 비기능 요구사항</td></tr><tr><td>아이콘</td><td>Lucide 선 아이콘 1종, 이모지 금지</td><td>UI/UX Pro Max 체크리스트</td></tr><tr><td>동작</td><td>화면 전환 200ms 이내, 토스트 4초, 확인 대기 5초, 리마인드 카드 10초</td><td></td></tr></tbody></table></div><h2 id="list">2. 화면 목록</h2><div class="tbl"><table><thead><tr><th>ID</th><th>화면</th><th>쓰는 상황</th><th>들어오는 길</th><th>기능</th></tr></thead><tbody><tr><td><a href="#S-01">S-01</a></td><td>홈</td><td>주행 중 · 정차 중</td><td>앱 실행</td><td>F-01, F-09, F-12, F-15</td></tr><tr><td><a href="#S-02">S-02</a></td><td>듣는 중</td><td>주행 중</td><td>S-01 말하기 / 리마인드·추천 뒤 대답 대기</td><td>F-01, F-03</td></tr><tr><td><a href="#S-03">S-03</a></td><td>확인</td><td>주행 중</td><td>S-02 저장 발화 뒤 후보가 있을 때</td><td>F-04, F-05</td></tr><tr><td><a href="#S-04">S-04</a></td><td>저장 완료</td><td>주행 중</td><td>S-03 뒤 / 후보 없음·오프라인</td><td>F-06</td></tr><tr><td><a href="#S-05">S-05</a></td><td>리마인드</td><td>주행 중</td><td>저장 가게 500m 안 진입 (시스템 알림)</td><td>F-08, F-10</td></tr><tr><td><a href="#S-06">S-06</a></td><td>추천</td><td>주행 중 · 정차 중</td><td>S-01 뭐 먹을까 / 음성 “뭐 먹을까”</td><td>F-09, F-10</td></tr><tr><td><a href="#S-07">S-07</a></td><td>내 맛집</td><td>정차 중</td><td>S-01 내 맛집</td><td>F-12, F-07, F-13</td></tr><tr><td><a href="#S-08">S-08</a></td><td>가게 상세</td><td>정차 중</td><td>S-07 목록 / 홈 최근 저장</td><td>F-10, F-11, F-12</td></tr><tr><td><a href="#S-09">S-09</a></td><td>미확인 가게 정리</td><td>정차 중</td><td>S-07 미확인 항목 / S-08 수정</td><td>F-07</td></tr><tr><td><a href="#S-10">S-10</a></td><td>맛집 지도 공유</td><td>정차 중</td><td>S-07 공유 / S-08 공유에 담기</td><td>F-13</td></tr><tr><td><a href="#S-11">S-11</a></td><td>설정</td><td>정차 중</td><td>S-01 설정</td><td>F-15</td></tr><tr><td><a href="#S-12">S-12</a></td><td>주행 중 안내</td><td>주행 중</td><td>주행 중 S-07~S-11 진입 시</td><td>F-14</td></tr></tbody></table></div><h2 id="flow">3. 화면 흐름</h2><svg viewBox="0 0 1100 575" role="img" aria-label="화면 흐름" font-size="18" class="flow">
+<defs><marker id="fa" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" class="ah"/></marker></defs>
+<g class="lane"><rect x="20" y="20" width="1060" height="250" rx="16"/><text x="40" y="52" class="lanelab">주행 중 · 음성 위주</text></g>
+<g class="lane"><rect x="20" y="300" width="1060" height="255" rx="16"/><text x="40" y="332" class="lanelab">정차 중 · 터치 가능</text></g>
+<g class="edges">
+ <path d="M300 130H360" marker-end="url(#fa)"/><path d="M540 130H600" marker-end="url(#fa)"/><path d="M780 130H840" marker-end="url(#fa)"/>
+ <path d="M930 162V200H220V162" marker-end="url(#fa)"/>
+ <path d="M210 162V230H360" marker-end="url(#fa)"/>
+ <path d="M540 230H640" marker-end="url(#fa)"/>
+ <path d="M840 230H790" marker-start="url(#fa)" />
+ <path d="M210 162V415H290" marker-end="url(#fa)"/>
+ <path d="M470 415H530" marker-end="url(#fa)"/><path d="M470 400V360H560V382" marker-end="url(#fa)"/><path d="M470 430V480H560V448" marker-end="url(#fa)"/>
+ <path d="M140 162V513H940" marker-end="url(#fa)"/>
+</g>
+<g class="node"><rect x="120" y="98" width="180" height="64" rx="12" class="main"/><text x="210" y="124" text-anchor="middle" font-weight="700">S-01 홈</text><text x="210" y="148" text-anchor="middle" class="q">말하기 · 뭐 먹을까</text></g>
+<g class="node"><rect x="360" y="98" width="180" height="64" rx="12"/><text x="450" y="124" text-anchor="middle" font-weight="700">S-02 듣는 중</text><text x="450" y="148" text-anchor="middle" class="q">STT</text></g>
+<g class="node"><rect x="600" y="98" width="180" height="64" rx="12"/><text x="690" y="124" text-anchor="middle" font-weight="700">S-03 확인</text><text x="690" y="148" text-anchor="middle" class="q">예 / 아니요</text></g>
+<g class="node"><rect x="840" y="98" width="180" height="64" rx="12"/><text x="930" y="124" text-anchor="middle" font-weight="700">S-04 저장 완료</text><text x="930" y="148" text-anchor="middle" class="q">토스트 → 홈</text></g>
+<g class="node"><rect x="360" y="198" width="180" height="64" rx="12"/><text x="450" y="224" text-anchor="middle" font-weight="700">S-06 추천</text><text x="450" y="248" text-anchor="middle" class="q">카드 3장</text></g>
+<g class="node"><rect x="640" y="198" width="150" height="64" rx="12" class="ext"/><text x="715" y="236" text-anchor="middle" font-weight="700">내비 안내</text></g>
+<g class="node"><rect x="840" y="198" width="180" height="64" rx="12"/><text x="930" y="224" text-anchor="middle" font-weight="700">S-05 리마인드</text><text x="930" y="248" text-anchor="middle" class="q">500m 안 · 알림</text></g>
+<g class="node"><rect x="290" y="383" width="180" height="64" rx="12"/><text x="380" y="409" text-anchor="middle" font-weight="700">S-07 내 맛집</text><text x="380" y="433" text-anchor="middle" class="q">목록 + 지도</text></g>
+<g class="node"><rect x="560" y="330" width="180" height="52" rx="12"/><text x="650" y="362" text-anchor="middle" font-weight="700">S-08 가게 상세</text></g>
+<g class="node"><rect x="530" y="389" width="180" height="52" rx="12"/><text x="620" y="421" text-anchor="middle" font-weight="700">S-09 미확인 정리</text></g>
+<g class="node"><rect x="560" y="448" width="180" height="52" rx="12"/><text x="650" y="480" text-anchor="middle" font-weight="700">S-10 공유</text></g>
+<g class="node"><rect x="940" y="487" width="140" height="52" rx="12"/><text x="1010" y="519" text-anchor="middle" font-weight="700">S-11 설정</text></g>
+<g class="node"><rect x="770" y="383" width="250" height="64" rx="12" class="warn"/><text x="895" y="409" text-anchor="middle" font-weight="700">S-12 주행 중 안내</text><text x="895" y="433" text-anchor="middle" class="q">아래 화면을 주행 중에 열면 대신 표시</text></g>
+<text x="330" y="118" class="q" font-size="15">누름</text><text x="560" y="118" class="q" font-size="15">저장 발화</text><text x="790" y="118" class="q" font-size="15">대답</text>
+<text x="548" y="222" class="q" font-size="15">선택</text><text x="800" y="222" class="q" font-size="15">응</text>
+<text x="150" y="300" class="q" font-size="15">정차 중</text>
+</svg><p class="note">위 줄은 주행 중 음성으로 도는 흐름, 아래 줄은 정차 중 터치 화면이다. 정차 화면을 주행 중에 열면 S-12가 대신 뜬다. 내비 안내는 Pleos 내비 앱으로 넘어가는 바깥 화면이다.</p><h2 id="common">4. 공통 요소</h2><div class="tbl"><table><thead><tr><th>요소</th><th>크기</th><th>규칙</th></tr></thead><tbody><tr><td>상단 바</td><td>높이 96dp: 뒤로(80×80) · 제목 36dp · 오른쪽 동작 1개</td><td>홈에는 뒤로 없음. 제목은 화면 이름 그대로</td></tr><tr><td>1순위 버튼</td><td>파랑, 높이 88~136dp</td><td>화면에 1개만</td></tr><tr><td>2순위 버튼</td><td>테두리형, 높이 88dp</td><td></td></tr><tr><td>카드</td><td>모서리 28dp, 안쪽 여백 32dp, 테두리 #2C3646</td><td></td></tr><tr><td>상태 칩</td><td>높이 48dp: 미확인(주황) · 방문(초록) · 선택(파랑)</td><td>글자와 색을 같이 써서 색만으로 구분하지 않음</td></tr><tr><td>토스트</td><td>하단 중앙, 높이 120dp, 4초</td><td>되돌리기 버튼은 삭제 뒤에만</td></tr><tr><td>음성 겹침 화면</td><td>S-02를 어느 화면 위에도 띄움</td><td></td></tr></tbody></table></div><h2 id="screens">5. 화면별 설계</h2><h3 id="S-01">S-01 홈 <span class="meta" style="font-weight:400;font-size:.8em">· 주행 중 · 정차 중 · F-01, F-09, F-12, F-15</span></h3><div class="screen"><div><div class="shot"><div class="frame">
+ <div class="top" style="border-bottom:0">
+   <div style="width:16px"></div><div class="title">다음에 가게</div>
+   <div class="iconbtn" data-co="5"><svg class="ic " width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1Z"/></svg></div>
+ </div>
+ <div class="body" style="display:grid;grid-template-columns:600px 1fr;gap:48px;padding-top:24px">
+   <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;gap:36px">
+     <div class="mic" data-co="1"><svg class="ic " width="160" height="160" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 15a4 4 0 0 0 4-4V6a4 4 0 1 0-8 0v5a4 4 0 0 0 4 4Z"/><path d="M19 11a7 7 0 0 1-14 0"/><path d="M12 18v3"/></svg></div>
+     <div style="font-size:36px;font-weight:600">눌러서 말하기</div>
+     <div class="muted" style="text-align:center">“방금 지난 가게 저장해줘”<br>“뭐 먹을까”</div>
+   </div>
+   <div style="display:flex;flex-direction:column;gap:32px;justify-content:center">
+     <div class="btn big" data-co="2"><svg class="ic " width="44" height="44" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 2v7c0 1.1.9 2 2 2h4a2 2 0 0 0 2-2V2"/><path d="M7 2v20"/><path d="M21 15V2a5 5 0 0 0-5 5v6c0 1.1.9 2 2 2h3Zm0 0v7"/></svg> 뭐 먹을까</div>
+     <div class="btn big" data-co="3"><svg class="ic " width="44" height="44" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 6h13"/><path d="M8 12h13"/><path d="M8 18h13"/><path d="M3 6h.01"/><path d="M3 12h.01"/><path d="M3 18h.01"/></svg> 내 맛집 <span class="muted" style="font-weight:400;font-size:28px">12</span></div>
+     <div class="card" data-co="4" style="display:flex;align-items:center;gap:24px;padding:28px 32px">
+       <svg class="ic muted" width="44" height="44" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg>
+       <div style="flex:1"><div class="small muted">최근 저장</div><div style="font-size:32px;font-weight:600">서울갈비</div></div>
+       <span class="chip warn">미확인</span>
+     </div>
+   </div>
+ </div>
+ </div></div><div class="cap">1280×1080 기준, 50% 축소</div></div><div class="spec"><div class="tbl"><table><thead><tr><th></th><th>요소</th><th>내용</th><th>동작</th></tr></thead><tbody><tr><td><span class="co">1</span></td><td>말하기 버튼</td><td>360dp 원형, 화면의 유일한 1순위 동작</td><td>누르면 S-02. 주행 중에도 사용</td></tr><tr><td><span class="co">2</span></td><td>뭐 먹을까</td><td>추천 바로가기</td><td>누르면 S-06</td></tr><tr><td><span class="co">3</span></td><td>내 맛집</td><td>저장 개수 표시</td><td>정차 중 S-07, 주행 중 S-12</td></tr><tr><td><span class="co">4</span></td><td>최근 저장</td><td>마지막으로 저장한 가게 1건, 상태 칩(미확인/저장됨)</td><td>누르면 S-08 (미확인이면 S-09)</td></tr><tr><td><span class="co">5</span></td><td>설정</td><td></td><td>S-11</td></tr></tbody></table></div><p class="note">주행 중 화면은 버튼 4개가 전부다. 글자 최소 28dp, 터치 최소 88dp.</p></div></div><h3 id="S-02">S-02 듣는 중 <span class="meta" style="font-weight:400;font-size:.8em">· 주행 중 · F-01, F-03</span></h3><div class="screen"><div><div class="shot"><div class="frame">
+ <div class="top" style="border-bottom:0"><div style="width:16px"></div><div class="title">다음에 가게</div></div>
+ <div class="overlay"></div>
+ <div class="card" style="position:absolute;left:160px;top:200px;width:960px;height:640px;display:flex;flex-direction:column;align-items:center;justify-content:space-between;padding:48px">
+   <div class="h48 copad" data-co="1">듣고 있어요</div>
+   <div class="wave" data-co="2"><i style="height:28px"></i><i style="height:56px"></i><i style="height:96px"></i><i style="height:120px"></i><i style="height:80px"></i><i style="height:44px"></i><i style="height:104px"></i><i style="height:72px"></i><i style="height:36px"></i><i style="height:88px"></i><i style="height:112px"></i><i style="height:60px"></i><i style="height:32px"></i><i style="height:76px"></i><i style="height:100px"></i><i style="height:52px"></i><i style="height:24px"></i></div>
+   <div style="font-size:40px;text-align:center;min-height:120px" data-co="3">방금 지난 빨간 간판 고깃집<span class="muted">…</span></div>
+   <div class="btn" data-co="4" style="width:320px"><svg class="ic " width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg> 취소</div>
+ </div>
+ </div></div><div class="cap">1280×1080 기준, 50% 축소</div></div><div class="spec"><div class="tbl"><table><thead><tr><th></th><th>요소</th><th>내용</th><th>동작</th></tr></thead><tbody><tr><td><span class="co">1</span></td><td>상태 문구</td><td>듣고 있어요 → 알아듣는 중… 순서로 바뀜</td><td></td></tr><tr><td><span class="co">2</span></td><td>소리 막대</td><td>마이크 입력에 따라 움직임</td><td></td></tr><tr><td><span class="co">3</span></td><td>인식 중 문장</td><td>STT 부분 결과를 실시간 표시 (40dp)</td><td>말이 끝나면 1.5초 뒤 자동 종료</td></tr><tr><td><span class="co">4</span></td><td>취소</td><td>녹음 중단, 홈으로</td><td></td></tr></tbody></table></div><p class="note">홈 위에 겹치는 레이어. 대답(예/아니요)을 기다릴 때도 같은 레이어를 쓴다.</p></div></div><h3 id="S-03">S-03 확인 <span class="meta" style="font-weight:400;font-size:.8em">· 주행 중 · F-04, F-05</span></h3><div class="screen"><div><div class="shot"><div class="frame">
+ <div class="body full" style="display:flex;flex-direction:column;align-items:center;gap:40px;padding-top:72px">
+   <div class="h48 copad" data-co="1">이 가게 맞나요?</div>
+   <div class="card" data-co="2" style="width:1000px;height:400px;display:flex;flex-direction:column;justify-content:center;gap:20px;padding:48px 56px">
+     <div class="h64">서울갈비</div>
+     <div style="font-size:32px">고깃집 · 120m 뒤 · 오른쪽</div>
+     <div class="muted">서울 강남구 강남대로 123</div>
+   </div>
+   <div style="display:flex;gap:48px">
+     <div class="btn primary" data-co="3" style="width:480px;height:136px;font-size:40px"><svg class="ic " width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m5 12 5 5L20 7"/></svg> 예</div>
+     <div class="btn" data-co="4" style="width:480px;height:136px;font-size:40px">아니요</div>
+   </div>
+   <div class="hint" data-co="5" style="display:flex;align-items:center;justify-content:center;gap:20px"><span class="ring"></span>5초 안에 대답이 없으면 위치만 저장해요</div>
+ </div>
+ </div></div><div class="cap">1280×1080 기준, 50% 축소</div></div><div class="spec"><div class="tbl"><table><thead><tr><th></th><th>요소</th><th>내용</th><th>동작</th></tr></thead><tbody><tr><td><span class="co">1</span></td><td>질문</td><td>TTS로 같은 문장을 읽음</td><td></td></tr><tr><td><span class="co">2</span></td><td>후보 카드</td><td>가게 이름 64dp, 업종·거리·방향, 주소</td><td>1순위 후보 1개만</td></tr><tr><td><span class="co">3</span></td><td>예</td><td>저장 → S-04 (저장했어요)</td><td>음성 “응·맞아”와 같음</td></tr><tr><td><span class="co">4</span></td><td>아니요</td><td>2순위가 있으면 카드만 바뀜(1회), 없으면 S-04 (미확인)</td><td>음성 “아니”와 같음</td></tr><tr><td><span class="co">5</span></td><td>대기 표시</td><td>5초 카운트다운</td><td>시간 지나면 미확인 저장</td></tr></tbody></table></div></div></div><h3 id="S-04">S-04 저장 완료 <span class="meta" style="font-weight:400;font-size:.8em">· 주행 중 · F-06</span></h3><div class="screen"><div><div class="shot"><div class="frame">
+ <div class="top" style="border-bottom:0"><div style="width:16px"></div><div class="title">다음에 가게</div><div class="iconbtn"><svg class="ic " width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1Z"/></svg></div></div>
+ <div class="body" style="display:grid;grid-template-columns:600px 1fr;gap:48px;padding-top:24px;opacity:.55">
+   <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;gap:36px">
+     <div class="mic"><svg class="ic " width="160" height="160" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 15a4 4 0 0 0 4-4V6a4 4 0 1 0-8 0v5a4 4 0 0 0 4 4Z"/><path d="M19 11a7 7 0 0 1-14 0"/><path d="M12 18v3"/></svg></div><div style="font-size:36px;font-weight:600">눌러서 말하기</div><div class="muted">&nbsp;</div>
+   </div>
+   <div style="display:flex;flex-direction:column;gap:32px;justify-content:center">
+     <div class="btn big"><svg class="ic " width="44" height="44" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 2v7c0 1.1.9 2 2 2h4a2 2 0 0 0 2-2V2"/><path d="M7 2v20"/><path d="M21 15V2a5 5 0 0 0-5 5v6c0 1.1.9 2 2 2h3Zm0 0v7"/></svg> 뭐 먹을까</div><div class="btn big"><svg class="ic " width="44" height="44" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 6h13"/><path d="M8 12h13"/><path d="M8 18h13"/><path d="M3 6h.01"/><path d="M3 12h.01"/><path d="M3 18h.01"/></svg> 내 맛집</div>
+     <div class="card" style="height:120px"></div>
+   </div>
+ </div>
+ <div class="toast" data-co="1" style="top:300px"><svg class="ic ok" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m5 12 5 5L20 7"/></svg><span>저장했어요 · 서울갈비</span></div>
+ <div class="toast" data-co="2" style="top:460px;height:150px;align-items:flex-start;padding-top:28px;flex-direction:column;gap:8px">
+   <div style="display:flex;gap:24px;align-items:center"><svg class="ic muted" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg><span>위치를 기억해 둘게요</span></div>
+   <div class="muted small" style="font-weight:400;padding-left:72px">멈추면 어느 가게인지 확인해 주세요</div>
+ </div>
+ </div></div><div class="cap">1280×1080 기준, 50% 축소</div></div><div class="spec"><div class="tbl"><table><thead><tr><th></th><th>요소</th><th>내용</th><th>동작</th></tr></thead><tbody><tr><td><span class="co">1</span></td><td>저장 토스트</td><td>가게 이름 포함, 4초 뒤 사라짐</td><td>TTS “저장했어요”</td></tr><tr><td><span class="co">2</span></td><td>미확인 토스트</td><td>후보 없음·오프라인·두 번 아니요일 때</td><td>TTS “위치를 기억해 둘게요”</td></tr></tbody></table></div><p class="note">두 토스트는 동시에 뜨지 않는다. 그림은 두 가지 모양을 한 번에 보여 준 것.</p></div></div><h3 id="S-05">S-05 리마인드 <span class="meta" style="font-weight:400;font-size:.8em">· 주행 중 · F-08, F-10</span></h3><div class="screen"><div><div class="shot"><div class="frame">
+ <div class="body full" style="padding:0">
+   <div class="mapph" style="position:absolute;inset:0;border:0;border-radius:0"><div class="lab bot">현재 화면 (내비 등)</div></div>
+   <div class="card" data-co="1" style="position:absolute;left:48px;right:48px;top:48px;height:300px;display:flex;align-items:center;gap:32px;padding:36px 40px;background:#151B26">
+     <svg class="ic " width="72" height="72" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg>
+     <div style="flex:1">
+       <div class="h40">지난주에 저장한 서울갈비</div>
+       <div style="font-size:32px;margin-top:8px">300m 앞 · 오른쪽</div>
+       <div class="muted small" style="margin-top:12px">“응”이라고 말해도 돼요</div>
+     </div>
+     <div class="btn primary big" data-co="2" style="width:300px"><svg class="ic " width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m3 11 19-9-9 19-2-8Z"/></svg> 안내 시작</div>
+     <div class="btn big" data-co="3" style="width:200px">닫기</div>
+   </div>
+ </div>
+ </div></div><div class="cap">1280×1080 기준, 50% 축소</div></div><div class="spec"><div class="tbl"><table><thead><tr><th></th><th>요소</th><th>내용</th><th>동작</th></tr></thead><tbody><tr><td><span class="co">1</span></td><td>알림 카드</td><td>가게 이름·저장 시기·거리·방향. TTS로 “…300m 앞이에요. 갈까요?”</td><td>10초 뒤 자동으로 닫힘</td></tr><tr><td><span class="co">2</span></td><td>안내 시작</td><td>내비 목적지 설정 (requestRoute)</td><td>음성 “응”과 같음</td></tr><tr><td><span class="co">3</span></td><td>닫기</td><td>오늘은 다시 알리지 않음</td><td>음성 “아니”·무응답과 같음</td></tr></tbody></table></div><p class="note">차량 알림(heads-up) 형태. 같은 가게는 하루 1회.</p></div></div><h3 id="S-06">S-06 추천 <span class="meta" style="font-weight:400;font-size:.8em">· 주행 중 · 정차 중 · F-09, F-10</span></h3><div class="screen"><div><div class="shot"><div class="frame">
+ <div class="top"><div class="iconbtn" data-co="b"><svg class="ic " width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m15 5-7 7 7 7"/></svg></div><div class="title">뭐 먹을까</div></div>
+ <div class="body" style="display:flex;flex-direction:column;gap:40px;align-items:center;padding-top:40px">
+   <div style="display:flex;gap:40px">
+     <div class="card" data-co="1" style="width:368px;height:640px;display:flex;flex-direction:column;gap:20px;padding:36px 32px">
+      <div class="num">1</div>
+      <div class="h40">서울갈비</div>
+      <div style="font-size:28px">고깃집 · 1.2km</div>
+      <div class="muted small" style="flex:1">저장 11월 2일 · 안 가 봄</div>
+      <div class="btn primary" data-co="2"><svg class="ic " width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m3 11 19-9-9 19-2-8Z"/></svg> 안내 시작</div>
+    </div>
+     <div class="card" style="width:368px;height:640px;display:flex;flex-direction:column;gap:20px;padding:36px 32px">
+      <div class="num">2</div>
+      <div class="h40">카페 노을</div>
+      <div style="font-size:28px">카페 · 2.0km</div>
+      <div class="muted small" style="flex:1">방문 1회 · “괜찮았어”</div>
+      <div class="btn primary"><svg class="ic " width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m3 11 19-9-9 19-2-8Z"/></svg> 안내 시작</div>
+    </div>
+     <div class="card" style="width:368px;height:640px;display:flex;flex-direction:column;gap:20px;padding:36px 32px">
+      <div class="num">3</div>
+      <div class="h40">국밥집</div>
+      <div style="font-size:28px">국밥 · 3.4km</div>
+      <div class="muted small" style="flex:1">저장 10월 28일</div>
+      <div class="btn primary"><svg class="ic " width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m3 11 19-9-9 19-2-8Z"/></svg> 안내 시작</div>
+    </div>
+   </div>
+   <div class="btn" data-co="3" style="width:400px">다른 곳 추천</div>
+ </div>
+ </div></div><div class="cap">1280×1080 기준, 50% 축소</div></div><div class="spec"><div class="tbl"><table><thead><tr><th></th><th>요소</th><th>내용</th><th>동작</th></tr></thead><tbody><tr><td><span class="co">1</span></td><td>추천 카드 3장</td><td>번호·이름·업종·거리·메모. TTS는 번호와 이름만 읽음</td><td>“2번” 또는 이름을 말하면 선택</td></tr><tr><td><span class="co">2</span></td><td>안내 시작</td><td>카드별 1개, 내비 목적지 설정</td><td>선택 뒤 홈으로</td></tr><tr><td><span class="co">3</span></td><td>다른 곳 추천</td><td>다음 순위 3곳으로 교체</td><td>최대 2회</td></tr><tr><td><span class="co">←</span></td><td>뒤로</td><td>홈</td><td></td></tr></tbody></table></div></div></div><h3 id="S-07">S-07 내 맛집 <span class="meta" style="font-weight:400;font-size:.8em">· 정차 중 · F-12, F-07, F-13</span></h3><div class="screen"><div><div class="shot"><div class="frame">
+ <div class="top"><div class="iconbtn" data-co="b"><svg class="ic " width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m15 5-7 7 7 7"/></svg></div><div class="title">내 맛집</div><div class="textbtn" data-co="4"><svg class="ic " width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"/><path d="m16 6-4-4-4 4"/><path d="M12 2v13"/></svg> 공유</div></div>
+ <div class="body" style="display:grid;grid-template-columns:560px 1fr;gap:40px;padding:32px 48px">
+   <div style="display:flex;flex-direction:column;gap:20px;min-height:0">
+     <div style="display:flex;gap:12px" data-co="1"><span class="chip on">전체 12</span><span class="chip">미확인 3</span><span class="chip">방문 4</span><span class="chip">가까운 순</span></div>
+     <div data-co="2" style="padding-top:8px"><div style="overflow:hidden">
+       <div class="row sel"><svg class="ic muted" width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg><div style="flex:1"><div class="name">서울갈비</div><div class="muted small">고깃집 · 1.2km · 11월 2일</div></div><span class="chip warn">미확인</span></div>
+       <div class="row"><svg class="ic muted" width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg><div style="flex:1"><div class="name">카페 노을</div><div class="muted small">카페 · 2.0km · 방문 1회</div></div><span class="chip ok">방문</span></div>
+       <div class="row"><svg class="ic muted" width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg><div style="flex:1"><div class="name">국밥집</div><div class="muted small">국밥 · 3.4km · 10월 28일</div></div></div>
+       <div class="row"><svg class="ic muted" width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg><div style="flex:1"><div class="name">빵집 (이름 없음)</div><div class="muted small">4.1km · 10월 25일</div></div><span class="chip warn">미확인</span></div>
+       <div class="row"><svg class="ic muted" width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg><div style="flex:1"><div class="name">할머니 손칼국수</div><div class="muted small">칼국수 · 6.8km · 방문 2회</div></div><span class="chip ok">방문</span></div>
+       <div class="row"><svg class="ic muted" width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg><div style="flex:1"><div class="name">파스타 집</div><div class="muted small">양식 · 8.2km · 10월 12일</div></div></div>
+     </div></div>
+   </div>
+   <div class="mapph" data-co="3" style="height:100%">
+     <div class="lab">지도</div>
+     <div class="pin me" style="left:320px;top:420px"><svg class="ic " width="56" height="56" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m3 11 19-9-9 19-2-8Z"/></svg></div>
+     <div class="pin" style="left:420px;top:300px"><svg class="ic " width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg></div>
+     <div class="pin" style="left:180px;top:220px"><svg class="ic " width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg></div>
+     <div class="pin" style="left:520px;top:560px"><svg class="ic " width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg></div>
+     <div class="pin" style="left:140px;top:640px;color:#F59E0B"><svg class="ic " width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg></div>
+   </div>
+ </div>
+ </div></div><div class="cap">1280×1080 기준, 50% 축소</div></div><div class="spec"><div class="tbl"><table><thead><tr><th></th><th>요소</th><th>내용</th><th>동작</th></tr></thead><tbody><tr><td><span class="co">1</span></td><td>필터 칩</td><td>전체 / 미확인 / 방문, 정렬(가까운 순·최근 저장 순)</td><td></td></tr><tr><td><span class="co">2</span></td><td>가게 목록</td><td>이름·업종·거리·저장일 또는 방문 횟수·상태 칩, 줄 높이 104dp</td><td>누르면 S-08, 미확인은 S-09</td></tr><tr><td><span class="co">3</span></td><td>지도</td><td>저장 가게 핀(파랑), 미확인 핀(주황), 내 위치</td><td>핀을 누르면 목록에서 선택됨. 프로토타입은 이 자리가 비어 있을 수 있음</td></tr><tr><td><span class="co">4</span></td><td>공유</td><td>S-10</td><td></td></tr><tr><td><span class="co">←</span></td><td>뒤로</td><td>홈</td><td></td></tr></tbody></table></div><p class="note">주행 중에 열면 S-12가 대신 뜬다.</p></div></div><h3 id="S-08">S-08 가게 상세 <span class="meta" style="font-weight:400;font-size:.8em">· 정차 중 · F-10, F-11, F-12</span></h3><div class="screen"><div><div class="shot"><div class="frame">
+ <div class="top"><div class="iconbtn" data-co="b"><svg class="ic " width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m15 5-7 7 7 7"/></svg></div><div class="title">서울갈비</div><div class="iconbtn" data-co="4"><svg class="ic " width="44" height="44" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M17 3a2.8 2.8 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z"/></svg></div></div>
+ <div class="body" style="display:grid;grid-template-columns:1fr 480px;grid-template-rows:1fr auto;gap:40px;padding:40px 48px">
+   <div style="display:flex;flex-direction:column;gap:28px;padding:20px 0 0 24px" data-co="1">
+     <div style="font-size:32px">고깃집 · 1.2km</div>
+     <div class="muted">서울 강남구 강남대로 123</div>
+     <div style="display:flex;gap:12px"><span class="chip">저장 11월 2일</span><span class="chip ok">방문 1회</span></div>
+     <div class="card" style="padding:24px 28px"><div class="small muted">메모</div><div style="font-size:32px">줄 서 있던 집, 괜찮았어</div></div>
+     <div class="muted small">저장할 때 한 말 · “방금 지난 빨간 간판 고깃집 저장해줘”</div>
+   </div>
+   <div class="mapph" data-co="2"><div class="lab">위치</div><div class="pin" style="left:200px;top:140px"><svg class="ic " width="72" height="72" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg></div></div>
+   <div style="grid-column:1 / -1;display:flex;gap:24px;align-items:center">
+     <div class="btn primary big" data-co="3" style="width:400px"><svg class="ic " width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m3 11 19-9-9 19-2-8Z"/></svg> 안내 시작</div>
+     <div class="btn big" style="width:380px"><svg class="ic " width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"/><path d="m16 6-4-4-4 4"/><path d="M12 2v13"/></svg> 공유에 담기</div>
+     <div style="flex:1"></div>
+     <div class="btn big danger" data-co="5" style="width:200px"><svg class="ic " width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 6h18"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg> 삭제</div>
+   </div>
+ </div>
+ </div></div><div class="cap">1280×1080 기준, 50% 축소</div></div><div class="spec"><div class="tbl"><table><thead><tr><th></th><th>요소</th><th>내용</th><th>동작</th></tr></thead><tbody><tr><td><span class="co">1</span></td><td>정보</td><td>업종·거리·주소·저장일·방문 횟수·메모·저장할 때 한 말</td><td></td></tr><tr><td><span class="co">2</span></td><td>위치 지도</td><td>핀 1개</td><td></td></tr><tr><td><span class="co">3</span></td><td>안내 시작</td><td>내비 목적지 설정</td><td>공유에 담기: S-10 목록에 추가</td></tr><tr><td><span class="co">4</span></td><td>수정</td><td>이름·업종·메모 수정, 후보 다시 고르기(S-09)</td><td></td></tr><tr><td><span class="co">5</span></td><td>삭제</td><td>확인 창 1번 뒤 삭제, 4초 안에 되돌리기 토스트</td><td>다른 버튼과 떨어뜨려 배치</td></tr></tbody></table></div></div></div><h3 id="S-09">S-09 미확인 가게 정리 <span class="meta" style="font-weight:400;font-size:.8em">· 정차 중 · F-07</span></h3><div class="screen"><div><div class="shot"><div class="frame">
+ <div class="top"><div class="iconbtn" data-co="b"><svg class="ic " width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m15 5-7 7 7 7"/></svg></div><div class="title">어느 가게였나요?</div></div>
+ <div class="body" style="display:grid;grid-template-columns:1fr 1fr;gap:40px;padding:32px 48px">
+   <div style="display:flex;flex-direction:column;gap:24px">
+     <div class="card" data-co="1" style="padding:28px 32px"><div class="small muted">11월 7일 18:42 · 강남대로 (북쪽으로 이동 중)</div><div style="font-size:32px;margin-top:8px">“방금 지난 빨간 간판 고깃집 저장해줘”</div></div>
+     <div class="mapph" style="flex:1"><div class="lab">그때 위치</div><div class="pin me" style="left:260px;top:260px"><svg class="ic " width="56" height="56" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m3 11 19-9-9 19-2-8Z"/></svg></div><div class="pin" style="left:330px;top:200px"><svg class="ic " width="56" height="56" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg></div><div class="pin" style="left:380px;top:320px"><svg class="ic " width="56" height="56" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg></div><div class="pin" style="left:190px;top:340px"><svg class="ic " width="56" height="56" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg></div></div>
+   </div>
+   <div style="display:flex;flex-direction:column;gap:24px">
+     <div data-co="2">
+       <div class="row sel" style="height:112px"><div class="radio on"></div><div style="flex:1"><div class="name">서울갈비</div><div class="muted small">고깃집 · 80m 오른쪽</div></div></div>
+       <div class="row" style="height:112px"><div class="radio"></div><div style="flex:1"><div class="name">명품갈비</div><div class="muted small">고깃집 · 140m 오른쪽</div></div></div>
+       <div class="row" style="height:112px"><div class="radio"></div><div style="flex:1"><div class="name">왕돼지</div><div class="muted small">고깃집 · 160m 왼쪽</div></div></div>
+       <div class="row" style="height:112px"><div class="radio"></div><div style="flex:1"><div class="name">빨간모자 치킨</div><div class="muted small">치킨 · 90m 오른쪽</div></div></div>
+       <div class="row" style="height:112px"><div class="radio"></div><div style="flex:1"><div class="name">강남 정육식당</div><div class="muted small">고깃집 · 210m 오른쪽</div></div></div>
+     </div>
+     <div style="flex:1"></div>
+     <div class="btn primary big" data-co="3"><svg class="ic " width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m5 12 5 5L20 7"/></svg> 이걸로 저장</div>
+     <div style="display:flex;gap:24px"><div class="btn" data-co="4" style="flex:1"><svg class="ic " width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg> 직접 검색</div><div class="btn danger" data-co="5" style="width:200px">삭제</div></div>
+   </div>
+ </div>
+ </div></div><div class="cap">1280×1080 기준, 50% 축소</div></div><div class="spec"><div class="tbl"><table><thead><tr><th></th><th>요소</th><th>내용</th><th>동작</th></tr></thead><tbody><tr><td><span class="co">1</span></td><td>그때 상황</td><td>저장 시각·위치·진행 방향·말한 문장</td><td>판단 근거</td></tr><tr><td><span class="co">2</span></td><td>후보 5곳</td><td>가까운 순, 업종·거리·좌우. 기본 선택은 1순위</td><td>하나 고르면 지도 핀도 강조</td></tr><tr><td><span class="co">3</span></td><td>이걸로 저장</td><td>선택한 후보로 확정 → S-08</td><td></td></tr><tr><td><span class="co">4</span></td><td>직접 검색</td><td>이름으로 검색해 고르기 (정차 중 키보드)</td><td></td></tr><tr><td><span class="co">5</span></td><td>삭제</td><td>기록 삭제, 되돌리기 토스트</td><td></td></tr></tbody></table></div></div></div><h3 id="S-10">S-10 맛집 지도 공유 <span class="meta" style="font-weight:400;font-size:.8em">· 정차 중 · F-13</span></h3><div class="screen"><div><div class="shot"><div class="frame">
+ <div class="top"><div class="iconbtn" data-co="b"><svg class="ic " width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m15 5-7 7 7 7"/></svg></div><div class="title">맛집 지도 공유</div></div>
+ <div class="body" style="display:grid;grid-template-columns:520px 1fr;gap:48px;padding:32px 48px">
+   <div style="display:flex;flex-direction:column;gap:16px">
+     <div style="display:flex;align-items:center;gap:16px;padding-left:4px" data-co="1"><span class="chip on">전체 선택</span><span class="muted small">7곳 선택됨 · 미확인 가게는 뺌</span></div>
+     <div>
+       <div class="row" style="height:96px"><div class="check on"><svg class="ic " width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m5 12 5 5L20 7"/></svg></div><div style="flex:1"><div class="name">서울갈비</div><div class="muted small">고깃집</div></div></div><div class="row" style="height:96px"><div class="check on"><svg class="ic " width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m5 12 5 5L20 7"/></svg></div><div style="flex:1"><div class="name">카페 노을</div><div class="muted small">카페 · 방문 1회</div></div></div><div class="row" style="height:96px"><div class="check on"><svg class="ic " width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m5 12 5 5L20 7"/></svg></div><div style="flex:1"><div class="name">국밥집</div><div class="muted small">국밥</div></div></div><div class="row" style="height:96px"><div class="check on"><svg class="ic " width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m5 12 5 5L20 7"/></svg></div><div style="flex:1"><div class="name">할머니 손칼국수</div><div class="muted small">칼국수 · 방문 2회</div></div></div><div class="row" style="height:96px"><div class="check on"><svg class="ic " width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m5 12 5 5L20 7"/></svg></div><div style="flex:1"><div class="name">파스타 집</div><div class="muted small">양식</div></div></div><div class="row" style="height:96px"><div class="check"></div><div style="flex:1"><div class="name">두부마을</div><div class="muted small">한식</div></div></div>
+     </div>
+   </div>
+   <div style="display:flex;flex-direction:column;gap:28px">
+     <div><div class="small muted" style="margin-bottom:8px">제목</div><div class="input" data-co="2">재원의 강릉 맛집 7곳</div></div>
+     <div style="display:flex;gap:32px;align-items:center">
+       <div class="qr" data-co="3" style="width:240px;height:240px"></div>
+       <div style="flex:1;display:flex;flex-direction:column;gap:20px">
+         <div class="muted small" style="word-break:break-all">nextplace.app/s/8Kd2…</div>
+         <div class="btn primary" data-co="4">링크 복사</div>
+         <div class="btn"><svg class="ic " width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"/><path d="m16 6-4-4-4 4"/><path d="M12 2v13"/></svg> 보내기</div>
+       </div>
+     </div>
+     <div class="card" data-co="5" style="padding:24px 28px"><div class="small muted">받는 사람 화면</div><div style="font-size:28px;margin-top:6px">링크를 열면 가게 목록이 보이고, 앱이 있으면 <b>내 지도에 추가</b> 버튼이 뜬다.</div></div>
+   </div>
+ </div>
+ </div></div><div class="cap">1280×1080 기준, 50% 축소</div></div><div class="spec"><div class="tbl"><table><thead><tr><th></th><th>요소</th><th>내용</th><th>동작</th></tr></thead><tbody><tr><td><span class="co">1</span></td><td>가게 고르기</td><td>체크 목록, 전체 선택. 미확인 가게는 목록에 없음</td><td></td></tr><tr><td><span class="co">2</span></td><td>제목</td><td>기본값 “이름의 맛집 N곳”, 정차 중 키보드로 수정</td><td></td></tr><tr><td><span class="co">3</span></td><td>QR</td><td>동승자가 폰으로 바로 찍음</td><td></td></tr><tr><td><span class="co">4</span></td><td>링크 복사 / 보내기</td><td>보내기는 차량의 다른 앱(문자 등)으로 전달. 링크에 가게 이름·업종·주소·좌표·메모만 담김</td><td>방문 기록·차량 위치는 안 들어감</td></tr><tr><td><span class="co">5</span></td><td>받는 사람</td><td>웹 목록 → 앱 있으면 내 지도에 추가</td><td></td></tr></tbody></table></div></div></div><h3 id="S-11">S-11 설정 <span class="meta" style="font-weight:400;font-size:.8em">· 정차 중 · F-15</span></h3><div class="screen"><div><div class="shot"><div class="frame">
+ <div class="top"><div class="iconbtn" data-co="b"><svg class="ic " width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m15 5-7 7 7 7"/></svg></div><div class="title">설정</div></div>
+ <div class="body" style="padding:24px 48px;display:flex;flex-direction:column">
+   <div class="row" data-co="1" style="height:112px;"><div class="name" style="flex:1">리마인드</div><div class="toggle"></div></div>
+   <div class="row" data-co="2" style="height:112px;"><div class="name" style="flex:1">알림 거리</div><div class="seg"><div>300m</div><div class="on">500m</div><div>1km</div></div></div>
+   <div class="row" data-co="3" style="height:112px;"><div class="name" style="flex:1">식사 시간에만 알림</div><div class="toggle"></div></div>
+   <div class="row" data-co="4" style="height:112px;"><div class="name" style="flex:1">음성 안내 음량</div><div style="display:flex;align-items:center;gap:24px;width:480px"><svg class="ic muted" width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M11 5 6 9H2v6h4l5 4Z"/><path d="M15.5 8.5a5 5 0 0 1 0 7"/><path d="M19 5a9 9 0 0 1 0 14"/></svg><div class="slider"></div></div></div>
+   <div class="row" style="height:112px;"><div class="name" style="flex:1">가게를 특정할 때 쓰는 시간</div><div class="seg"><div>10초</div><div class="on">20초</div><div>30초</div></div></div>
+   <div style="flex:1"></div>
+   <div class="row" data-co="5" style="height:112px;color:#F87171"><div class="name" style="flex:1" style="color:#F87171">저장한 가게 모두 삭제</div><div class="btn danger" style="height:72px">삭제</div></div>
+   <div class="muted small" style="padding:16px 24px 0">버전 0.1 · 저장 가게와 방문 기록은 이 차 안에만 보관</div>
+ </div>
+ </div></div><div class="cap">1280×1080 기준, 50% 축소</div></div><div class="spec"><div class="tbl"><table><thead><tr><th></th><th>요소</th><th>내용</th><th>동작</th></tr></thead><tbody><tr><td><span class="co">1</span></td><td>리마인드</td><td>켜기/끄기</td><td></td></tr><tr><td><span class="co">2</span></td><td>알림 거리</td><td>300m / 500m / 1km</td><td></td></tr><tr><td><span class="co">3</span></td><td>식사 시간에만 알림</td><td>11~14시, 17~20시</td><td></td></tr><tr><td><span class="co">4</span></td><td>음성 안내 음량</td><td></td><td></td></tr><tr><td><span class="co">5</span></td><td>모두 삭제</td><td>확인 창 뒤 삭제. 다른 항목과 떨어뜨림</td><td></td></tr></tbody></table></div></div></div><h3 id="S-12">S-12 주행 중 안내 <span class="meta" style="font-weight:400;font-size:.8em">· 주행 중 · F-14</span></h3><div class="screen"><div><div class="shot"><div class="frame">
+ <div class="top"><div class="iconbtn" data-co="b"><svg class="ic " width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m15 5-7 7 7 7"/></svg></div><div class="title">내 맛집</div></div>
+ <div class="body" style="display:flex;flex-direction:column;align-items:center;justify-content:center;gap:40px">
+   <div data-co="1" style="display:flex;flex-direction:column;align-items:center;gap:24px"><svg class="ic muted" width="120" height="120" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 17H3v-5l2-5h14l2 5v5h-2"/><circle cx="7.5" cy="17.5" r="2.5"/><circle cx="16.5" cy="17.5" r="2.5"/><path d="M5 12h14"/></svg><div class="h48">멈추면 볼 수 있어요</div><div class="muted" style="font-size:32px">주행 중에는 음성으로 이용해 주세요</div></div>
+   <div class="btn primary" data-co="2" style="width:400px;height:112px;font-size:36px"><svg class="ic " width="44" height="44" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 15a4 4 0 0 0 4-4V6a4 4 0 1 0-8 0v5a4 4 0 0 0 4 4Z"/><path d="M19 11a7 7 0 0 1-14 0"/><path d="M12 18v3"/></svg> 말하기</div>
+ </div>
+ </div></div><div class="cap">1280×1080 기준, 50% 축소</div></div><div class="spec"><div class="tbl"><table><thead><tr><th></th><th>요소</th><th>내용</th><th>동작</th></tr></thead><tbody><tr><td><span class="co">1</span></td><td>안내</td><td>정차(주차 브레이크 또는 속도 0)하면 원래 화면으로 자동 전환</td><td></td></tr><tr><td><span class="co">2</span></td><td>말하기</td><td>S-02</td><td></td></tr></tbody></table></div></div></div><h2 id="states">6. 상태와 예외 화면</h2><div class="tbl"><table><thead><tr><th>상황</th><th>보이는 것</th><th>문구</th></tr></thead><tbody><tr><td>저장 가게 0개</td><td>S-07 목록 자리에 안내 + 말하기 버튼</td><td>“아직 저장한 가게가 없어요. 운전하다 말해 보세요.”</td></tr><tr><td>인식 실패</td><td>S-02 문구 교체 후 1회 재시도</td><td>“다시 한 번 말해 주세요”</td></tr><tr><td>인터넷 없음</td><td>S-03 없이 S-04 미확인 토스트</td><td>“위치를 기억해 둘게요”</td></tr><tr><td>추천할 가게 없음</td><td>S-06 카드 대신 안내 1줄</td><td>“근처 10km 안에 저장한 가게가 없어요”</td></tr><tr><td>삭제 뒤</td><td>토스트 + 되돌리기 버튼 4초</td><td>“삭제했어요 · 되돌리기”</td></tr><tr><td>처음 실행</td><td>S-01 위에 안내 카드 1장 (위치·음성 사용 고지)</td><td>“차 안에만 저장돼요” + 확인 버튼</td></tr></tbody></table></div><h2 id="next">7. 확인이 필요한 사항</h2><ul><li>캔버스 1280×1080은 가정이다. 에뮬레이터 실제 해상도를 확인하면 비율만 다시 맞춘다.</li><li>S-07 지도는 카카오맵 SDK가 차량에서 뜨는지에 달려 있다. 안 뜨면 프로토타입은 목록만 쓰고 지도 자리는 비워 둔다.</li><li>S-05 리마인드를 앱 밖(내비 화면 위)에 띄우려면 차량 알림 권한이 필요하다. 안 되면 앱이 켜져 있을 때만 띄운다.</li><li>스티어링 휠 음성 버튼 연동은 Pleos SDK에 없어 말하기 버튼은 화면에만 둔다.</li></ul>
+</main></body></html>
