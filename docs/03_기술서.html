@@ -283,7 +283,7 @@ app/ 폴더 트리다(docs/는 지금 문서가 있는 곳).</p>
 │  │  ├─ ui/home/               HomeScreen.kt HomeRoute.kt HomeViewModel.kt HomeUiState.kt HomeAction.kt
 │  │  ├─ ui/listen/             ListenOverlay.kt ListenViewModel.kt ListenUiState.kt ListenAction.kt
 │  │  ├─ ui/confirm/            ConfirmCard.kt ConfirmViewModel.kt ConfirmUiState.kt ConfirmAction.kt
-│  │  ├─ pipeline/              SavePipeline.kt · stage/ (ListenStage CaptureStage ParseStage LocateStage SearchStage RankStage ConfirmStage PersistStage)
+│  │  ├─ pipeline/              SavePipeline.kt · stage/ (CaptureStage ListenStage ParseStage LocateStage SearchStage RankStage ConfirmStage PersistStage)
 │  │  ├─ parse/                 IntentParser.kt SlotExtractor.kt (규칙표는 res/raw/intent_rules.json)
 │  │  ├─ rank/                  CandidateScorer.kt
 │  │  └─ VoiceSaveFeature.kt    등록 객체 (화면·음성 명령·글레오 기능 선언)
@@ -566,10 +566,10 @@ FeatureRegistry에 한 줄 등록.</li>
 ViewModel은 그걸 화면 상태로 바꾸기만 한다. 화면 사이의 이동은 화면
 설계서 3장 흐름도를 그대로 따른다.</p>
 <p><strong>7-1. 음성 저장 (F-01~F-06, 흐름 A)</strong></p>
-<figure class="flow"><svg viewBox="0 0 760 420" role="img" aria-label="저장 파이프라인"><defs><marker id="ah" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path class="arrowhead" d="M0 0L10 5L0 10z"/></marker></defs><text x="24" y="30" font-size="15" font-weight="600">말이 끝난 뒤 2초 안에 되묻고, 실패해도 기록은 남는다</text><text class="quiet" x="24" y="50" font-size="11.5">저장 파이프라인 8단계 · 각 단계의 시간 예산</text><rect class="box" x="24" y="92" width="156" height="64" rx="8"/><text x="102.0" y="116" text-anchor="middle" font-weight="600" font-size="13">1 듣기 Listen</text><text class="quiet" x="102.0" y="134" text-anchor="middle" font-size="11.5">STT · 말 끝나고 1.5초</text><rect class="box" x="204" y="92" width="156" height="64" rx="8"/><text x="282.0" y="116" text-anchor="middle" font-weight="600" font-size="13">2 위치 고정 Capture</text><text class="quiet" x="282.0" y="134" text-anchor="middle" font-size="11.5">버퍼 60초 복사 · 0ms</text><rect class="box" x="384" y="92" width="156" height="64" rx="8"/><text x="462.0" y="116" text-anchor="middle" font-weight="600" font-size="13">3 의도·슬롯 Parse</text><text class="quiet" x="462.0" y="134" text-anchor="middle" font-size="11.5">규칙표 · 50ms 안</text><rect class="box" x="564" y="92" width="156" height="64" rx="8"/><text x="642.0" y="116" text-anchor="middle" font-weight="600" font-size="13">4 지점 추정 Locate</text><text class="quiet" x="642.0" y="134" text-anchor="middle" font-size="11.5">시점·방향 → 좌표 · 10ms</text><rect class="box" x="24" y="212" width="156" height="64" rx="8"/><text x="102.0" y="236" text-anchor="middle" font-weight="600" font-size="13">5 POI 검색 Search</text><text class="quiet" x="102.0" y="254" text-anchor="middle" font-size="11.5">반경 150m · 1.2초 제한</text><rect class="box" x="204" y="212" width="156" height="64" rx="8"/><text x="282.0" y="236" text-anchor="middle" font-weight="600" font-size="13">6 점수 Rank</text><text class="quiet" x="282.0" y="254" text-anchor="middle" font-size="11.5">업종·이름·좌우 · 20ms</text><rect class="box" x="384" y="212" width="156" height="64" rx="8"/><text x="462.0" y="236" text-anchor="middle" font-weight="600" font-size="13">7 되묻기 Confirm</text><text class="quiet" x="462.0" y="254" text-anchor="middle" font-size="11.5">TTS + STT · 대기 5초 × 2</text><rect class="box main" x="564" y="212" width="156" height="64" rx="8"/><text x="642.0" y="236" text-anchor="middle" font-weight="600" font-size="13">8 저장 Persist</text><text class="quiet" x="642.0" y="254" text-anchor="middle" font-size="11.5">Room · TTS 저장했어요</text><g class="edges"><path class="" d="M180 124.0H204" marker-end="url(#ah)"/><path class="" d="M360 124.0H384" marker-end="url(#ah)"/><path class="" d="M540 124.0H564" marker-end="url(#ah)"/><path class="" d="M180 244.0H204" marker-end="url(#ah)"/><path class="" d="M360 244.0H384" marker-end="url(#ah)"/><path class="" d="M540 244.0H564" marker-end="url(#ah)"/><path class="" d="M642.0 156V182H102.0V212" marker-end="url(#ah)"/><path class="dash" d="M102.0 276V306H504V338" marker-end="url(#ah)"/><path class="dash" d="M282.0 276V306" marker-end="url(#ah)"/><path class="dash" d="M462.0 276V338" marker-end="url(#ah)"/></g><text class="quiet" x="110.0" y="296" font-size="11.5">후보 0건 · 오프라인 · 시간 초과</text><text class="quiet" x="470.0" y="296" font-size="11.5">아니 2회 · 5초 무응답</text><text class="quiet" x="720" y="296" text-anchor="end" font-size="11.5">2→7 합계 2초 안</text><rect class="box fail" x="384" y="338" width="336" height="52" rx="8"/><text x="552.0" y="360" text-anchor="middle" font-weight="600">미확인 저장 · 위치와 원문만</text><text class="quiet" x="552.0" y="378" text-anchor="middle" font-size="11.5">TTS 위치를 기억해 둘게요 · 정차 후 S-09에서 정리</text></svg>
+<figure class="flow"><svg viewBox="0 0 760 420" role="img" aria-label="저장 파이프라인"><defs><marker id="ah" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path class="arrowhead" d="M0 0L10 5L0 10z"/></marker></defs><text x="24" y="30" font-size="15" font-weight="600">말이 끝난 뒤 2초 안에 되묻고, 실패해도 기록은 남는다</text><text class="quiet" x="24" y="50" font-size="11.5">저장 파이프라인 8단계 · 위치는 말하기 전에 고정 · 각 단계의 시간 예산</text><rect class="box" x="24" y="92" width="156" height="64" rx="8"/><text x="102.0" y="116" text-anchor="middle" font-weight="600" font-size="13">1 위치 고정 Capture</text><text class="quiet" x="102.0" y="134" text-anchor="middle" font-size="11.5">버튼 누른 순간 · 0ms</text><rect class="box" x="204" y="92" width="156" height="64" rx="8"/><text x="282.0" y="116" text-anchor="middle" font-weight="600" font-size="13">2 듣기 Listen</text><text class="quiet" x="282.0" y="134" text-anchor="middle" font-size="11.5">STT · 말 끝나고 1.5초</text><rect class="box" x="384" y="92" width="156" height="64" rx="8"/><text x="462.0" y="116" text-anchor="middle" font-weight="600" font-size="13">3 의도·슬롯 Parse</text><text class="quiet" x="462.0" y="134" text-anchor="middle" font-size="11.5">규칙표 · 50ms 안</text><rect class="box" x="564" y="92" width="156" height="64" rx="8"/><text x="642.0" y="116" text-anchor="middle" font-weight="600" font-size="13">4 지점 추정 Locate</text><text class="quiet" x="642.0" y="134" text-anchor="middle" font-size="11.5">시점·방향 → 좌표 · 10ms</text><rect class="box" x="24" y="212" width="156" height="64" rx="8"/><text x="102.0" y="236" text-anchor="middle" font-weight="600" font-size="13">5 POI 검색 Search</text><text class="quiet" x="102.0" y="254" text-anchor="middle" font-size="11.5">반경 150m · 1.2초 제한</text><rect class="box" x="204" y="212" width="156" height="64" rx="8"/><text x="282.0" y="236" text-anchor="middle" font-weight="600" font-size="13">6 점수 Rank</text><text class="quiet" x="282.0" y="254" text-anchor="middle" font-size="11.5">업종·이름·좌우 · 20ms</text><rect class="box" x="384" y="212" width="156" height="64" rx="8"/><text x="462.0" y="236" text-anchor="middle" font-weight="600" font-size="13">7 되묻기 Confirm</text><text class="quiet" x="462.0" y="254" text-anchor="middle" font-size="11.5">TTS + STT · 대기 5초 × 2</text><rect class="box main" x="564" y="212" width="156" height="64" rx="8"/><text x="642.0" y="236" text-anchor="middle" font-weight="600" font-size="13">8 저장 Persist</text><text class="quiet" x="642.0" y="254" text-anchor="middle" font-size="11.5">Room · TTS 저장했어요</text><g class="edges"><path class="" d="M180 124.0H204" marker-end="url(#ah)"/><path class="" d="M360 124.0H384" marker-end="url(#ah)"/><path class="" d="M540 124.0H564" marker-end="url(#ah)"/><path class="" d="M180 244.0H204" marker-end="url(#ah)"/><path class="" d="M360 244.0H384" marker-end="url(#ah)"/><path class="" d="M540 244.0H564" marker-end="url(#ah)"/><path class="" d="M642.0 156V182H102.0V212" marker-end="url(#ah)"/><path class="dash" d="M102.0 276V306H504V338" marker-end="url(#ah)"/><path class="dash" d="M282.0 276V306" marker-end="url(#ah)"/><path class="dash" d="M462.0 276V338" marker-end="url(#ah)"/></g><text class="quiet" x="110.0" y="296" font-size="11.5">후보 0건 · 오프라인 · 시간 초과</text><text class="quiet" x="470.0" y="296" font-size="11.5">아니 2회 · 5초 무응답</text><text class="quiet" x="720" y="296" text-anchor="end" font-size="11.5">3→7 합계 2초 안</text><rect class="box fail" x="384" y="338" width="336" height="52" rx="8"/><text x="552.0" y="360" text-anchor="middle" font-weight="600">미확인 저장 · 위치와 원문만</text><text class="quiet" x="552.0" y="378" text-anchor="middle" font-size="11.5">TTS 위치를 기억해 둘게요 · 정차 후 S-09에서 정리</text></svg>
 <figcaption>그림: 저장 파이프라인 · 8단계, 실패 경로 1개</figcaption></figure>
-<p>2~7단계는 말이 끝난 뒤 2초 안에 되묻기가 시작되도록 시간을 나눠 쓴다.
-어느 단계가 실패하든 미확인 저장으로 떨어지므로 기록은 항상 남는다.</p>
+<p>3~7단계는 말이 끝난 뒤 2초 안에 되묻기가 시작되도록 시간을 나눠 쓴다.
+어느 단계가 실패하든 미확인 저장으로 떨어지므로 기록은 항상 남는다. 위치는 말을 듣기 전에 먼저 고정한다(1단계). 말하는 동안 차는 최대 15초(시속 60km면 약 250m) 움직이므로, 그 뒤 단계는 실시간 위치를 다시 읽지 않고 모두 이 '말한 곳' 스냅샷만 쓴다(Konsist: Capture 뒤 Stage는 LocationSource 의존 금지).</p>
 <div class="tbl"><table>
 <thead>
 <tr class="header">
@@ -581,16 +581,16 @@ ViewModel은 그걸 화면 상태로 바꾸기만 한다. 화면 사이의 이�
 </thead>
 <tbody>
 <tr class="odd">
-<td>1 Listen</td>
+<td>1 Capture</td>
+<td>버튼 누른 순간 → 말한 곳(현재 위치·방향) + 위치 버퍼 60건 복사본</td>
+<td>0ms (메모리 복사, 녹음 시작 전)</td>
+<td>위치 없음: 미확인 저장으로 (좌표 null)</td>
+</tr>
+<tr class="even">
+<td>2 Listen</td>
 <td>버튼 → 발화 텍스트 (부분 결과는 화면 S-02a에)</td>
 <td>말 끝나고 1.5초 무음이면 종료, 최대 15초</td>
 <td>빈 문장: "다시 말해 주세요" 1회 (S-02c), 그 뒤 종료</td>
-</tr>
-<tr class="even">
-<td>2 Capture</td>
-<td>버튼 누른 시각 → 위치 버퍼 60건 복사본 + 현재 위치·방향</td>
-<td>0ms (메모리 복사)</td>
-<td>위치 없음: 미확인 저장으로 (좌표 null)</td>
 </tr>
 <tr class="odd">
 <td>3 Parse</td>
@@ -603,7 +603,7 @@ ViewModel은 그걸 화면 상태로 바꾸기만 한다. 화면 사이의 이�
 <td>버퍼 + 시점 슬롯 → 추정 좌표 (방금 = 설정값 N초 전 구간 중점, 기본
 10~20초 · S-11 6번) + 좌우 판정용 진행 방향</td>
 <td>10ms</td>
-<td>버퍼 부족: 현재 위치 사용</td>
+<td>버퍼 부족·시점 단서 없음: 말한 곳 좌표 사용</td>
 </tr>
 <tr class="odd">
 <td>5 Search</td>
@@ -636,7 +636,7 @@ S-04b)</td>
 </tr>
 </tbody>
 </table></div>
-<p>일부 단계는 동시에 돌린다. 1단계에서 부분 결과가 들어오는 동안
+<p>일부 단계는 동시에 돌린다. 2단계에서 부분 결과가 들어오는 동안
 3·4단계를 미리 돌려 두고, 업종이 나오는 순간 5단계 검색을 시작한다.
 그래서 말이 끝났을 때 후보가 이미 와 있는 경우가 많다.</p>
 <p><strong>7-2. 근처 리마인드 (F-08, 흐름 B)</strong></p>
@@ -680,7 +680,7 @@ S-04b)</td>
 </table></div>
 <p><strong>7-3. 추천 (F-09, F-10, 흐름 C)</strong></p>
 <ol type="1">
-<li>후보 수집: 현재 위치 10km 안 저장 가게 (미확인 제외). 격자 색인으로
+<li>위치 고정: 마이크 버튼이나 '뭐 먹을까' 카드를 누른 순간의 위치를 '말한 곳'으로 고정한다(7-1의 Capture 재사용). 거리 점수와 카드의 거리는 모두 이 위치 기준이고, 결과가 나온 뒤에는 다시 계산하지 않아 TTS가 읽은 번호와 카드 순서가 어긋나지 않는다. 후보 수집: 말한 곳 10km 안 저장 가게 (미확인 제외). 격자 색인으로
 1ms 안.</li>
 <li>점수: Rule 4개의 가중 합. 거리 40 · 영업 중(시간대 정보 있을 때만)
 20 · 메모·좋았다는 방문 기록 20 · 마지막 방문 오래될수록 20. 상위
@@ -704,8 +704,7 @@ TTS "한 줄 남길까요?". NOTE 의도만 받는 짧은 Listen 단계 재사�
 <ol type="1">
 <li>글레오가 기능 이름(SAVE_PASSED_PLACE 등)을 action으로 Intent를
 보낸다. GleoActionReceiver가 받아 ACTION_PARAM JSON을 파싱한다.</li>
-<li>같은 SavePipeline에 2단계부터 넣는다. 1단계 Listen 대신
-placeDescription 텍스트가 입력이다. 새 코드는 없다.</li>
+<li>같은 SavePipeline을 쓴다. 1단계 위치 고정은 Intent를 받은 순간에 하고, 2단계 Listen 대신 placeDescription 텍스트가 입력이다. 새 코드는 없다.</li>
 <li>결과를 APP_ACTION_RESPONSE 브로드캐스트로 돌려주면 글레오가
 대답한다. 이때 앱의 TTS는 쓰지 않고 7단계 되묻기도 생략한다(글레오가
 대화를 맡음).</li>
