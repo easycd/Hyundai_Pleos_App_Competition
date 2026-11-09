@@ -6,11 +6,11 @@ ICON = open('/home/claude/hyundai_pleos_app_competition/docs/design/icons/final/
 
 THEMES = {
  'dark': dict(name='다크', scheme='dark', bg='#15100E', text='#FBF6F2', muted='#B8A69B', faint='#8C7B72',
-   glass='rgba(255,255,255,0.08)', glass2='rgba(255,255,255,0.12)', edge='rgba(255,255,255,0.22)', spec='rgba(255,255,255,0.45)',
+   glass='rgba(255,255,255,0.09)', glass2='rgba(255,255,255,0.14)', edge='rgba(255,255,255,0.22)', spec='rgba(255,255,255,0.45)',
    shadow='0 24px 60px rgba(0,0,0,0.45)', accent='#E4572E', accent_text='#FF8A62', amber='#F2B544', amber_bg='rgba(242,181,68,0.16)',
    blob1='rgba(228,87,46,0.55)', blob2='rgba(255,138,98,0.35)', blob3='rgba(120,60,40,0.6)', road='rgba(255,255,255,0.07)', mic_glow='rgba(228,87,46,0.35)'),
  'light': dict(name='라이트', scheme='light', bg='#F6EFEA', text='#1F1512', muted='#6E5B53', faint='#9A867C',
-   glass='rgba(255,255,255,0.55)', glass2='rgba(255,255,255,0.7)', edge='rgba(255,255,255,0.9)', spec='rgba(255,255,255,0.95)',
+   glass='rgba(255,255,255,0.78)', glass2='rgba(255,255,255,0.95)', edge='rgba(255,255,255,0.9)', spec='rgba(255,255,255,0.95)',
    shadow='0 24px 60px rgba(120,60,40,0.18)', accent='#E4572E', accent_text='#B83A18', amber='#8A5A00', amber_bg='rgba(242,181,68,0.28)',
    blob1='rgba(228,87,46,0.35)', blob2='rgba(255,170,130,0.45)', blob3='rgba(255,220,200,0.9)', road='rgba(120,60,40,0.10)', mic_glow='rgba(228,87,46,0.28)'),
 }
@@ -71,19 +71,6 @@ main{{position:absolute;left:0;right:0;top:140px;bottom:0;display:grid;grid-temp
 .recent .note{{font-size:24px;color:{T['faint']}}}
 </style></head><body>
 <div class="root">
-  <div class="bgl" aria-hidden="true">
-    <div class="blob" style="left:-120px;top:-80px;width:620px;height:620px;background:{T['blob1']}"></div>
-    <div class="blob" style="right:-160px;top:220px;width:700px;height:700px;background:{T['blob2']}"></div>
-    <div class="blob" style="left:300px;bottom:-260px;width:760px;height:560px;background:{T['blob3']}"></div>
-    <svg class="roads" viewBox="0 0 1280 1080" fill="none" stroke="{T['road']}" stroke-width="22" stroke-linecap="round">
-      <path d="M-40 300 C 260 260, 420 420, 700 380 S 1120 220, 1340 300"/>
-      <path d="M180 -40 C 220 300, 120 600, 260 1120"/>
-      <path d="M-40 760 C 300 700, 620 860, 900 780 S 1200 660, 1340 720"/>
-      <path d="M980 -40 C 920 300, 1080 620, 960 1120"/>
-      <path d="M560 -40 C 600 260, 520 500, 640 1120" stroke-width="12"/>
-    </svg>
-  </div>
-
   <header class="top">
     <div class="glass pill brand">{ICON}<span>다음에 가게</span></div>
     <div class="glass pill loc">{ic(NAV,26,T['accent_text'])}<span>강남대로 · 북쪽</span></div>

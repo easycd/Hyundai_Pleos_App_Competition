@@ -10,7 +10,7 @@ body{margin:0;background:#15100E}
 .blob{position:absolute;border-radius:50%;filter:blur(90px)}
 .roads{position:absolute;inset:0}
 /* 유리 */
-.glass{position:relative;background:rgba(255,255,255,0.08);-webkit-backdrop-filter:blur(28px) saturate(170%);backdrop-filter:blur(28px) saturate(170%);border:1px solid rgba(255,255,255,0.22);box-shadow:inset 0 1px 0 rgba(255,255,255,0.45),inset 0 -1px 0 rgba(0,0,0,0.08),0 24px 60px rgba(0,0,0,0.45)}
+.glass{position:relative;background:rgba(255,255,255,0.09);-webkit-backdrop-filter:blur(28px) saturate(170%);backdrop-filter:blur(28px) saturate(170%);border:1px solid rgba(255,255,255,0.22);box-shadow:inset 0 1px 0 rgba(255,255,255,0.45),inset 0 -1px 0 rgba(0,0,0,0.08),0 24px 60px rgba(0,0,0,0.45)}
 .glass::before{content:"";position:absolute;inset:0;border-radius:inherit;pointer-events:none;background:linear-gradient(160deg,rgba(255,255,255,0.22) 0%,rgba(255,255,255,0) 38%,rgba(255,255,255,0) 70%,rgba(255,255,255,0.08) 100%)}
 .pill{border-radius:999px}
 .card{border-radius:36px}
@@ -30,7 +30,7 @@ main{position:absolute;left:0;right:0;top:140px;bottom:0;display:grid;grid-templ
 .hint p{margin:14px 0 0;font-size:26px;line-height:1.5;color:#B8A69B;text-align:center}
 .side{display:flex;flex-direction:column;justify-content:center;gap:24px;min-width:0}
 .row{height:124px;padding:0 36px;display:flex;align-items:center;gap:24px;color:#FBF6F2;text-decoration:none;box-sizing:border-box}
-.row .ib{width:68px;height:68px;border-radius:22px;background:rgba(255,255,255,0.12);display:flex;align-items:center;justify-content:center;flex:none;border:1px solid rgba(255,255,255,0.22)}
+.row .ib{width:68px;height:68px;border-radius:22px;background:rgba(255,255,255,0.14);display:flex;align-items:center;justify-content:center;flex:none;border:1px solid rgba(255,255,255,0.22)}
 .row .tx{flex:1;min-width:0;display:flex;flex-direction:column;gap:4px}
 .row .t{font-size:34px;font-weight:600}
 .row .s{font-size:24px;color:#B8A69B}
@@ -43,19 +43,6 @@ main{position:absolute;left:0;right:0;top:140px;bottom:0;display:grid;grid-templ
 .recent .note{font-size:24px;color:#8C7B72}
 </style></head><body>
 <div class="root">
-  <div class="bgl" aria-hidden="true">
-    <div class="blob" style="left:-120px;top:-80px;width:620px;height:620px;background:rgba(228,87,46,0.55)"></div>
-    <div class="blob" style="right:-160px;top:220px;width:700px;height:700px;background:rgba(255,138,98,0.35)"></div>
-    <div class="blob" style="left:300px;bottom:-260px;width:760px;height:560px;background:rgba(120,60,40,0.6)"></div>
-    <svg class="roads" viewBox="0 0 1280 1080" fill="none" stroke="rgba(255,255,255,0.07)" stroke-width="22" stroke-linecap="round">
-      <path d="M-40 300 C 260 260, 420 420, 700 380 S 1120 220, 1340 300"/>
-      <path d="M180 -40 C 220 300, 120 600, 260 1120"/>
-      <path d="M-40 760 C 300 700, 620 860, 900 780 S 1200 660, 1340 720"/>
-      <path d="M980 -40 C 920 300, 1080 620, 960 1120"/>
-      <path d="M560 -40 C 600 260, 520 500, 640 1120" stroke-width="12"/>
-    </svg>
-  </div>
-
   <header class="top">
     <div class="glass pill brand"><svg xmlns="http://www.w3.org/2000/svg" width="56" height="56" viewBox="0 0 100 100"><rect width="100" height="100" rx="22" fill="#E4572E"/><path d="M50 90C50 90 20 60 20 41a30 30 0 1 1 60 0C80 60 50 90 50 90Z" fill="#FFFFFF" stroke="#FFFFFF" stroke-width="4" stroke-linejoin="round"/><circle cx="50" cy="41" r="23" fill="#E4572E"/><g transform="translate(50 41) scale(0.62)"><path transform="rotate(38)" d="M0 -31C8.5 -31 12.5 -22 12.5 -13C12.5 -6.5 9.5 -2 6 0C4.4 0.9 3.3 1.8 3.2 3.4L3.8 27.5A3.8 3.8 0 0 1 -3.8 27.5L-3.2 3.4C-3.3 1.8 -4.4 0.9 -6 0C-9.5 -2 -12.5 -6.5 -12.5 -13C-12.5 -22 -8.5 -31 0 -31Z" fill="#FFFFFF"/><g transform="rotate(-38)" fill="none" stroke-linecap="round"><path d="M-3.75 -27.5v55M3.75 -27.5v55" stroke="#E4572E" stroke-width="11.25"/><path d="M-3.75 -27.5v55M3.75 -27.5v55" stroke="#FFFFFF" stroke-width="6.25"/></g></g></svg>
 <span>다음에 가게</span></div>
