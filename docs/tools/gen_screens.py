@@ -171,6 +171,21 @@ WIRE_CSS = r'''
 .cd .bg{stroke:var(--off)}.cd .fg{stroke:var(--acc-t);stroke-linecap:round;stroke-dasharray:176;stroke-dashoffset:0;transform:rotate(-90deg);transform-origin:center}
 .bars{display:flex;gap:10px;align-items:flex-end;height:48px}
 .bars i{display:block;width:10px;border-radius:5px;background:var(--acc-t)}
+.frame.port{width:640px}
+.port .top.home{left:32px;right:32px;top:24px}
+.port .gpill.loc{height:64px;padding:0 24px;font-size:24px}
+.port .ploc{position:absolute;left:32px;top:132px}
+.port .pcards{position:absolute;left:32px;right:32px;top:224px;display:flex;flex-direction:column;gap:20px}
+.port .hrow{height:112px;padding:0 28px!important;gap:20px}
+.port .hrow .ib{width:64px;height:64px}
+.port .hrow .t{font-size:32px}
+.port .recent{padding:24px 28px 28px!important;gap:12px}
+.port .recent .nm{font-size:36px}
+.port .ptalk{position:absolute;left:0;right:0;bottom:36px;display:flex;flex-direction:column;align-items:center;gap:44px}
+.port .mic{width:240px;height:240px;box-shadow:inset 0 2px 0 rgba(255,255,255,.55),inset 0 -10px 24px rgba(120,30,10,.35),0 0 0 16px var(--acc-ring),0 0 0 36px rgba(228,87,46,.10),0 20px 50px rgba(228,87,46,.40)}
+.port .pbottom{position:absolute;left:32px;right:32px;bottom:48px;display:flex;gap:32px;justify-content:center}
+.port .toast{left:32px;right:32px}
+.port .dialog{left:32px;right:32px}
 '''
 
 # animations run only inside .frame.play (doc: when scrolled into view / GIF pages); .frame.static shows the resting state
@@ -195,6 +210,8 @@ ANIM_CSS = r'''
 @keyframes dimout{to{opacity:.4}}
 @keyframes bars{0%,100%{height:12px}50%{height:48px}}
 .play .mic.live{animation:breathe 2s ease-in-out infinite}
+@keyframes breathes{0%,100%{box-shadow:inset 0 2px 0 rgba(255,255,255,.55),inset 0 -10px 24px rgba(120,30,10,.35),0 0 0 16px var(--acc-ring),0 0 0 36px rgba(228,87,46,.10),0 20px 50px rgba(228,87,46,.40)}50%{box-shadow:inset 0 2px 0 rgba(255,255,255,.55),inset 0 -10px 24px rgba(120,30,10,.35),0 0 0 26px rgba(228,87,46,.16),0 0 0 48px rgba(228,87,46,.06),0 20px 50px rgba(228,87,46,.40)}}
+.play.port .mic.live{animation:breathes 2s ease-in-out infinite}
 .play .wave.live i{animation:bar .9s ease-in-out infinite;transform-origin:center;animation-delay:calc(var(--i,0)*60ms)}
 .play .ring.live{animation:spin 1s linear infinite}
 .play .a-up{animation:up .2s cubic-bezier(.2,0,0,1) both}
@@ -1058,6 +1075,122 @@ screen('S-12','H','주행 중 안내','주행 중','주행 중 S-07 ~ S-11, S-16
   ('주행 다시 시작','열려 있던 정차 화면이 이 화면으로 페이드','160ms','속도 > 0')],
  '')
 
+# ===== 세로 창 (1칸) =====
+# 재원 결정 2026-11-09: 세로 1칸에서는 말하기 버튼을 하단 가운데, 카드는 그 위에 쌓는다. 크기 640×1080은 가정.
+PS = []
+def pscreen(sid, base, name, wire, spec, note=''):
+    PS.append(dict(id=sid, base=base, name=name, wire=wire, spec=spec, note=note))
+
+def phome(recent='', count='12', sub1='근처 3곳 추천', sub2=None, co=None, live=False, dim=1, mic=True):
+    co = co or {}
+    c = lambda k: f' data-co="{co[k]}"' if k in co else ''
+    sub2 = sub2 if sub2 is not None else f'{count}곳 · 미확인 3곳'
+    st = f' style="opacity:{dim}"' if dim != 1 else ''
+    talk = ''
+    if mic:
+        talk = (f'<div class="ptalk"{st}>'
+                f'<div class="mic{" live" if live else ""}"{c("mic")}>{ic("mic",112)}</div>'
+                f'<div class="h40" style="font-size:32px">눌러서 말하기</div></div>')
+    return f'''
+ <div class="top home"{st}>
+   <div class="gpill brand">{BRAND_ICON}<span>다음에 가게</span></div>
+   <div style="flex:1"></div>
+   <div class="iconbtn"{c('gear')}>{ic("gear",40)}</div>
+ </div>
+ <div class="ploc"{st}><div class="gpill loc"{c('loc')}>{ic("navi",24,"acc")}<span>강남대로 · 북쪽</span></div></div>
+ <div class="pcards"{st}>
+   {recent}
+   <div class="card hrow"{c('eat')}><span class="ib">{ic("fork",34,"acc")}</span><span class="tx"><span class="t">뭐 먹을까</span><span class="small muted">{sub1}</span></span>{ic("chev",32,"faint")}</div>
+   <div class="card hrow"{c('mine')}><span class="ib">{ic("pin",34,"acc")}</span><span class="tx"><span class="t">내 맛집</span><span class="small muted">{sub2}</span></span>{ic("chev",32,"faint")}</div>
+ </div>
+ {talk}'''
+
+pscreen('P-01', 'S-01', '홈',
+ phome(recent=recent_card('서울갈비', '<span class="chip warn">미확인</span>', co='2'), live=True,
+       co=dict(mic='1', eat='3', mine='4', gear='5', loc='6')),
+ [('1','말하기 버튼','240dp 원형, 하단 가운데 고정','S-01과 같음 (누르면 P-02a)'),
+  ('2','최근 저장','카드 묶음 맨 위','S-01과 같음'),
+  ('3','뭐 먹을까','카드 높이 112dp','S-01과 같음'),
+  ('4','내 맛집','카드 높이 112dp','S-01과 같음'),
+  ('5','설정','오른쪽 위','S-11'),
+  ('6','현재 위치','앱 이름 아래 한 줄로 내림','누를 수 없음')],
+ '말하기 버튼이 손이 닿기 쉬운 아래쪽 가운데에 오고, 카드 3장은 그 위에 쌓인다. 가로 화면의 왼쪽 버튼 · 오른쪽 카드를 위아래로 바꾼 배치다.')
+
+pscreen('P-02a', 'S-02a', '듣는 중',
+ phome(recent=recent_card('서울갈비', '<span class="chip warn">미확인</span>'), mic=False) + f'''
+ <div class="overlay a-fade"></div>
+ <div class="card a-pop" style="position:absolute;left:32px;right:32px;top:176px;height:560px;display:flex;flex-direction:column;align-items:center;justify-content:space-between;padding:48px 32px">
+   <div class="h48 copad" data-co="1">듣고 있어요</div>
+   <div data-co="2">{wave()}</div>
+   <div style="font-size:40px;text-align:center;min-height:120px"><span data-co="3" style="padding:0 32px">방금 지난 <span class="a-text d1">빨간 간판</span> <span class="a-text d2">고깃집</span><span class="muted a-text d3">…</span></span></div>
+ </div>
+ <div class="pbottom"><div class="btn big" data-co="4" style="width:320px">{ic("close",40)} 취소</div></div>''',
+ [('1','상태 문구','S-02a와 같음',''),
+  ('2','소리 막대','17개, 폭 464dp',''),
+  ('3','인식 중 문장','40dp, 두 줄까지',''),
+  ('4','취소','말하기 버튼이 있던 하단 가운데 자리','누르면 녹음 중단')],
+ '카드는 위, 누를 것은 아래 가운데라는 규칙을 겹침 화면에도 그대로 쓴다. 취소가 말하기 버튼 자리에 오므로 같은 손 위치에서 바로 멈출 수 있다.')
+
+pscreen('P-03', 'S-03', '확인',
+ f'''
+ <div class="body full" style="padding:64px 32px 0;bottom:216px;display:flex;flex-direction:column;justify-content:space-between">
+   <div class="h48" data-co="1" style="text-align:center">이 가게 맞나요?</div>
+   <div class="card a-up" data-co="2" style="display:flex;flex-direction:column;gap:20px;padding:56px 40px">
+     <div class="h64">서울갈비</div>
+     <div style="font-size:32px">고깃집 · 120m 뒤 · 오른쪽</div>
+     <div class="muted">서울 강남구 강남대로 123</div>
+   </div>
+   <div style="display:flex;align-items:center;gap:20px;color:var(--muted)">
+     <span data-co="5" style="display:flex">{countdown(5)}</span>
+     <span style="flex:1">5초 안에 대답이 없으면<br>위치만 저장해요</span>
+     <span data-co="6" style="display:flex;align-items:center;gap:12px;color:var(--acc-t)">{ic("mic",32)}<span class="bars live"><i style="--i:0;height:20px"></i><i style="--i:1;height:40px"></i><i style="--i:2;height:28px"></i><i style="--i:3;height:44px"></i></span></span>
+   </div>
+ </div>
+ <div class="pbottom">
+   <div class="btn" data-co="4" style="width:272px;height:136px;font-size:40px">아니요</div>
+   <div class="btn primary" data-co="3" style="width:272px;height:136px;font-size:40px">{ic("check",48)} 예</div>
+ </div>''',
+ [('1','질문','S-03과 같음',''),
+  ('2','후보 카드','폭 576dp, 이름 64dp',''),
+  ('3','예','하단 오른쪽, 높이 136dp','S-03과 같음'),
+  ('4','아니요','하단 왼쪽, 높이 136dp','S-03과 같음'),
+  ('5','대기 표시','카드 아래 한 줄','5초 지나면 위치만 저장'),
+  ('6','듣는 중 표시','대기 표시 오른쪽','')],
+ '예 · 아니요가 아래 가운데에 나란히 놓인다. 예는 오른쪽(확인 창의 실행 위치와 같음).')
+
+pscreen('P-04a', 'S-04a', '저장 완료',
+ phome(recent=recent_card('서울갈비', '<span class="chip ok">저장됨</span>', co='2', cls='a-fade'), dim=.7) +
+ f'''<div class="toast live" data-co="1" style="top:560px">{ic("check",48,"ok")}<span>저장했어요 · 서울갈비</span></div>''',
+ [('1','저장 토스트','말하기 버튼 바로 위(위에서 560dp)','4초 뒤 사라짐. 버튼을 가리지 않음'),
+  ('2','최근 저장 카드','방금 저장한 가게, 칩 “저장됨”','')],
+ '세로 창에서 토스트는 말하기 버튼을 가리지 않도록 버튼 바로 위에 뜬다. 가로 화면(아래쪽 900dp)과 다른 유일한 위치 규칙이다.')
+
+def prcard(n, name, meta, note, co1=False, co2=False, cls=''):
+    return f'''<div class="card {cls}" style="--i:{n-1};display:flex;align-items:center;gap:24px;height:220px;padding:0 28px"{' data-co="1"' if co1 else ''}>
+      <div class="num">{n}</div>
+      <div style="flex:1;min-width:0;display:flex;flex-direction:column;gap:6px">
+        <div class="h40" style="font-size:36px">{name}</div>
+        <div style="font-size:26px">{meta}</div>
+        <div class="muted small">{note}</div>
+      </div>
+      <div class="btn primary" style="width:96px;height:96px;padding:0;border-radius:50%"{' data-co="2"' if co2 else ''}>{ic("navi",40)}</div>
+    </div>'''
+
+pscreen('P-06', 'S-06', '추천',
+ f'''
+ {top('뭐 먹을까')}
+ <div style="position:absolute;left:32px;right:32px;top:128px;display:flex;flex-direction:column;gap:20px">
+   {prcard(1,'서울갈비','고깃집 · 1.2km','안 가 봄', co1=True, co2=True, cls='a-up')}
+   {prcard(2,'카페 노을','카페 · 2.0km','방문 1회', cls='a-up d1')}
+   {prcard(3,'국밥집','국밥 · 3.4km','10월 28일 저장', cls='a-up d2')}
+ </div>
+ <div class="pbottom"><div class="btn" data-co="3" style="width:400px">다른 곳 추천</div></div>''',
+ [('1','추천 카드 3장','위에서 아래로 1 · 2 · 3','S-06과 같음 (번호 · 이름으로 선택)'),
+  ('2','안내 시작','카드 오른쪽 둥근 버튼 96dp','누르면 S-06c'),
+  ('3','다른 곳 추천','하단 가운데','S-06과 같음'),
+  ('b','뒤로','홈','')],
+ '가로 화면의 카드 3장 가로 배치를 세로로 쌓고, 안내 시작 버튼은 글자 없이 아이콘만 둔다(폭이 좁아서). TTS가 “1번 서울갈비 …”로 읽으므로 번호는 크게 유지한다.')
+
 # order screens by group then by declared order
 GORDER = {g[0]: i for i, g in enumerate(GROUPS)}
 S.sort(key=lambda s: GORDER[s['group']])
@@ -1151,7 +1284,7 @@ def flow_svg():
 # ---------------------------------------------------------------- tables shared by html / md
 BASE_ROWS = [
  ['캔버스','1280 × 1080 (앱 영역). 전체 화면은 1920 × 1080 16:9를 좌우 1:2로 나눈 오른쪽','Pleos Connect 17인치 16:9, 좌우 1:2 분할. 해상도 값은 가정이며 에뮬레이터 확인 뒤 조정'],
- ['세로 창','Pleos 앱 영역 기본값인 세로 1칸에서는 말하기 버튼을 하단 가운데에 두고, 카드(최근 저장·추천·안내)는 그 위에 쌓는다. 가로 2칸은 이 문서의 그림대로','재원 결정 2026-11-09. 세로 창 와이어프레임은 아직 없고, 구현 때 창 비율을 보고 두 배치 중 하나를 고른다'],
+ ['세로 창','Pleos 앱 영역 기본값인 세로 1칸에서는 말하기 버튼을 하단 가운데에 두고, 카드(최근 저장·추천·안내)는 그 위에 쌓는다. 가로 2칸은 이 문서의 그림대로','재원 결정 2026-11-09. 대표 화면 5장을 6장 끝 “세로 창” 묶음(P-01 ~ P-06)에 그렸다. 구현 때 창 비율을 보고 두 배치 중 하나를 고른다'],
  ['테마','다크·라이트 2가지 (차량 주/야간 설정을 따름). 다크: 배경 #15100E, 글자 #FBF6F2, 보조 #B8A69B. 라이트: 배경 #F6EFEA, 글자 #1F1512, 보조 #6E5B53. 배경은 그림 없는 단색','다크는 야간 눈부심 방지. 색은 앱 아이콘 주황 #E4572E에서 뽑음. 이 문서의 와이어프레임은 위 단추로 다크·라이트를 바꿔 볼 수 있다'],
  ['스타일','리퀴드 글라스: 카드·버튼·상단 버튼은 반투명 유리(다크 흰색 9~14%, 라이트 흰색 78~95%) + 흐림 28 + 밝은 윗선 + 1dp 테두리 + 그림자. 색이 있는 유리는 말하기 버튼 하나','유리는 콘텐츠 위 조작 층에만. 지도 화면에서는 지도가 콘텐츠 층. 투명도 줄이기를 켜면 불투명 카드 #1F1714 / #FFFFFF'],
  ['강조색','1순위 동작 주황 #E4572E 채움(흰 글자). 주황 글자·아이콘은 다크 #FF8A62 · 라이트 #B83A18. 삭제만 빨강 #C62828 채움 · 다크 #FF6B6B 글자. 미확인 노랑 #F2B544 / #8A5A00, 방문 초록 #4CC38A / #1B7F4D. 파랑은 쓰지 않음','빨강은 차량에서 경고색이라 삭제에만 사용. 글자 대비 4.5:1 이상 (흰 글자 위 주황은 32dp 굵은 글자만)'],
@@ -1202,7 +1335,7 @@ STATE_ROWS = [
  ['주행 중 정차 화면 진입','S-12 주행 중 안내'],
 ]
 OPEN_ROWS = [
- '캔버스 1280×1080은 가정이다. 에뮬레이터 실제 해상도를 확인하면 비율만 다시 맞춘다. 세로 1칸 배치 규칙은 1장 "세로 창" 행에 정했고(버튼 하단 가운데, 카드 위), 세로 그림은 구현 전에 추가한다.',
+ '캔버스 1280×1080은 가정이다. 에뮬레이터 실제 해상도를 확인하면 비율만 다시 맞춘다. 세로 1칸은 640×1080으로 가정해 대표 화면 5장(P-01 ~ P-06)을 그렸다. 실제 창 크기를 확인하면 함께 맞춘다.',
  'S-07·S-14 지도는 카카오맵 SDK가 차량에서 뜨는지에 달려 있다. 안 뜨면 프로토타입은 목록만 쓰고 지도 자리는 비워 둔다.',
  'S-05 리마인드·S-15 방문 메모를 앱 밖(내비 화면 위)에 띄우려면 차량 알림 권한이 필요하다. 안 되면 앱이 켜져 있을 때만 띄운다.',
  'S-16 받은 목록 가져오기는 차량에서 링크를 열 수 있을 때만 의미가 있다. 안 되면 폰 웹 목록으로 끝낸다 (기획서 9장).',
@@ -1231,6 +1364,8 @@ th{background:var(--head);font-weight:600;white-space:nowrap}
 .shot{width:640px;height:540px;overflow:hidden;border-radius:12px;border:1px solid var(--line);background:#15100E;position:relative}
 .wl .shot{background:#F6EFEA}
 .shot .frame{transform:scale(.5);transform-origin:0 0}
+.screen.port{grid-template-columns:320px 1fr}
+.shot.port{width:320px}
 .cap{color:var(--muted);font-size:.9em;margin-top:6px;display:flex;gap:12px;align-items:center}
 .cap button{font:inherit;font-size:.9em;padding:2px 10px;border-radius:6px;border:1px solid var(--line);background:var(--head);color:var(--fg);cursor:pointer}
 .spec table{margin-top:0}
@@ -1275,12 +1410,14 @@ n_screens = len(S)
 INTRO = (f'주행 중에 쓰는 화면은 말하기 버튼과 큰 카드 몇 장으로 끝내고, 목록·편집·지도는 정차 중에만 연다. '
          f'기능 묶음 {len(GROUPS)}개, 화면·상태 {n_screens}장이다. 같은 화면의 다른 상태는 S-02a·S-02b처럼 글자를 붙여 구분한다.')
 
+PORTRAIT_INTRO = ('Pleos 앱 영역은 기본이 세로 1칸이다. 세로 창에서는 말하기 버튼(또는 그 화면의 결정 버튼)을 하단 가운데에 두고, 카드는 그 위에 쌓는다. '
+                  '주행 중에 쓰는 대표 화면 ' + str(len(PS)) + '장만 그렸고, 나머지 화면도 같은 규칙으로 옮긴다. 모션은 가로 화면과 같다. 크기 640×1080은 가정이며 에뮬레이터에서 확인한다.')
 parts = []
 parts.append('<h1>다음에 가게 — 화면 설계서</h1>')
 parts.append(f'<p class="meta">작성일 {DATE} · 작성자 재원 (easycd) · 기준 문서: <a href="01_개발기획서.md">01_개발기획서</a>의 기능 ID(F-xx)를 그대로 쓴다. 생성 스크립트 tools/gen_screens.py</p>')
 parts.append('<div class="themebar">와이어프레임 테마 <button type="button" data-t="dark">다크</button><button type="button" data-t="light">라이트</button></div>')
 parts.append(f'<p>{INTRO} 와이어프레임은 화면에 보일 때 애니메이션이 한 번 재생되고, 아래 “다시 재생”으로 다시 볼 수 있다. 오른쪽 위 단추로 다크·라이트를 바꿔 본다. 보라색 번호는 설명용 표시로, 실제 화면에는 없다.</p>')
-parts.append('<p class="toc">' + ' · '.join(f'<a href="#{s["id"]}">{s["id"]} {s["name"]}</a>' for s in S) + '</p>')
+parts.append('<p class="toc">' + ' · '.join(f'<a href="#{s["id"]}">{s["id"]} {s["name"]}</a>' for s in S + PS) + '</p>')
 
 parts.append('<h2 id="base">1. 설계 기준</h2>')
 parts.append(tbl(['항목','기준','근거'], BASE_ROWS))
@@ -1322,6 +1459,16 @@ for s in S:
                  + '<p style="margin:.9em 0 .2em;font-weight:600">모션</p>' + tbl(['요소','움직임','시간 · 이징','계기'], s['motion']) + '</div>')
     parts.append('</div>')
 
+parts.append('<h3 id="gP" style="border-top:2px solid var(--line);font-size:1.35em">세로 창 (1칸) <span class="meta" style="font-weight:400;font-size:.75em">· 640×1080 가정 · ' + str(len(PS)) + '장</span></h3>')
+parts.append('<p>' + PORTRAIT_INTRO + '</p>')
+for s in PS:
+    spec_rows = [[('<span class="co">←</span>' if co == 'b' else f'<span class="co">{co}</span>'), el, what, act] for co, el, what, act in s['spec']]
+    parts.append(f'<h3 id="{s["id"]}">{s["id"]} {s["name"]} <span class="meta" style="font-weight:400;font-size:.8em">· 가로 화면 <a href="#{s["base"]}">{s["base"]}</a>의 세로 배치</span></h3>')
+    parts.append('<div class="screen port">')
+    parts.append(f'<div class="shotwrap"><div class="shot port"><div class="frame port">{s["wire"]}</div></div><div class="cap"><span>640×1080, 50% 축소</span><button type="button">다시 재생</button></div></div>')
+    parts.append('<div class="spec">' + tbl(['','요소','내용','동작'], spec_rows) + (f'<p class="note">{s["note"]}</p>' if s['note'] else '') + '</div>')
+    parts.append('</div>')
+
 parts.append('<h2 id="states">7. 상태와 예외 → 화면</h2>')
 parts.append(tbl(['상황','화면'], STATE_ROWS))
 
@@ -1352,6 +1499,16 @@ for s in S:
     for theme, cls, bg in (('dark', 'static clean', '#15100E'), ('light', 'static clean light', '#F6EFEA')):
         with open(os.path.join(BOARD_DIR, f'{s["id"]}_{theme}.dc.html'), 'w', encoding='utf-8') as f:
             f.write(wire_page(s, cls, bg, f'{s["id"]} {s["name"]} · {"다크" if theme == "dark" else "라이트"}'))
+
+PORT_DIR = os.path.join(WIRE_DIR, 'portrait'); PORT_LIGHT = os.path.join(PORT_DIR, 'light'); PORT_LIVE = os.path.join(PORT_DIR, 'live')
+for d in (PORT_DIR, PORT_LIGHT, PORT_LIVE): os.makedirs(d, exist_ok=True)
+for s in PS:
+    for d, cls, bg in ((PORT_DIR, 'static port', '#15100E'), (PORT_LIVE, 'play port', '#15100E'), (PORT_LIGHT, 'static port light', '#F6EFEA')):
+        with open(os.path.join(d, f'{s["id"]}.html'), 'w', encoding='utf-8') as f:
+            f.write(wire_page(s, cls, bg))
+    for theme, cls, bg in (('dark', 'static clean port', '#15100E'), ('light', 'static clean port light', '#F6EFEA')):
+        with open(os.path.join(BOARD_DIR, f'{s["id"]}_{theme}.dc.html'), 'w', encoding='utf-8') as f:
+            f.write(wire_page(s, cls, bg, f'{s["id"]} {s["name"]} · 세로 · {"다크" if theme == "dark" else "라이트"}'))
 
 # data for the checker
 with open(os.path.join(WIRE_DIR, 'screens.json'), 'w', encoding='utf-8') as f:
@@ -1409,6 +1566,14 @@ for s in S:
     if s['note']:
         md += [s['note'], '']
     md += ['모션', '', mdtbl(['요소','움직임','시간 · 이징','계기'], s['motion']), '']
+md += [f'### 세로 창 (1칸) · 640×1080 가정 · {len(PS)}장', '', PORTRAIT_INTRO, '']
+for s in PS:
+    md += [f'#### {s["id"]} {s["name"]}', '', f'가로 화면 {s["base"]}의 세로 배치', '',
+           '| 다크 | 라이트 |', '| --- | --- |',
+           f'| ![{s["id"]} {s["name"]} 다크](screens/portrait/{s["id"]}.png) | ![{s["id"]} {s["name"]} 라이트](screens/portrait/light/{s["id"]}.png) |', '',
+           mdtbl(['번호','요소','내용','동작'], [[('뒤로' if co == 'b' else co), el, what, act] for co, el, what, act in s['spec']]), '']
+    if s['note']:
+        md += [s['note'], '']
 md += ['## 7. 상태와 예외 → 화면', '', mdtbl(['상황','화면'], STATE_ROWS), '']
 md += ['## 8. 확인이 필요한 사항', ''] + [f'- {x}' for x in OPEN_ROWS] + ['']
 with open(os.path.join(OUT_DIR, '02_화면설계서.md'), 'w', encoding='utf-8') as f:

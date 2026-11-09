@@ -9,7 +9,7 @@ const { chromium } = require('playwright'); const fs = require('fs'); const path
   for (const f of fs.readdirSync(wiresDir).filter(x => x.endsWith('.html')).sort()) {
     await page.goto('file://' + path.resolve(wiresDir, f)); await page.waitForTimeout(100);
     const issues = await page.evaluate(() => {
-      const out = []; const W = 1280, H = 1080;
+      const out = []; const W = document.querySelector('.frame').offsetWidth, H = 1080;
       const vis = el => { const s = getComputedStyle(el); if (s.display === 'none' || s.visibility === 'hidden' || parseFloat(s.opacity) === 0) return false; const r = el.getBoundingClientRect(); return r.width > 0 && r.height > 0; };
       const label = el => (el.className && typeof el.className === 'string' ? '.' + el.className.trim().split(/\s+/).join('.') : el.tagName.toLowerCase()) + (el.dataset.co ? `[${el.dataset.co}]` : '') + ' “' + (el.textContent || '').trim().slice(0, 18) + '”';
       const all = [...document.querySelectorAll('.frame *')].filter(vis);

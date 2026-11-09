@@ -9,7 +9,8 @@ const fs = require('fs'); const path = require('path');
   for (const f of fs.readdirSync(wiresDir).filter(x => x.endsWith('.html')).sort()) {
     await page.goto('file://' + path.resolve(wiresDir, f));
     await page.waitForTimeout(150);
-    await page.screenshot({ path: path.join(outDir, f.replace('.html', '.png')), clip: { x: 0, y: 0, width: 1280, height: 1080 } });
+    const fw = await page.$eval('.frame', e => e.offsetWidth).catch(() => 1280);
+    await page.screenshot({ path: path.join(outDir, f.replace('.html', '.png')), clip: { x: 0, y: 0, width: fw, height: 1080 } });
   }
   if (pageHtml) {
     const p2 = await ctx.newPage(); await p2.setViewportSize({ width: 1300, height: 1000 });
