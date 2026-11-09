@@ -4,7 +4,7 @@ OFF=10 if MIRROR else 0
 NAME='OrangeTenMirror' if MIRROR else 'OrangeTen'
 SHEET='주황_시안10_반전' if MIRROR else '주황_시안10'
 SVGDIR='orange-ten-mirror' if MIRROR else 'orange-ten'
-TITLE='주황 배경 시안 10 · 반전 배치' if MIRROR else '주황 배경 시안 10'
+TITLE='주황 배경 시안 10 · 반대 배치' if MIRROR else '주황 배경 시안 10'
 OR='#E4572E'; W='#FFFFFF'
 PIN='M50 90C50 90 20 60 20 41a30 30 0 1 1 60 0C80 60 50 90 50 90Z'
 RPIN='M50 88C50 88 18 62 18 42a32 32 0 1 1 64 0C82 62 50 88 50 88Z'
@@ -18,8 +18,8 @@ def sticks(mark,bg=None):
     return f'<g transform="rotate(38)" fill="none" stroke-linecap="round">{halo}<path d="{STICKS}" stroke="{mark}" stroke-width="6.25"/></g>'
 def mark(front,mark,bg,cx,cy,s):
     inner = spoon(mark)+sticks(mark,bg) if front=='sticks' else sticks(mark)+spoon(mark,bg)
-    sx=-s if MIRROR else s
-    return f'<g transform="translate({cx} {cy}) scale({sx} {s})">{inner}</g>'
+    rot=' rotate(180)' if MIRROR else ''
+    return f'<g transform="translate({cx} {cy}) scale({s}){rot}">{inner}</g>'
 def col(kind,front):
     if kind=='line':   return f'<path d="{PIN}" fill="none" stroke="{W}" stroke-width="7" stroke-linejoin="round"/>'+mark(front,W,OR,50,43,0.8)
     if kind=='rline':  return f'<path d="{RPIN}" fill="none" stroke="{W}" stroke-width="8" stroke-linejoin="round"/>'+mark(front,W,OR,50,44,0.84)
@@ -28,7 +28,7 @@ def col(kind,front):
     if kind=='badge':  return f'<path d="{PIN}" fill="{W}" stroke="{W}" stroke-width="4" stroke-linejoin="round"/><circle cx="50" cy="41" r="19" fill="{OR}"/>'+mark(front,W,OR,50,41,0.5)
 cols=[('line','1'),('rline','2'),('fill','3'),('rfill','4'),('badge','5')]
 heads=['① 흰 테두리 · 안 주황','② 흰 테두리 · 둥근 굵은 핀','③ 흰 핀 · 주황 도안','④ 흰 핀 · 둥근 핀','⑤ 흰 핀 · 주황 원 배지']
-rows=[('sticks','A','A 젓가락 앞','숟가락 위로 젓가락이 지나감' if not MIRROR else '숟가락 오른쪽 · 젓가락 왼쪽'),('spoon','B','B 숟가락 앞','젓가락 위로 숟가락이 올라옴' if not MIRROR else '숟가락 오른쪽 · 젓가락 왼쪽')]
+rows=[('sticks','A','A 젓가락 앞','숟가락 위로 젓가락이 지나감' if not MIRROR else '숟가락 머리가 아래, 손잡이가 위'),('spoon','B','B 숟가락 앞','젓가락 위로 숟가락이 올라옴' if not MIRROR else '숟가락 머리가 아래, 손잡이가 위')]
 tiles=[]; n=0
 for front,rl,rt,rd in rows:
     tiles.append(f'    <div style="display: flex; flex-direction: column; gap: 4px; padding-top: 56px"><span style="font-size: 22px; font-weight: 600">{rt}</span><span style="font-size: 16px; color: #525C6B">{rd}</span></div>')
