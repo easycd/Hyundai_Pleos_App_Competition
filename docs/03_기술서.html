@@ -1,0 +1,1115 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>다음에 가게 — 기술서</title>
+<style>
+:root{--bg:#ffffff;--fg:#1f2328;--muted:#59636e;--line:#d1d9e0;--head:#f6f8fa;--accent:#0969da;--accent-bg:#ddf4ff;--code:#f6f8fa}
+@media (prefers-color-scheme: dark){:root{--bg:#0d1117;--fg:#e6edf3;--muted:#9198a1;--line:#3d444d;--head:#161b22;--accent:#4493f8;--accent-bg:#121d2f;--code:#161b22}}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--fg);font-family:"Pretendard","Apple SD Gothic Neo","Malgun Gothic","Noto Sans KR",system-ui,-apple-system,"Segoe UI",sans-serif;font-size:16px;line-height:1.7;word-break:keep-all}
+main{max-width:960px;margin:0 auto;padding:40px 24px 80px}
+h1{font-size:2em;border-bottom:1px solid var(--line);padding-bottom:.3em;margin:0 0 .6em}
+h2{font-size:1.45em;border-bottom:1px solid var(--line);padding-bottom:.3em;margin-top:2em}
+h3{font-size:1.15em;margin-top:1.6em}
+p{margin:.7em 0}
+a{color:var(--accent);text-decoration:none}a:hover{text-decoration:underline}
+.tbl{overflow-x:auto;margin:1em 0}
+table{border-collapse:collapse;width:100%;font-size:.92em}
+th,td{border:1px solid var(--line);padding:8px 12px;vertical-align:top;text-align:left}
+th{background:var(--head);font-weight:600;white-space:nowrap}
+tr:nth-child(even) td{background:color-mix(in srgb,var(--head) 50%,transparent)}
+code{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:.9em;background:var(--code);padding:.15em .35em;border-radius:4px}
+.flow{margin:1.2em 0;text-align:center}.flow svg{max-width:100%;height:auto;border:1px solid var(--line);border-radius:8px;padding:8px;background:var(--bg)}
+.flow text{fill:var(--fg);font-family:inherit}.flow .quiet{fill:var(--muted)}.flow .box{fill:none;stroke:var(--muted);stroke-width:1.25}.flow .box.main{fill:var(--accent-bg);stroke:var(--accent);stroke-width:2}
+.flow .edges path{fill:none;stroke:var(--muted);stroke-width:1.25}.flow .arrowhead{fill:var(--muted)}.flow figcaption{color:var(--muted);font-size:.9em;margin-top:.4em}
+ul.task-list{list-style:none;padding-left:.4em}
+ul.task-list li{margin:.4em 0}
+ul.task-list input{margin-right:.5em;transform:translateY(1px)}
+li{margin:.3em 0}
+strong{font-weight:650}
+.meta{color:var(--muted);font-size:.95em}
+hr{border:0;border-top:1px solid var(--line);margin:2em 0}
+@media print{main{padding:0}h2{break-after:avoid}.tbl{break-inside:avoid}}
+.flow .box.fail{fill:#fff7e0;stroke:#d9a300}.flow .lane{fill:color-mix(in srgb,var(--head) 60%,transparent);stroke:var(--line);stroke-dasharray:4 4}
+.flow .edges path.dash{stroke-dasharray:5 4;stroke:#d9a300}
+pre{background:var(--code);padding:14px 16px;border-radius:8px;overflow-x:auto;font-size:.82em;line-height:1.5}pre code{background:none;padding:0}
+@media (prefers-color-scheme: dark){.flow .box.fail{fill:#2a2200}}
+</style>
+</head>
+<body>
+<main>
+<h1 id="다음에-가게--기술서">다음에 가게 — 기술서</h1>
+<p class="meta">작성일 2026-11-09 · 작성자 재원 (easycd) · 기준 문서: <a
+href="01_개발기획서.md">01_개발기획서</a>, <a
+href="02_화면설계서.md">02_화면설계서</a>. 편집 원본은 <a
+href="https://claude.ai/artifact/TEbNEvND5SEzQuwQbZ8E6L">Claude
+Doc</a>이다.</p>
+<p>앱은 기능마다 따로 떼어낸 모듈로 나누고, 의존은 한 방향(기능 →
+공통)으로만 흐르게 만든다. 새 기능은 기존 코드를 고치지 않고 모듈 하나와
+등록 클래스 하나를 더해서 넣는다. 이 문서는 <a
+href="01_개발기획서.md">개발 기획서</a>의 기능 ID(F-01~F-19)와 화면
+설계서의 화면 ID(S-00~S-17)를 그대로 쓴다.</p>
+<h2 id="1-설계-원칙">1. 설계 원칙</h2>
+<p>재원 님이 정한 다섯 가지 기준을 아래 방법으로 지킨다. 규칙은 사람이
+기억하는 대신 빌드와 자동 검사가 막도록 둔다.</p>
+<div class="tbl"><table>
+<thead>
+<tr class="header">
+<th>기준</th>
+<th>지키는 방법</th>
+<th>자세히</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>1. 기능 추가가 쉬운 구조</td>
+<td>기능 = 모듈 1개. 음성 명령·추천 점수·리마인드 필터·화면 이동·글레오
+기능은 등록표(플러그인) 방식이라 클래스 하나만 더하면 붙는다</td>
+<td>3장, 6장</td>
+</tr>
+<tr class="even">
+<td>2. 기능별로 파일 나눠 코딩</td>
+<td>화면마다 Screen·Route·ViewModel·UiState·Action 파일 5개, 파일 1개에
+공개 클래스 1개. 파일 300줄, 함수 40줄 상한</td>
+<td>4장</td>
+</tr>
+<tr class="odd">
+<td>3. 스파게티 코드 금지</td>
+<td>기능 모듈끼리 서로 모름(컴파일러가 막음). SDK·DB·네트워크는
+인터페이스 뒤에만. 구조 규칙은 테스트로 검사해 어기면 빌드 실패</td>
+<td>5장</td>
+</tr>
+<tr class="even">
+<td>4. 흐름도와 파이프라인 설계</td>
+<td>음성 저장·리마인드는 단계(Stage)를 잇는 파이프라인. 단계마다
+입력·출력·제한 시간·실패 시 다음 행동을 정해 둔다</td>
+<td>7장</td>
+</tr>
+<tr class="odd">
+<td>5. 최적화</td>
+<td>응답 시간·메모리·배터리 목표를 수치로 정하고, 단계별 시간 예산을
+나눠 잰다. 고정 크기 버퍼, 격자 색인, 캐시, 지연 초기화</td>
+<td>9장</td>
+</tr>
+</tbody>
+</table></div>
+<p>두 가지는 내가 정한 가정이다. 모듈을 Gradle 모듈로 나누는 것(패키지만
+나누면 서로 참조를 막을 수 없음)과 의존성 주입에 Hilt를 쓰는 것이다. 1인
+개발에서 모듈이 많으면 설정이 늘어나므로, 공통 빌드 설정을 build-logic
+한 곳에 모아 모듈마다 3줄로 끝낸다.</p>
+<h2 id="2-기술-스택과-개발-환경">2. 기술 스택과 개발 환경</h2>
+<p>Kotlin + Jetpack Compose 단일 앱이고, Pleos Connect SDK 5종을 전부
+쓴다. 서버는 없고 외부 호출은 카카오 로컬 API 하나다. 라이브러리 버전은
+개발 시작일에 안정 최신으로 고정하고 gradle/libs.versions.toml 한 곳에만
+적는다.</p>
+<div class="tbl"><table>
+<thead>
+<tr class="header">
+<th>영역</th>
+<th>선택</th>
+<th>이유</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>언어·빌드</td>
+<td>Kotlin 2.x, JDK 17, Android Gradle Plugin 8.x, minSdk 28,
+targetSdk는 Emulator 이미지 기준</td>
+<td>Pleos Connect Emulator 2.1.0이 API 28 이상</td>
+</tr>
+<tr class="even">
+<td>UI</td>
+<td>Jetpack Compose, Navigation Compose, Material3 위에 자체 글라스
+테마(core/ui)</td>
+<td>화면 설계서의 다크·라이트 토큰을 코드로 옮김. 세로·가로 창 모두
+대응</td>
+</tr>
+<tr class="odd">
+<td>구조</td>
+<td>멀티모듈, 단방향 데이터 흐름(UiState + Action), Hilt 의존성
+주입</td>
+<td>3장</td>
+</tr>
+<tr class="even">
+<td>비동기</td>
+<td>Kotlin Coroutines, Flow, StateFlow</td>
+<td>SDK 콜백을 전부 Flow로 바꿔 파이프라인에 흘림</td>
+</tr>
+<tr class="odd">
+<td>저장</td>
+<td>Room(가게·방문·공유 목록), DataStore(설정)</td>
+<td>8장</td>
+</tr>
+<tr class="even">
+<td>네트워크</td>
+<td>Retrofit + OkHttp + kotlinx.serialization</td>
+<td>카카오 로컬 REST API 1개. 응답 캐시는 OkHttp 캐시 디렉터리</td>
+</tr>
+<tr class="odd">
+<td>백그라운드</td>
+<td>WorkManager</td>
+<td>네트워크 복구 후 미확인 가게 후보 재검색 1건뿐</td>
+</tr>
+<tr class="even">
+<td>Pleos SDK</td>
+<td>SpeechToText 3.3.1, TextToSpeech 3.3.1, FusedLocation 1.1.3,
+NaviHelper 3.0.5, Vehicle 2.3.2 (Maven nexus-playground.pleos.ai)</td>
+<td>전부 core/pleos 모듈 안 인터페이스 뒤에 둔다</td>
+</tr>
+<tr class="odd">
+<td>외부 API</td>
+<td>카카오 로컬 API(POI), 카카오맵 SDK(지도, AAOS 동작 미확인),
+ZXing(QR)</td>
+<td>기획서 9장 1안</td>
+</tr>
+<tr class="even">
+<td>글레오 연동</td>
+<td>assets/schema.json + Intent/Broadcast (F-19, 확장)</td>
+<td>SDK 없음, 안드로이드 기본 API만</td>
+</tr>
+<tr class="odd">
+<td>테스트</td>
+<td>JUnit5, MockK, Turbine(Flow), Konsist(구조 규칙), Compose UI
+테스트</td>
+<td>10장</td>
+</tr>
+<tr class="even">
+<td>코드 품질</td>
+<td>ktlint, detekt, Android Lint, Git pre-commit 훅</td>
+<td>5장</td>
+</tr>
+<tr class="odd">
+<td>개발 환경</td>
+<td>Android Studio, Pleos Connect Emulator 2.1.0 + Virtual Console,
+Windows PC 2대(C:\Project, C:\work)</td>
+<td>저장소 GitHub easycd/Hyundai_Pleos_App_Competition, 앱 코드는 app/
+폴더</td>
+</tr>
+</tbody>
+</table></div>
+<p>패키지명은 기획서 13장의 가정대로 com.easycd.nextplace를 쓴다.</p>
+<h2 id="3-전체-구조">3. 전체 구조</h2>
+<p>모듈은 세 층이다. app 셀은 조립만 하고, feature 모듈 8개가 기능을
+갖고, core 모듈 5개가 공통 재료를 준다. 화살표는 아래로만 향하고,
+feature끼리는 서로 모른다.</p>
+<figure class="flow"><svg viewBox="0 0 760 526" role="img" aria-label="모듈 구조"><defs><marker id="ah" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path class="arrowhead" d="M0 0L10 5L0 10z"/></marker></defs><text x="24" y="30" font-size="15" font-weight="600">의존은 앱 셸 → 기능 → 공통, 한 방향으로만 흐른다</text><rect class="box main" x="24" y="48" width="712" height="40" rx="8"/><text x="380.0" y="73.0" text-anchor="middle" font-weight="600" font-size="13">app 셸 · 내비게이션 그래프 · Hilt 조립 · 기능 등록표</text><rect class="lane" x="24" y="130" width="712" height="108" rx="8"/><text class="quiet" x="32" y="122" font-size="11.5">feature · 기능 모듈 8개 (서로 참조 금지)</text><rect class="box" x="32.0" y="146" width="80" height="76" rx="8"/><text x="72.0" y="170" text-anchor="middle" font-weight="600" font-size="12.5">voicesave</text><text class="quiet" x="72.0" y="188" text-anchor="middle" font-size="11.5">F-01~06</text><rect class="box" x="120.0" y="146" width="80" height="76" rx="8"/><text x="160.0" y="170" text-anchor="middle" font-weight="600" font-size="12.5">remind</text><text class="quiet" x="160.0" y="188" text-anchor="middle" font-size="11.5">F-08</text><rect class="box" x="208.0" y="146" width="80" height="76" rx="8"/><text x="248.0" y="170" text-anchor="middle" font-weight="600" font-size="12.5">recommend</text><text class="quiet" x="248.0" y="188" text-anchor="middle" font-size="11.5">F-09, F-10</text><rect class="box" x="296.0" y="146" width="80" height="76" rx="8"/><text x="336.0" y="170" text-anchor="middle" font-weight="600" font-size="12.5">visit</text><text class="quiet" x="336.0" y="188" text-anchor="middle" font-size="11.5">F-11</text><rect class="box" x="384.0" y="146" width="80" height="76" rx="8"/><text x="424.0" y="170" text-anchor="middle" font-weight="600" font-size="12.5">myplaces</text><text class="quiet" x="424.0" y="188" text-anchor="middle" font-size="11.5">F-07, F-12</text><rect class="box" x="472.0" y="146" width="80" height="76" rx="8"/><text x="512.0" y="170" text-anchor="middle" font-weight="600" font-size="12.5">share</text><text class="quiet" x="512.0" y="188" text-anchor="middle" font-size="11.5">F-13</text><rect class="box" x="560.0" y="146" width="80" height="76" rx="8"/><text x="600.0" y="170" text-anchor="middle" font-weight="600" font-size="12.5">settings</text><text class="quiet" x="600.0" y="188" text-anchor="middle" font-size="11.5">F-15</text><rect class="box" x="648.0" y="146" width="80" height="76" rx="8"/><text x="688.0" y="170" text-anchor="middle" font-weight="600" font-size="12.5">gleo</text><text class="quiet" x="688.0" y="188" text-anchor="middle" font-size="11.5">F-19 확장</text><rect class="lane" x="24" y="298" width="712" height="140" rx="8"/><text class="quiet" x="32" y="290" font-size="11.5">core · 공통 모듈 5개 (기능을 모름)</text><rect class="box" x="32.0" y="312" width="130" height="112" rx="8"/><text x="97.0" y="336" text-anchor="middle" font-weight="600">domain</text><text class="quiet" x="97.0" y="358" text-anchor="middle" font-size="11.5">Place · Visit 모델</text><text class="quiet" x="97.0" y="376" text-anchor="middle" font-size="11.5">저장소 인터페이스</text><text class="quiet" x="97.0" y="394" text-anchor="middle" font-size="11.5">의도 분석 규칙</text><rect class="box" x="173.5" y="312" width="130" height="112" rx="8"/><text x="238.5" y="336" text-anchor="middle" font-weight="600">data</text><text class="quiet" x="238.5" y="358" text-anchor="middle" font-size="11.5">Room DB · DAO</text><text class="quiet" x="238.5" y="376" text-anchor="middle" font-size="11.5">DataStore 설정</text><text class="quiet" x="238.5" y="394" text-anchor="middle" font-size="11.5">저장소 구현</text><rect class="box" x="315.0" y="312" width="130" height="112" rx="8"/><text x="380.0" y="336" text-anchor="middle" font-weight="600">pleos</text><text class="quiet" x="380.0" y="358" text-anchor="middle" font-size="11.5">STT · TTS 래퍼</text><text class="quiet" x="380.0" y="376" text-anchor="middle" font-size="11.5">위치 · 내비 래퍼</text><text class="quiet" x="380.0" y="394" text-anchor="middle" font-size="11.5">차량 상태 래퍼</text><rect class="box" x="456.5" y="312" width="130" height="112" rx="8"/><text x="521.5" y="336" text-anchor="middle" font-weight="600">poi</text><text class="quiet" x="521.5" y="358" text-anchor="middle" font-size="11.5">카카오 로컬 API</text><text class="quiet" x="521.5" y="376" text-anchor="middle" font-size="11.5">내장 샘플 데이터</text><text class="quiet" x="521.5" y="394" text-anchor="middle" font-size="11.5">응답 캐시</text><rect class="box" x="598.0" y="312" width="130" height="112" rx="8"/><text x="663.0" y="336" text-anchor="middle" font-weight="600">ui</text><text class="quiet" x="663.0" y="358" text-anchor="middle" font-size="11.5">글라스 테마 토큰</text><text class="quiet" x="663.0" y="376" text-anchor="middle" font-size="11.5">공통 컴포넌트</text><text class="quiet" x="663.0" y="394" text-anchor="middle" font-size="11.5">주행 제한 래퍼</text><rect class="box" x="24" y="476" width="712" height="36" rx="8"/><text x="380.0" y="499.0" text-anchor="middle" font-weight="600" font-size="13">바깥 세계 · Pleos SDK 5종 · 카카오 API · Android 시스템 (Intent, Room, 파일)</text><g class="edges"><path class="" d="M380 88V128" marker-end="url(#ah)"/><path class="" d="M380 238V296" marker-end="url(#ah)"/><path class="" d="M380 438V474" marker-end="url(#ah)"/></g></svg>
+<figcaption>그림: 모듈 구조 · app 1 + feature 8 + core 5</figcaption></figure>
+<p>feature는 이웃 feature를 참조할 수 없고 core는 어떤 feature도 모른다.
+그래서 기능 하나를 빼거나 더해도 나머지는 그대로 컴파일된다.</p>
+<div class="tbl"><table>
+<thead>
+<tr class="header">
+<th>층</th>
+<th>모듈</th>
+<th>하는 일</th>
+<th>할 수 없는 일</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>app</td>
+<td>app</td>
+<td>내비게이션 그래프 조립, Hilt 루트, 기능 등록표(6장), 시작 화면
+S-00·S-13·S-17</td>
+<td>업무 로직</td>
+</tr>
+<tr class="even">
+<td>feature</td>
+<td>voicesave, remind, recommend, visit, myplaces, share, settings,
+gleo</td>
+<td>화면(Compose) + ViewModel + 그 기능만의 유스케이스·파이프라인</td>
+<td>다른 feature 참조, SDK 직접 호출, Room 직접 접근</td>
+</tr>
+<tr class="odd">
+<td>core</td>
+<td>domain</td>
+<td>Place·Visit·ShareList 모델, 저장소·SDK 인터페이스, 의도·슬롯 규칙,
+점수 함수</td>
+<td>Android 의존(순수 Kotlin)</td>
+</tr>
+<tr class="even">
+<td>core</td>
+<td>data</td>
+<td>Room 엔티티·DAO·마이그레이션, DataStore, 저장소 구현</td>
+<td>화면, SDK</td>
+</tr>
+<tr class="odd">
+<td>core</td>
+<td>pleos</td>
+<td>SDK 5종을 Flow·suspend 함수로 감싼 래퍼, 재연결, 가짜
+구현(Emulator용)</td>
+<td>업무 판단</td>
+</tr>
+<tr class="even">
+<td>core</td>
+<td>poi</td>
+<td>카카오 로컬 API 클라이언트, 내장 샘플, 응답 캐시</td>
+<td>점수 계산(그건 domain)</td>
+</tr>
+<tr class="odd">
+<td>core</td>
+<td>ui</td>
+<td>글라스 테마 토큰(다크·라이트), 버튼·카드·칩·토스트·확인 창, 주행 중
+잠금 래퍼</td>
+<td>데이터 접근</td>
+</tr>
+</tbody>
+</table></div>
+<p>화면 한 장 안에서는 단방향으로 흐른다. 사용자 입력은 Action 하나로
+ViewModel에 들어가고, ViewModel은 유스케이스를 부른 뒤 UiState 하나를
+내보낸다. 화면은 UiState만 그린다. 음성 저장처럼 여러 단계를 거치는 일은
+ViewModel이 아니라 파이프라인(7장)이 맡고, ViewModel은 그 진행 상태를
+구독만 한다.</p>
+<h2 id="4-폴더와-파일-구조">4. 폴더와 파일 구조</h2>
+<p>파일은 기능 이름으로 찾는다. 화면 하나는 정해진 파일 5개로
+이루어지고, 기능의 나머지는 그 feature 폴더 안에만 있다. 아래는 저장소의
+app/ 폴더 트리다(docs/는 지금 문서가 있는 곳).</p>
+<pre class="text"><code>app/
+├─ settings.gradle.kts            ← 모듈 목록 (feature 추가 시 한 줄)
+├─ gradle/libs.versions.toml      ← 라이브러리 버전 한 곳
+├─ build-logic/                   ← 공통 빌드 설정 (feature·core 플러그인)
+├─ app/                           ← 앱 셸
+│  ├─ NextPlaceApp.kt            Hilt 루트
+│  ├─ MainActivity.kt           창 1개, 테마·주행 상태 제공
+│  ├─ navigation/AppNavGraph.kt  화면 등록표 조립
+│  ├─ registry/FeatureRegistry.kt 기능 등록표 (6장)
+│  ├─ start/SplashScreen.kt      S-00
+│  ├─ start/OnboardingScreen.kt  S-13
+│  └─ start/PermissionDeniedScreen.kt  S-17
+├─ feature/
+│  ├─ voicesave/                 F-01~F-06 · S-01, S-01b, S-02a~c, S-14, S-03, S-03b, S-04a, S-04b
+│  │  ├─ ui/home/               HomeScreen.kt HomeRoute.kt HomeViewModel.kt HomeUiState.kt HomeAction.kt
+│  │  ├─ ui/listen/             ListenOverlay.kt ListenViewModel.kt ListenUiState.kt ListenAction.kt
+│  │  ├─ ui/confirm/            ConfirmCard.kt ConfirmViewModel.kt ConfirmUiState.kt ConfirmAction.kt
+│  │  ├─ pipeline/              SavePipeline.kt · stage/ (ListenStage CaptureStage ParseStage LocateStage SearchStage RankStage ConfirmStage PersistStage)
+│  │  ├─ parse/                 IntentParser.kt SlotExtractor.kt (규칙표는 res/raw/intent_rules.json)
+│  │  ├─ rank/                  CandidateScorer.kt
+│  │  └─ VoiceSaveFeature.kt    등록 객체 (화면·음성 명령·글레오 기능 선언)
+│  ├─ remind/                    F-08 · S-05, S-05b
+│  │  ├─ ui/                    RemindCard.kt RemindViewModel.kt RemindUiState.kt RemindAction.kt
+│  │  ├─ pipeline/              RemindPipeline.kt · filter/ (MealTimeFilter DailyOnceFilter NaviBusyFilter CooldownFilter)
+│  │  ├─ geofence/              ProximityWatcher.kt (SDK 근접 알림 또는 직접 거리 계산)
+│  │  └─ RemindFeature.kt
+│  ├─ recommend/                 F-09, F-10 · S-06, S-06b, S-06c
+│  │  ├─ ui/                    RecommendScreen.kt … 5개
+│  │  ├─ score/                 RecommendScorer.kt · rule/ (DistanceRule OpenNowRule MemoRule LastVisitRule)
+│  │  └─ RecommendFeature.kt
+│  ├─ visit/                     F-11 · S-15, S-15b
+│  ├─ myplaces/                  F-07, F-12 · S-07~S-09 (목록·상세·수정·삭제·미확인 정리·지도)
+│  ├─ share/                     F-13 · S-10, S-16, S-16b
+│  ├─ settings/                  F-15 · S-11, S-11b
+│  └─ gleo/                      F-19 · GleoActionReceiver.kt GleoResponder.kt (assets/schema.json은 app/에)
+├─ core/
+│  ├─ domain/                    model/ repository/(인터페이스) sdk/(인터페이스) usecase/ pipeline/(Stage 기반 클래스) Tunables.kt
+│  ├─ data/                      db/ (NextPlaceDb PlaceDao VisitDao ShareDao migration/) entity/ mapper/ repository/(구현) prefs/
+│  ├─ pleos/                     stt/ tts/ location/ navi/ vehicle/ · 각 폴더에 Real*.kt Fake*.kt
+│  ├─ poi/                       KakaoLocalApi.kt KakaoPoiSource.kt SamplePoiSource.kt PoiCache.kt
+│  └─ ui/                        theme/ (Color Glass Type) component/ (GlassCard PillButton StatusChip Toast ConfirmDialog) drive/ (DriveLock · S-12, F-14)
+└─ docs/ (기존)</code></pre>
+<p><strong>파일 나누기 규칙</strong></p>
+<div class="tbl"><table>
+<thead>
+<tr class="header">
+<th>규칙</th>
+<th>내용</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>화면 1개 = 파일 5개</td>
+<td>Screen(그리기만), Route(ViewModel 연결·이동), ViewModel(상태 전환),
+UiState(data class), Action(sealed interface). Screen은 UiState와
+onAction만 받는 순수 함수라 미리보기와 테스트가 쉽다. 상태가 없는 시작
+화면 S-00·S-13·S-17은 Screen 파일 1개만 둔다</td>
+</tr>
+<tr class="even">
+<td>파일 1개 = 공개 클래스 1개</td>
+<td>파일 이름 = 클래스 이름. private 보조 클래스는 같은 파일에 둘 수
+있다</td>
+</tr>
+<tr class="odd">
+<td>크기 상한</td>
+<td>파일 300줄, 함수 40줄, 함수 인자 5개, 중첩 3단. detekt가 검사</td>
+</tr>
+<tr class="even">
+<td>단계 1개 = 파일 1개</td>
+<td>파이프라인 Stage와 필터 Rule은 각각 파일 하나. 새 규칙은 파일 추가로
+끝난다</td>
+</tr>
+<tr class="odd">
+<td>문자열과 숫자</td>
+<td>음성 안내 문장은 res/values/strings_voice.xml, 임계값(반경 150m,
+대기 5초 등)은 core/domain/Tunables.kt 한 곳</td>
+</tr>
+<tr class="even">
+<td>시험 파일 위치</td>
+<td>같은 모듈의 src/test 에 같은 패키지 경로, 파일명 + Test</td>
+</tr>
+</tbody>
+</table></div>
+<h2 id="5-코드-규칙">5. 코드 규칙</h2>
+<p>스파게티 코드는 의존이 얽히고, 한 클래스가 여러 일을 하고, 상태가
+여기저기 흩어질 때 생긴다. 세 가지를 각각 규칙과 자동 검사로 막는다.
+규칙을 어기면 커밋 전 훅과 GitHub Actions에서 빌드가 실패한다.</p>
+<div class="tbl"><table>
+<thead>
+<tr class="header">
+<th>번호</th>
+<th>규칙</th>
+<th>막는 문제</th>
+<th>검사 방법</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>R1</td>
+<td>의존은 app → feature → core 방향만. feature끼리, core → feature
+금지</td>
+<td>얽힌 참조</td>
+<td>Gradle 모듈 경계 + Konsist 테스트</td>
+</tr>
+<tr class="even">
+<td>R2</td>
+<td>SDK·Room·Retrofit 클래스는 core/pleos, core/data, core/poi 안에서만
+import</td>
+<td>바깥 라이브러리가 기능 코드에 퍼짐</td>
+<td>Konsist: feature 모듈에 ai.pleos, androidx.room, retrofit2 import
+금지</td>
+</tr>
+<tr class="odd">
+<td>R3</td>
+<td>화면은 UiState만 그리고 Action만 보낸다. Composable 안에
+ViewModel·저장소 직접 호출 금지</td>
+<td>화면에 로직이 박힘</td>
+<td>Konsist: <code>*Screen.kt</code>는 ViewModel 타입을 파라미터로 받지
+않음</td>
+</tr>
+<tr class="even">
+<td>R4</td>
+<td>ViewModel은 단계를 모른다. 순서가 있는 일은 파이프라인 클래스로</td>
+<td>ViewModel이 800줄이 되는 것</td>
+<td>detekt 파일 300줄 상한</td>
+</tr>
+<tr class="odd">
+<td>R5</td>
+<td>클래스는 이름이 말하는 일 하나만. Manager·Helper·Util 이름 금지</td>
+<td>무엇이든 넣는 클래스</td>
+<td>detekt 이름 규칙</td>
+</tr>
+<tr class="even">
+<td>R6</td>
+<td>상태는 한 곳. 화면 상태는 ViewModel의 StateFlow 1개, 진행 중인 음성
+작업은 파이프라인의 StateFlow 1개</td>
+<td>상태가 흩어져 서로 어긋남</td>
+<td>코드 리뷰 체크리스트</td>
+</tr>
+<tr class="odd">
+<td>R7</td>
+<td>콜백 금지. SDK 콜백은 래퍼에서 Flow 또는 suspend로 바꾼다</td>
+<td>콜백 지옥</td>
+<td>Konsist: feature 모듈에 Listener 인터페이스 구현 금지</td>
+</tr>
+<tr class="even">
+<td>R8</td>
+<td>숫자와 문장은 코드에 직접 쓰지 않는다</td>
+<td>임계값이 여기저기</td>
+<td>detekt MagicNumber, 문자열 리소스 Lint</td>
+</tr>
+<tr class="odd">
+<td>R9</td>
+<td>null 반환 대신 Result 또는 sealed 결과. 예외는 래퍼 경계에서 잡아
+결과로 바꾼다</td>
+<td>실패 경로가 숨음</td>
+<td>코드 리뷰</td>
+</tr>
+<tr class="even">
+<td>R10</td>
+<td>기능 플래그로 미완성 기능을 감싼다. 주석 처리 코드, TODO 방치
+금지</td>
+<td>죽은 코드</td>
+<td>detekt ForbiddenComment</td>
+</tr>
+</tbody>
+</table></div>
+<p><strong>이름 규칙</strong></p>
+<div class="tbl"><table>
+<thead>
+<tr class="header">
+<th>대상</th>
+<th>형식</th>
+<th>예</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>화면 파일</td>
+<td>기능명 + Screen / Route / ViewModel / UiState / Action</td>
+<td>HomeScreen.kt, HomeAction.kt</td>
+</tr>
+<tr class="even">
+<td>파이프라인 단계</td>
+<td>동사 + Stage</td>
+<td>LocateStage, RankStage</td>
+</tr>
+<tr class="odd">
+<td>필터·규칙</td>
+<td>조건 + Filter / Rule</td>
+<td>MealTimeFilter, DistanceRule</td>
+</tr>
+<tr class="even">
+<td>유스케이스</td>
+<td>동사 + 목적어 + UseCase</td>
+<td>SavePlaceUseCase</td>
+</tr>
+<tr class="odd">
+<td>SDK 래퍼</td>
+<td>인터페이스는 역할명, 구현은 Real/Fake 접두</td>
+<td>SpeechRecognizer ← RealSpeechRecognizer, FakeSpeechRecognizer</td>
+</tr>
+<tr class="even">
+<td>저장소</td>
+<td>모델명 + Repository</td>
+<td>PlaceRepository (인터페이스 domain, 구현 data)</td>
+</tr>
+<tr class="odd">
+<td>임계값</td>
+<td>Tunables 객체의 상수, 단위 접미</td>
+<td>Tunables.POI_RADIUS_M = 150, CONFIRM_WAIT_MS = 5000</td>
+</tr>
+</tbody>
+</table></div>
+<p>커밋 전 훅은 ktlint 자동 정렬 → detekt → 바뀐 모듈의 단위 테스트
+순서로 1분 안에 끝내도록 한다. 더 오래 걸리는 테스트는 GitHub
+Actions에서만 돌린다.</p>
+<h2 id="6-기능-추가-방법">6. 기능 추가 방법</h2>
+<p>새 기능은 기존 파일을 고치지 않고 넣는다. 확장 지점은 일곱 곳이고,
+모두 "클래스 하나 더하고 등록표에 한 줄"으로 끝난다.</p>
+<div class="tbl"><table>
+<thead>
+<tr class="header">
+<th>확장 지점</th>
+<th>인터페이스</th>
+<th>등록하는 곳</th>
+<th>예</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>새 화면</td>
+<td>Feature.routes(): <code>List&lt;FeatureRoute&gt;</code></td>
+<td>각 feature의 <code>*Feature.kt</code> →
+app/registry/FeatureRegistry.kt</td>
+<td>방문 인증 리뷰 화면(F-17)</td>
+</tr>
+<tr class="even">
+<td>새 음성 명령</td>
+<td>VoiceCommand { 트리거 단어, 우선순위, handle(문장, 슬롯) }</td>
+<td>Feature.voiceCommands()</td>
+<td>"여기 평점 4점" → RateCommand</td>
+</tr>
+<tr class="odd">
+<td>새 파이프라인 단계</td>
+<td><code>Stage&lt;입력, 출력&gt; { run, timeout, onFail }</code></td>
+<td>SavePipeline의 단계 목록</td>
+<td>LLM 보강(F-16) = ParseStage 뒤에 LlmParseStage 추가</td>
+</tr>
+<tr class="even">
+<td>새 추천·리마인드 규칙</td>
+<td>Rule { weight, score(place, context) } / Filter { pass(event) }</td>
+<td>RecommendScorer, RemindPipeline의 규칙 목록</td>
+<td>"최근 평점 높은 가게 우선" = RatingRule</td>
+</tr>
+<tr class="odd">
+<td>새 글레오 기능</td>
+<td>GleoFunction { name, params, handle }</td>
+<td>Feature.gleoFunctions() → 빌드가 assets/schema.json 생성</td>
+<td>RECOMMEND_PLACE</td>
+</tr>
+<tr class="even">
+<td>새 데이터 필드</td>
+<td>Room 마이그레이션 클래스</td>
+<td>core/data/db/migration/</td>
+<td>Visit.rating (F-17)</td>
+</tr>
+<tr class="odd">
+<td>새 바깥 서비스</td>
+<td>domain의 인터페이스 + Real/Fake 구현</td>
+<td>Hilt 모듈 1개</td>
+<td>네이버 POI로 교체 = NaverPoiSource</td>
+</tr>
+</tbody>
+</table></div>
+<p><strong>새 기능 추가 순서 (예: F-17 방문 인증 리뷰)</strong></p>
+<ol type="1">
+<li>settings.gradle.kts에 모듈 한 줄: include(":feature:review").
+build-logic 플러그인이 설정을 얻어 build 파일은 3줄이다.</li>
+<li>필요한 데이터가 있으면 core/domain 모델에 필드를 더하고 core/data에
+마이그레이션 1개.</li>
+<li>feature/review 안에 화면 파일 5개와 유스케이스를 만든다. 다른
+feature는 건드리지 않는다.</li>
+<li>ReviewFeature.kt에 화면·음성 명령·글레오 기능을 선언하고
+FeatureRegistry에 한 줄 등록.</li>
+<li>단위 테스트와 화면 미리보기를 같은 모듈에 둔다. Konsist가 R1~R3을
+자동으로 검사한다.</li>
+<li>기능 플래그 FeatureFlags.REVIEW를 꺼 둔 채 합치고, 준비되면
+켠다.</li>
+</ol>
+<p>등록표는 리플렉션이 아니라 손으로 쓴 목록이다. 목록이 보이고, 빌드가
+빠르고, 어떤 기능이 켜져 있는지 한 파일에서 읽히기 때문이다.</p>
+<h2 id="7-핵심-흐름도와-파이프라인">7. 핵심 흐름도와 파이프라인</h2>
+<p>순서가 있는 일은 전부 파이프라인이다. 파이프라인은 Stage 목록을
+차례로 실행하는 작은 클래스 하나(core/domain/pipeline/Pipeline.kt)이고,
+단계마다 입력 타입·출력 타입·제한 시간·실패 시 행동이 정해져 있다. 진행
+상태는 <code>StateFlow&lt;PipelineState&gt;</code> 하나로 나가고
+ViewModel은 그걸 화면 상태로 바꾸기만 한다. 화면 사이의 이동은 화면
+설계서 3장 흐름도를 그대로 따른다.</p>
+<p><strong>7-1. 음성 저장 (F-01~F-06, 흐름 A)</strong></p>
+<figure class="flow"><svg viewBox="0 0 760 420" role="img" aria-label="저장 파이프라인"><defs><marker id="ah" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path class="arrowhead" d="M0 0L10 5L0 10z"/></marker></defs><text x="24" y="30" font-size="15" font-weight="600">말이 끝난 뒤 2초 안에 되묻고, 실패해도 기록은 남는다</text><text class="quiet" x="24" y="50" font-size="11.5">저장 파이프라인 8단계 · 각 단계의 시간 예산</text><rect class="box" x="24" y="92" width="156" height="64" rx="8"/><text x="102.0" y="116" text-anchor="middle" font-weight="600" font-size="13">1 듣기 Listen</text><text class="quiet" x="102.0" y="134" text-anchor="middle" font-size="11.5">STT · 말 끝나고 1.5초</text><rect class="box" x="204" y="92" width="156" height="64" rx="8"/><text x="282.0" y="116" text-anchor="middle" font-weight="600" font-size="13">2 위치 고정 Capture</text><text class="quiet" x="282.0" y="134" text-anchor="middle" font-size="11.5">버퍼 60초 복사 · 0ms</text><rect class="box" x="384" y="92" width="156" height="64" rx="8"/><text x="462.0" y="116" text-anchor="middle" font-weight="600" font-size="13">3 의도·슬롯 Parse</text><text class="quiet" x="462.0" y="134" text-anchor="middle" font-size="11.5">규칙표 · 50ms 안</text><rect class="box" x="564" y="92" width="156" height="64" rx="8"/><text x="642.0" y="116" text-anchor="middle" font-weight="600" font-size="13">4 지점 추정 Locate</text><text class="quiet" x="642.0" y="134" text-anchor="middle" font-size="11.5">시점·방향 → 좌표 · 10ms</text><rect class="box" x="24" y="212" width="156" height="64" rx="8"/><text x="102.0" y="236" text-anchor="middle" font-weight="600" font-size="13">5 POI 검색 Search</text><text class="quiet" x="102.0" y="254" text-anchor="middle" font-size="11.5">반경 150m · 1.2초 제한</text><rect class="box" x="204" y="212" width="156" height="64" rx="8"/><text x="282.0" y="236" text-anchor="middle" font-weight="600" font-size="13">6 점수 Rank</text><text class="quiet" x="282.0" y="254" text-anchor="middle" font-size="11.5">업종·이름·좌우 · 20ms</text><rect class="box" x="384" y="212" width="156" height="64" rx="8"/><text x="462.0" y="236" text-anchor="middle" font-weight="600" font-size="13">7 되묻기 Confirm</text><text class="quiet" x="462.0" y="254" text-anchor="middle" font-size="11.5">TTS + STT · 대기 5초 × 2</text><rect class="box main" x="564" y="212" width="156" height="64" rx="8"/><text x="642.0" y="236" text-anchor="middle" font-weight="600" font-size="13">8 저장 Persist</text><text class="quiet" x="642.0" y="254" text-anchor="middle" font-size="11.5">Room · TTS 저장했어요</text><g class="edges"><path class="" d="M180 124.0H204" marker-end="url(#ah)"/><path class="" d="M360 124.0H384" marker-end="url(#ah)"/><path class="" d="M540 124.0H564" marker-end="url(#ah)"/><path class="" d="M180 244.0H204" marker-end="url(#ah)"/><path class="" d="M360 244.0H384" marker-end="url(#ah)"/><path class="" d="M540 244.0H564" marker-end="url(#ah)"/><path class="" d="M642.0 156V182H102.0V212" marker-end="url(#ah)"/><path class="dash" d="M102.0 276V306H504V338" marker-end="url(#ah)"/><path class="dash" d="M282.0 276V306" marker-end="url(#ah)"/><path class="dash" d="M462.0 276V338" marker-end="url(#ah)"/></g><text class="quiet" x="110.0" y="296" font-size="11.5">후보 0건 · 오프라인 · 시간 초과</text><text class="quiet" x="470.0" y="296" font-size="11.5">아니 2회 · 5초 무응답</text><text class="quiet" x="720" y="296" text-anchor="end" font-size="11.5">2→7 합계 2초 안</text><rect class="box fail" x="384" y="338" width="336" height="52" rx="8"/><text x="552.0" y="360" text-anchor="middle" font-weight="600">미확인 저장 · 위치와 원문만</text><text class="quiet" x="552.0" y="378" text-anchor="middle" font-size="11.5">TTS 위치를 기억해 둘게요 · 정차 후 S-09에서 정리</text></svg>
+<figcaption>그림: 저장 파이프라인 · 8단계, 실패 경로 1개</figcaption></figure>
+<p>2~7단계는 말이 끝난 뒤 2초 안에 되묻기가 시작되도록 시간을 나눠 쓴다.
+어느 단계가 실패하든 미확인 저장으로 떨어지므로 기록은 항상 남는다.</p>
+<div class="tbl"><table>
+<thead>
+<tr class="header">
+<th>단계</th>
+<th>입력 → 출력</th>
+<th>시간 예산</th>
+<th>실패 시</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>1 Listen</td>
+<td>버튼 → 발화 텍스트 (부분 결과는 화면 S-02a에)</td>
+<td>말 끝나고 1.5초 무음이면 종료, 최대 15초</td>
+<td>빈 문장: "다시 말해 주세요" 1회 (S-02c), 그 뒤 종료</td>
+</tr>
+<tr class="even">
+<td>2 Capture</td>
+<td>버튼 누른 시각 → 위치 버퍼 60건 복사본 + 현재 위치·방향</td>
+<td>0ms (메모리 복사)</td>
+<td>위치 없음: 미확인 저장으로 (좌표 null)</td>
+</tr>
+<tr class="odd">
+<td>3 Parse</td>
+<td>텍스트 → Intent + Slots(업종·시점·방향·외관·이름·메모) (S-02b)</td>
+<td>50ms</td>
+<td>의도 불명: SAVE로 간주</td>
+</tr>
+<tr class="even">
+<td>4 Locate</td>
+<td>버퍼 + 시점 슬롯 → 추정 좌표 (방금 = 설정값 N초 전 구간 중점, 기본
+10~20초 · S-11 6번) + 좌우 판정용 진행 방향</td>
+<td>10ms</td>
+<td>버퍼 부족: 현재 위치 사용</td>
+</tr>
+<tr class="odd">
+<td>5 Search</td>
+<td>좌표 + 업종 → POI 후보 최대 15건 (캐시 먼저, 없으면 카카오)
+(S-14)</td>
+<td>1.2초 제한</td>
+<td>0건·오프라인·시간 초과: 미확인 저장, 복구 후 WorkManager가
+재검색</td>
+</tr>
+<tr class="even">
+<td>6 Rank</td>
+<td>후보 → 점수순 상위 5 (업종 일치 40 · 이름 일부 30 · 거리 20 · 좌우
+10)</td>
+<td>20ms</td>
+<td>1위 점수 &lt; 40: 미확인 저장 (HIG 제안 ⑯)</td>
+</tr>
+<tr class="odd">
+<td>7 Confirm</td>
+<td>1위 → TTS "○○ 맞나요?" → STT 예/아니오 (S-03, S-03b)</td>
+<td>대기 5초, 최대 2회</td>
+<td>아니 2회·무응답: 미확인 저장. 1위가 2위보다 30점(Tunables, 시험으로
+조정) 이상 높고 업종 일치면 되묻지 않고 바로 8</td>
+</tr>
+<tr class="even">
+<td>8 Persist</td>
+<td>확정 후보 또는 미확인 → Room Place 1행 + TTS + 토스트 (S-04a,
+S-04b)</td>
+<td>100ms</td>
+<td>DB 오류: 메모리 큐에 보관 후 재시도 3회</td>
+</tr>
+</tbody>
+</table></div>
+<p>일부 단계는 동시에 돌린다. 1단계에서 부분 결과가 들어오는 동안
+3·4단계를 미리 돌려 두고, 업종이 나오는 순간 5단계 검색을 시작한다.
+그래서 말이 끝났을 때 후보가 이미 와 있는 경우가 많다.</p>
+<p><strong>7-2. 근처 리마인드 (F-08, 흐름 B)</strong></p>
+<figure class="flow"><svg viewBox="0 0 760 318" role="img" aria-label="리마인드 파이프라인"><defs><marker id="ah" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path class="arrowhead" d="M0 0L10 5L0 10z"/></marker></defs><text x="24" y="34" font-size="15" font-weight="600">리마인드는 필터 4개를 모두 지나야 말을 건다</text><text class="quiet" x="24" y="54" font-size="11.5">이벤트 → 필터 → 질문 → 대답 · 어느 필터에 걸려도 소리 없이 끝</text><g class="edges"><path class="" d="M156 124.0H180" marker-end="url(#ah)"/><path class="" d="M396 124.0H420" marker-end="url(#ah)"/><path class="" d="M552 124.0H576" marker-end="url(#ah)"/><path class="" d="M648.0 152V232" marker-end="url(#ah)"/><path class="" d="M576 136.0H560V260.0H552" marker-end="url(#ah)"/></g><rect class="box" x="24" y="96" width="132" height="56" rx="8"/><text x="90.0" y="120" text-anchor="middle" font-weight="600" font-size="13">근접 이벤트</text><text class="quiet" x="90.0" y="138" text-anchor="middle" font-size="11.5">반경 500m · 1초 안</text><rect class="lane" x="180" y="76" width="216" height="172" rx="8"/><text class="quiet" x="192" y="94" font-size="11.5" font-weight="600">필터 · 순서대로, 하나라도 걸리면 종료</text><rect class="box" x="192" y="114" width="192" height="24" rx="6"/><text x="200" y="132" font-size="11.5">1 식사 시간대 11~14 · 17~20시</text><rect class="box" x="192" y="142" width="192" height="24" rx="6"/><text x="200" y="160" font-size="11.5">2 오늘 이 가게 안내 안 함</text><rect class="box" x="192" y="170" width="192" height="24" rx="6"/><text x="200" y="188" font-size="11.5">3 내비 목적지 없음 · 안내 음성 아님</text><rect class="box" x="192" y="198" width="192" height="24" rx="6"/><text x="200" y="216" font-size="11.5">4 직전 안내 후 10분 지남</text><rect class="box" x="420" y="96" width="132" height="56" rx="8"/><text x="486.0" y="120" text-anchor="middle" font-weight="600" font-size="13">TTS 질문</text><text class="quiet" x="486.0" y="138" text-anchor="middle" font-size="11.5">300m 앞 · 갈까요? + S-05</text><rect class="box" x="576" y="96" width="144" height="56" rx="8"/><text x="648.0" y="120" text-anchor="middle" font-weight="600" font-size="13">대답 듣기</text><text class="quiet" x="648.0" y="138" text-anchor="middle" font-size="11.5">STT 5초 · 안내 시작 버튼</text><rect class="box main" x="576" y="232" width="144" height="56" rx="8"/><text x="648.0" y="256" text-anchor="middle" font-weight="600" font-size="13">내비 목적지 설정</text><text class="quiet" x="648.0" y="274" text-anchor="middle" font-size="11.5">응 · requestRoute · S-05b</text><rect class="box" x="420" y="232" width="132" height="56" rx="8"/><text x="486.0" y="256" text-anchor="middle" font-weight="600" font-size="13">조용히 끝</text><text class="quiet" x="486.0" y="274" text-anchor="middle" font-size="11.5">아니 · 무응답 · 카드 10초</text><text class="quiet" x="656.0" y="192" font-size="11.5">응</text><text class="quiet" x="554" y="222" text-anchor="end" font-size="11.5">아니 · 5초 무응답</text></svg>
+<figcaption>그림: 리마인드 파이프라인 · 필터 4개, 결과 2개</figcaption></figure>
+<div class="tbl"><table>
+<thead>
+<tr class="header">
+<th>요소</th>
+<th>내용</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>이벤트 원천</td>
+<td>1안 FusedLocation addProximityAlert(가게마다 500m). 파라미터
+미확인이면 2안: 1초 위치 콜백에서 격자 색인(9장)으로 가까운 가게만 거리
+계산. 둘 다 ProximityWatcher 인터페이스 뒤에 있어 필터 이후는 같다</td>
+</tr>
+<tr class="even">
+<td>필터</td>
+<td>Filter 4개를 목록 순서로. 걸리면 이유를 로그만 남기고 소리 없이
+끝난다. 새 조건은 Filter 클래스 추가</td>
+</tr>
+<tr class="odd">
+<td>질문</td>
+<td>TTS 1문장(25자 안) + 차량 알림 카드 S-05 10초. 내비 안내 음성과
+겹치면 필터 3에서 이미 걸러짐</td>
+</tr>
+<tr class="even">
+<td>대답</td>
+<td>STT 5초 또는 카드 버튼. 응 → NaviHelper.requestRoute, S-05b.
+아니·무응답 → 카드만 사라짐</td>
+</tr>
+<tr class="odd">
+<td>빈도 상한</td>
+<td>같은 가게 하루 1회(Place.lastRemindedAt), 전체 10분 1회(DataStore에
+마지막 시각)</td>
+</tr>
+</tbody>
+</table></div>
+<p><strong>7-3. 추천 (F-09, F-10, 흐름 C)</strong></p>
+<ol type="1">
+<li>후보 수집: 현재 위치 10km 안 저장 가게 (미확인 제외). 격자 색인으로
+1ms 안.</li>
+<li>점수: Rule 4개의 가중 합. 거리 40 · 영업 중(시간대 정보 있을 때만)
+20 · 메모·좋았다는 방문 기록 20 · 마지막 방문 오래될수록 20. 상위
+3.</li>
+<li>제시: 카드 3장(S-06) + TTS가 번호와 이름을 읽는 동안 해당 카드
+테두리 강조. 0건이면 S-06b.</li>
+<li>선택: STT(번호·이름) 또는 터치. "다른 곳"은 4~6위로 교체.</li>
+<li>실행: requestRoute, S-06c 토스트, 1.5초 뒤 홈.</li>
+</ol>
+<p><strong>7-4. 방문 기록 (F-11)</strong></p>
+<ol type="1">
+<li>NaviHelper onDestinationArrived 또는 (이벤트가 안 오면) 목적지 50m
+진입 → 도착 후보.</li>
+<li>10분 체류 타이머: 위치가 가게 100m 안에 머물면 Visit 생성(verified =
+내비 목적지였는가).</li>
+<li>다시 출발이 감지되면(100m 이탈, Visit.leftAt 기록) S-15 카드 10초 +
+TTS "한 줄 남길까요?". NOTE 의도만 받는 짧은 Listen 단계 재사용.</li>
+<li>메모는 Visit.note에, Place.status는 VISITED로.</li>
+</ol>
+<p><strong>7-5. 글레오 연동 (F-19, 확장)</strong></p>
+<ol type="1">
+<li>글레오가 기능 이름(SAVE_PASSED_PLACE 등)을 action으로 Intent를
+보낸다. GleoActionReceiver가 받아 ACTION_PARAM JSON을 파싱한다.</li>
+<li>같은 SavePipeline에 2단계부터 넣는다. 1단계 Listen 대신
+placeDescription 텍스트가 입력이다. 새 코드는 없다.</li>
+<li>결과를 APP_ACTION_RESPONSE 브로드캐스트로 돌려주면 글레오가
+대답한다. 이때 앱의 TTS는 쓰지 않고 7단계 되묻기도 생략한다(글레오가
+대화를 맡음).</li>
+<li>schema.json은 빌드 시 FeatureRegistry의 gleoFunctions()에서 생성해
+assets/에 넣는다.</li>
+</ol>
+<h2 id="8-데이터-설계">8. 데이터 설계</h2>
+<p>데이터는 기획서 7장의 세 엔티티(Place, Visit, ShareList)를 Room
+테이블로 그대로 옮기고, 위치 버퍼는 메모리에만 둔다. 필드 목록은
+기획서와 같으므로 여기에는 저장 방식과 색인만 적는다.</p>
+<div class="tbl"><table>
+<thead>
+<tr class="header">
+<th>테이블</th>
+<th>키·색인</th>
+<th>저장 방식</th>
+<th>이유</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>place</td>
+<td>PK id(UUID 문자열). 색인: status, (gridLat, gridLon), poiId
+UNIQUE</td>
+<td>cues·candidates는 JSON 문자열 컬럼(TypeConverter). 좌표는 Double 2개
++ 격자 컬럼 2개(위도·경도를 0.01도 ≈ 1km 칸으로 내림)</td>
+<td>격자 컬럼이 있어야 "반경 500m 안 가게"를 전체 탐색 없이 고른다.
+poiId가 같으면 중복 저장 대신 기존 행 갱신</td>
+</tr>
+<tr class="even">
+<td>visit</td>
+<td>PK id. FK placeId(ON DELETE CASCADE). 색인: placeId, arrivedAt</td>
+<td>가게당 여러 행</td>
+<td>마지막 방문 조회가 추천 점수에 매번 필요</td>
+</tr>
+<tr class="odd">
+<td>share_list</td>
+<td>PK id(짧은 무작위 문자열 8자). places JSON</td>
+<td>내보낼 때만 쓴다</td>
+<td>받은 목록은 저장하지 않고 바로 place로 가져온다</td>
+</tr>
+<tr class="even">
+<td>설정 (DataStore)</td>
+<td>키 7개: 리마인드 켜기, 반경, 식사 시간만, 음량, 가게 특정
+시간(10·20·30초, S-11 6번), 마지막 리마인드 시각, 첫 실행 여부</td>
+<td>Proto 대신 Preferences DataStore</td>
+<td>7개뿐이라 스키마 파일이 과하다</td>
+</tr>
+</tbody>
+</table></div>
+<p><strong>상태 값과 전이</strong></p>
+<p>Place.status는 UNCONFIRMED → CONFIRMED → VISITED 한 방향으로만 간다.
+미확인 가게를 정리 화면(S-09)에서 후보로 확정하면 CONFIRMED, 방문 기록이
+생기면 VISITED다. 삭제는 행 삭제이고 되돌리기 토스트 4초 동안은 메모리에
+들고 있다가 지나면 지운다.</p>
+<p><strong>위치 버퍼 (메모리)</strong></p>
+<div class="tbl"><table>
+<thead>
+<tr class="header">
+<th>항목</th>
+<th>값</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>구조</td>
+<td>고정 크기 원형 버퍼 60칸, 칸 = (시각 Long, 위도·경도 Double, 방향
+Float, 속도 Float). 객체 생성 없이 배열 5개에 덮어쓴다</td>
+</tr>
+<tr class="even">
+<td>채우기</td>
+<td>FusedLocation 콜백이 올 때마다(목표 1Hz). 속도는 직전 칸과의
+거리/시간으로 계산(SDK에 speed 없음)</td>
+</tr>
+<tr class="odd">
+<td>읽기</td>
+<td>Capture 단계가 60칸을 복사해 불변 스냅샷으로 넘긴다. 그 뒤 버퍼가
+바뀌어도 파이프라인은 영향 없음</td>
+</tr>
+<tr class="even">
+<td>정차 판단 (F-14)</td>
+<td>버퍼 최근 3칸(약 2초, 화면 설계서 S-12와 같음) 속도 모두 &lt; 1m/s
+또는 Vehicle Brake 주차 브레이크 ON → 정차. 주행 제한
+래퍼(core/ui/drive/DriveLock)가 이 값 하나만 본다</td>
+</tr>
+<tr class="odd">
+<td>수명</td>
+<td>앱 프로세스와 같다. 디스크에 쓰지 않는다</td>
+</tr>
+</tbody>
+</table></div>
+<p><strong>마이그레이션</strong></p>
+<p>프로토타입 단계(v1)는 파괴적 마이그레이션을 허용하고, 공모전 제출
+빌드부터는 버전마다 Migration 클래스를 core/data/db/migration/에 둔다.
+확장 기능의 필드(Visit.rating 등)는 그때 더한다.</p>
+<h2 id="9-최적화">9. 최적화</h2>
+<p>목표는 기획서 8장 비기능 요구사항의 수치를 그대로 쓰고, 여기에 측정
+방법과 달성 방법을 붙인다. 측정은 Emulator에서 하고, 파이프라인 단계마다
+걸린 시간을 디버그 빌드에서 로그로 남긴다.</p>
+<div class="tbl"><table>
+<thead>
+<tr class="header">
+<th>항목</th>
+<th>목표</th>
+<th>측정</th>
+<th>달성 방법</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>버튼 → 녹음 시작</td>
+<td>0.5초 안</td>
+<td>버튼 터치 시각 ~ STT 첫 콜백</td>
+<td>STT·TTS·위치는 앱 시작 시 미리 초기화, 내비·차량은 처음 필요할
+때</td>
+</tr>
+<tr class="even">
+<td>말 끝 → 되묻기 시작</td>
+<td>2초 안</td>
+<td>단계 2~7 합계 로그</td>
+<td>듣는 동안 Parse·Locate·Search를 미리 돌림(7-1). POI 검색 1.2초 제한,
+초과 시 미확인 저장</td>
+</tr>
+<tr class="odd">
+<td>리마인드</td>
+<td>반경 진입 후 3초 안</td>
+<td>위치 이벤트 시각 ~ TTS 시작</td>
+<td>후보 검색은 격자 색인, 필터 4개는 메모리 값만 봄</td>
+</tr>
+<tr class="even">
+<td>화면 전환</td>
+<td>200ms 안 (화면 설계서 5장)</td>
+<td>Compose 프레임 로그</td>
+<td>애니메이션은 alpha·scale·translate만. 목록은 LazyColumn + key</td>
+</tr>
+<tr class="odd">
+<td>시작 → 홈</td>
+<td>0.8초 안 (S-00)</td>
+<td>콜드 스타트 Macrobenchmark</td>
+<td>Baseline Profile, Hilt 지연 주입, 시작 시 DB 조회는 최근 저장
+1건뿐</td>
+</tr>
+<tr class="even">
+<td>메모리</td>
+<td>앱 히프 120MB 안</td>
+<td>Android Studio Profiler</td>
+<td>이미지 없음, 위치 버퍼 고정 배열, POI 캐시 200건 상한</td>
+</tr>
+<tr class="odd">
+<td>배터리·위치</td>
+<td>위치 1Hz, 앱이 뒤에 있을 때는 리마인드가 켜져 있을 때만</td>
+<td>콜백 횟수 로그</td>
+<td>근접 감시는 SDK addProximityAlert에 맡김. 안 되면 1Hz 콜백에서 격자
+1칸만 검사</td>
+</tr>
+<tr class="even">
+<td>DB</td>
+<td>가게 1,000건에서 목록·근처 조회 50ms 안</td>
+<td>Room 쿼리 시간 로그</td>
+<td>격자 색인, 목록은 페이징 50건, 지도 핀은 화면 범위만</td>
+</tr>
+<tr class="odd">
+<td>네트워크</td>
+<td>저장 1회당 POI 요청 1회 (기획서 12장 상한은 2회)</td>
+<td>OkHttp 로그</td>
+<td>좌표 100m 반올림 + 업종 키로 24시간 캐시. 같은 길을 다시 지나면 요청
+없음</td>
+</tr>
+<tr class="even">
+<td>앱 크기</td>
+<td>APK 15MB 안</td>
+<td>빌드 결과</td>
+<td>R8 축소, 벡터 아이콘만, 글꼴은 시스템 글꼴</td>
+</tr>
+</tbody>
+</table></div>
+<p><strong>글라스 화면의 비용</strong></p>
+<p>배경 흐림(blur)은 GPU 비용이 크다. 배경이 단색이므로 실제로는 흐림
+없이 반투명 단색 + 밝은 테두리 + 그림자만으로 같은 모양을 낸다. 진짜
+흐림은 지도 위에 뜨는 카드(S-05, S-05b, S-15)에만 쓰고, Android 12
+미만이거나 프레임이 떨어지면 불투명 카드(#1F1714 / #FFFFFF)로 자동
+전환한다. 화면 설계서 1장 스타일 행의 "투명도 줄이기" 대체와 같다.</p>
+<p><strong>하지 않는 것</strong></p>
+<p>프로토타입에서는 측정 없이 최적화하지 않는다. 위 표의 목표를 넘는
+항목만 고치고, 나머지는 코드를 단순하게 둔다.</p>
+<h2 id="10-오류-처리와-테스트">10. 오류 처리와 테스트</h2>
+<p>오류는 래퍼 경계에서 결과 값으로 바뀌고, 기능 코드는 예외를 보지
+않는다. 사용자에게는 화면 설계서 7장 "상태와 예외"에 정한 화면으로만
+보인다.</p>
+<div class="tbl"><table>
+<thead>
+<tr class="header">
+<th>오류</th>
+<th>감지하는 곳</th>
+<th>처리</th>
+<th>사용자에게</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>SDK 연결 실패</td>
+<td>core/pleos 래퍼</td>
+<td>2·4·8초 간격 재연결 3회, 그 뒤 Unavailable 상태</td>
+<td>말하기 버튼은 살아 있고 누르면 S-17 "음성 서비스를 쓸 수
+없어요"</td>
+</tr>
+<tr class="even">
+<td>권한 없음</td>
+<td>래퍼 호출 전 검사</td>
+<td>기능별 권한 표를 보고 필요한 것만 요청</td>
+<td>S-13 첫 실행 안내, 거부 후에는 S-17</td>
+</tr>
+<tr class="odd">
+<td>STT 빈 결과·시간 초과</td>
+<td>Listen 단계</td>
+<td>1회 재시도</td>
+<td>S-02c</td>
+</tr>
+<tr class="even">
+<td>네트워크 없음·POI 실패</td>
+<td>core/poi</td>
+<td>캐시 → 내장 샘플(개발 빌드) → 미확인 저장. WorkManager가 연결 복구
+후 1회 재검색</td>
+<td>S-04b, 나중에 후보 카드</td>
+</tr>
+<tr class="odd">
+<td>STT 서버 불가</td>
+<td>SDK</td>
+<td>HYBRID 모드가 온디바이스로 자동 전환</td>
+<td>없음</td>
+</tr>
+<tr class="even">
+<td>내비 요청 실패</td>
+<td>NaviHelper 래퍼</td>
+<td>1회 재시도 후 실패 토스트</td>
+<td>"안내를 시작하지 못했어요" 토스트 4초</td>
+</tr>
+<tr class="odd">
+<td>DB 쓰기 실패</td>
+<td>core/data</td>
+<td>메모리 큐 보관 후 3회 재시도</td>
+<td>성공 시까지 토스트 보류</td>
+</tr>
+<tr class="even">
+<td>주행 중 정차 화면 요청</td>
+<td>DriveLock</td>
+<td>화면 대신 S-12</td>
+<td>"멈추면 볼 수 있어요"</td>
+</tr>
+<tr class="odd">
+<td>예상 못 한 예외</td>
+<td>Pipeline 실행기</td>
+<td>단계 실패로 바꿔 미확인 저장, 로그 파일 1개(최근 1MB)</td>
+<td>앱은 죽지 않음</td>
+</tr>
+</tbody>
+</table></div>
+<p><strong>테스트 구성</strong></p>
+<div class="tbl"><table>
+<thead>
+<tr class="header">
+<th>층</th>
+<th>대상</th>
+<th>도구</th>
+<th>기준</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>단위 (순수 Kotlin)</td>
+<td>IntentParser·SlotExtractor: 발화 예시 50문장 표 주도.
+CandidateScorer, RecommendScorer, Filter 4개, Locate 계산</td>
+<td>JUnit5 파라미터 테스트</td>
+<td>기획서 6장 대표 발화 전부 통과, 커밋 훅에서 10초 안</td>
+</tr>
+<tr class="even">
+<td>파이프라인</td>
+<td>SavePipeline·RemindPipeline을 Fake SDK·Fake POI로 끝까지</td>
+<td>JUnit5 + Turbine + 가상 시간</td>
+<td>7장 표의 실패 경로마다 1개</td>
+</tr>
+<tr class="odd">
+<td>데이터</td>
+<td>DAO 조회·격자 색인·마이그레이션</td>
+<td>Room 인메모리 테스트</td>
+<td>상태 전이 3개, cascade 삭제</td>
+</tr>
+<tr class="even">
+<td>화면</td>
+<td>34장 × 다크·라이트 미리보기 스크린샷, 버튼 크기 76dp·글자 24sp
+검사</td>
+<td>Compose Preview + 스크린샷 비교</td>
+<td>화면 설계서의 자동 검사(check_layout.js) 기준을 앱에서 다시
+검사</td>
+</tr>
+<tr class="odd">
+<td>구조</td>
+<td>5장 R1~R3, R7</td>
+<td>Konsist</td>
+<td>어기면 빌드 실패</td>
+</tr>
+<tr class="even">
+<td>수동 시나리오</td>
+<td>저장·추천·리마인드 3개를 Emulator + Virtual Console 경로로</td>
+<td>체크리스트</td>
+<td>제출 전 1회, 영상 촬영</td>
+</tr>
+</tbody>
+</table></div>
+<p>GitHub Actions는 push마다 ktlint·detekt·단위·파이프라인·Konsist를
+돌리고, 화면 스크린샷은 밤에 1회 돌린다. Fake SDK는 테스트뿐 아니라
+Emulator에서 SDK가 안 될 때 개발 빌드가 쓰는 대체이기도 하다. 가짜
+위치는 docs/에 둔 경로 파일(강남대로 60초)을 1Hz로 재생한다.</p>
+<h2 id="11-프로토타입-구현-범위와-확인이-필요한-사항">11. 프로토타입
+구현 범위와 확인이 필요한 사항</h2>
+<p>2026년 11월 18일 제출 프로토타입은 이 구조를 그대로 쓰되 모듈을 비워
+둔다. 구조를 나중에 바꾸는 것보다 빈 모듈을 두는 편이 싸다. 기획서 11장
+10일 계획과 같은 순서다.</p>
+<div class="tbl"><table>
+<thead>
+<tr class="header">
+<th>모듈</th>
+<th>프로토타입(11/18)</th>
+<th>본개발</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>app, core/domain, core/data, core/ui</td>
+<td>전부. 테마 토큰과 공통 컴포넌트 5종</td>
+<td>그대로</td>
+</tr>
+<tr class="even">
+<td>core/pleos</td>
+<td>STT·TTS·위치·내비 Real + Fake. 차량은 Fake만</td>
+<td>Vehicle Real</td>
+</tr>
+<tr class="odd">
+<td>core/poi</td>
+<td>카카오 + 내장 샘플. 캐시는 없음</td>
+<td>캐시</td>
+</tr>
+<tr class="even">
+<td>feature/voicesave</td>
+<td>파이프라인 8단계 전부, 화면 S-01~S-04</td>
+<td>동시 실행 최적화</td>
+</tr>
+<tr class="odd">
+<td>feature/recommend</td>
+<td>점수 Rule 2개(거리, 마지막 방문) + 카드 3장 + requestRoute</td>
+<td>Rule 4개</td>
+</tr>
+<tr class="even">
+<td>feature/remind</td>
+<td>거리 계산 방식, 필터 4개, S-05·S-05b</td>
+<td>addProximityAlert 전환</td>
+</tr>
+<tr class="odd">
+<td>feature/myplaces</td>
+<td>목록·상세·삭제. 지도는 카카오맵이 Emulator에서 뜨면</td>
+<td>수정·미확인 정리·지도</td>
+</tr>
+<tr class="even">
+<td>feature/visit, share, settings</td>
+<td>화면 뼈대만 (UiState 고정값)</td>
+<td>동작</td>
+</tr>
+<tr class="odd">
+<td>feature/gleo</td>
+<td>없음 (모듈도 만들지 않음)</td>
+<td>승인 확인 후</td>
+</tr>
+<tr class="even">
+<td>테스트</td>
+<td>단위(파서·점수·필터) + Konsist</td>
+<td>전 층</td>
+</tr>
+</tbody>
+</table></div>
+<p><strong>확인이 필요한 사항</strong></p>
+<ul class="task-list">
+<li><label><input type="checkbox" />Emulator 6개 항목(기획서 10장):
+인터넷, Virtual Console 위치 주입, STT 한국어,
+requestRoute·onDestinationArrived, addProximityAlert 파라미터, 카카오맵
+SDK. 결과에 따라 Real/Fake 선택이 바뀐다.</label></li>
+<li><label><input type="checkbox" />세로 창 레이아웃: Pleos 앱 영역은
+기본이 세로 1칸이다. 화면 설계서는 1280×1080 가로만 있어 세로 배치
+규칙(홈은 말하기 버튼 위, 카드 아래)을 정해야 한다. 재원 님 결정
+필요.</label></li>
+<li><label><input type="checkbox" />글라스 흐림 성능: Emulator에서 지도
+위 카드 흐림이 60fps를 유지하는지. 안 되면 불투명 카드로
+고정.</label></li>
+<li><label><input type="checkbox" />Hilt 대신 수동 주입으로 두고 싶은지:
+모듈이 14개라 Hilt를 권하지만, 빌드 시간이 부담이면 수동 주입 객체 1개로
+바꿀 수 있다.</label></li>
+<li><label><input type="checkbox" />저장소 폴더: 앱 코드를 저장소 루트에
+둘지 app/ 아래에 둘지. 이 문서는 app/로 가정.</label></li>
+<li><label><input type="checkbox" />글레오 승인 절차와 Emulator 시험
+가능 여부 (기획서 13장).</label></li>
+<li><label><input type="checkbox" />Apple HIG 점검 결정 B(앱 내 테마
+수동 전환)·C(삭제 확인 창 제거): 설정 화면과 삭제 흐름 코드에 영향. C와
+별개로, 화면 설계서 S-08d의 되돌리기 4초는 기획서 8장 "삭제는 복구하지
+않는다"와 어긋나므로 기획서 문장을 고쳐야 한다.</label></li>
+</ul>
+</main>
+</body>
+</html>
