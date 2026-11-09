@@ -388,6 +388,13 @@ Pleos Connect Emulator에서 한다.</li>
 <td>확장</td>
 <td>서버 필요</td>
 </tr>
+<tr class="odd">
+<td>F-19</td>
+<td>글레오 음성 비서 연동</td>
+<td>핸들 음성 버튼으로 부른 글레오(Gleo AI)가 “다음에 가게에 방금 지난 가게 저장해줘” 같은 말을 받아 앱 기능을 실행. 등록 기능은 최대 3개(가게 저장 · 추천 · 저장 가게로 안내). 앱에 schema.json을 넣고 글레오 쪽 승인을 받아야 켜짐. 화면 말하기 버튼(F-01)이 기본이고 이 기능은 추가 입구</td>
+<td>확장 (승인 필요)</td>
+<td>Gleo Interface</td>
+</tr>
 </tbody>
 </table></div>
 <p>확장 기능은 MVP 완성 후 시간이 남을 때만 착수하고, 기획서에는 향후
@@ -858,12 +865,13 @@ onDestinationArrived()는 2026년 11월 8일 공식 문서로 확인했다. 세�
 파라미터와 Emulator에서의 실제 동작은 10장 점검표에 따라 프로토타입 첫
 이틀에 확인한다.</p>
 <h2 id="10-기술-구현-가능성-점검">10. 기술 구현 가능성 점검</h2>
-<p>이 문서에 쓴 기술 16개 중 9개는 공식 문서로 호출 방법까지 확인되었고,
-3개는 존재만 확인되었으며, 4개는 아직 확인되지 않았다. 미확인 항목은
+<p>이 문서에 쓴 기술 17개 중 9개는 공식 문서로 호출 방법까지 확인되었고,
+4개는 존재만 확인되었으며, 4개는 아직 확인되지 않았다. 미확인 항목은
 모두 Pleos 바깥의 일이라 프로토타입 첫 이틀 안에 Emulator에서 직접 띄워
 봐야 한다. 점검 기준일: 2026-11-08. 근거는 <a
 href="https://document.pleos.ai/docs/pleos-only/connect-sdk-pleos/SpeechToText/intro">Pleos
 개발자 문서</a>를 직접 열어 확인한 내용이다.</p>
+<p>17번 글레오 연동은 11월 9일에 추가했다. 근거는 <a href="https://document.pleos.ai/docs/pleos-only/app-integration-guide/guide/core-concepts">Gleo Interface 문서</a>와 <a href="https://document.pleos.ai/en/docs/pleos-only/vehicle-app-planning-guide/platform-api-architecture">하드웨어 접근 정책</a>이다.</p>
 <p>상태의 뜻: 확인됨 = 문서에서 메서드·권한까지 확인, 존재만 확인 =
 기능은 있으나 파라미터·동작 시점 미확인, 미확인 = 된다는 근거를 아직 못
 찾음.</p>
@@ -1025,6 +1033,14 @@ onNavigationStatus() 콜백 이름이 문서에 있음</td>
 <td>—</td>
 <td>프로토타입·MVP 범위 밖</td>
 </tr>
+<tr class="odd">
+<td>17</td>
+<td>Gleo Interface (글레오 음성 비서 연동)</td>
+<td>F-19</td>
+<td>존재만 확인</td>
+<td>앱 assets/schema.json에 기능 최대 3개 선언(이름 대문자, 설명 영어). 글레오가 기능 이름을 action으로 startActivity 또는 sendBroadcast 호출, 인자는 ACTION_PARAM(JSON). 결과는 ai.pleos.playground.intent.action.APP_ACTION_RESPONSE 브로드캐스트로 회신. 글레오 검토 승인 후 자동 활성화. 앱은 핸들 버튼 입력을 직접 받을 수 없음(하드웨어 직접 접근 금지)</td>
+<td>핸들 음성 버튼이 글레오를 부른다는 문장은 문서에 없음(가능성 높음). 승인 절차·공모전 참가자 신청 가능 여부·Emulator 시험 가능 여부 미기재 → Pleos에 문의. 안 되면 화면 말하기 버튼만으로 시연</td>
+</tr>
 </tbody>
 </table></div>
 <p><strong>프로토타입 첫 이틀에 Emulator에서 확인할 순서</strong></p>
@@ -1161,7 +1177,7 @@ F-13 공유, F-14 정차 판단, F-15 설정은 화면 뼈대만 두고 동작�
 </tr>
 </tbody>
 </table></div>
-<p>확장 기능(F-16~F-18)은 12주 안에 넣지 않는다. 6주 차 시연이 예정보다
+<p>확장 기능(F-16~F-19)은 12주 안에 넣지 않는다. 6주 차 시연이 예정보다
 빨리 끝나면 F-17 방문 인증 리뷰를 먼저 검토한다.</p>
 <h2 id="12-리스크와-대응">12. 리스크와 대응</h2>
 <p>가장 큰 리스크는 '방금 지난 가게'를 틀리게 고르는 것이다. 그래서 매칭
@@ -1239,9 +1255,7 @@ F-13 공유, F-14 정차 판단, F-15 설정은 화면 뼈대만 두고 동작�
 담을지, Firebase 같은 간단한 백엔드를 둘지. 차량에는 브라우저가 없을 수
 있어 받는 쪽 화면도 정해야 한다. (가정: 서버 없음, 프로토타입 범위
 밖)</label></li>
-<li><label><input type="checkbox" />음성 시작 방식: 화면 버튼만으로
-충분한지, 스티어링 휠 버튼 연동을 알아볼지. Pleos SDK 문서에는 하드웨어
-버튼 API가 보이지 않는다. (가정: 화면 버튼)</label></li>
+<li><label><input type="checkbox" checked="" />음성 시작 방식: 화면 말하기 버튼이 기본 (11월 9일 확정). 앱은 핸들 음성 버튼을 직접 받을 수 없고, 글레오 음성 비서에 기능을 등록하는 F-19(확장, 승인 필요)로만 연결된다.</label></li>
 <li><label><input type="checkbox" />리마인드가 "갈까요?"까지 물을지,
 알려주기만 할지. (가정: 묻고 "응"이면 바로 길안내)</label></li>
 <li><label><input type="checkbox" />영문 패키지명과 저장소 내 앱 폴더
@@ -1252,6 +1266,7 @@ Code가 개발 중 참고하려면 저장소 안에 있는 편이 유리하다. 
 모두 docs/에도 Markdown으로 커밋)</label></li>
 <li><label><input type="checkbox" />프로토타입 제출 형식: APK만인지,
 시연 영상·저장소 링크도 내는지 공모전 안내를 확인해야 한다.</label></li>
+<li><label><input type="checkbox" />글레오 연동(F-19): 승인 절차, 공모전 참가자도 신청할 수 있는지, Emulator에서 시험할 수 있는지 Pleos에 문의해야 한다.</label></li>
 </ul>
 
 </main>
