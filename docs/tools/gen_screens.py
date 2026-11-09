@@ -39,6 +39,7 @@ ICONS = {
  'keyboard': '<rect x="2" y="6" width="20" height="12" rx="2"/><path d="M6 10h.01M10 10h.01M14 10h.01M18 10h.01M8 14h8"/>',
  'locate': '<circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3"/>',
  'flag': '<path d="M4 22V4a1 1 0 0 1 1-1h11l-2 4 2 4H5"/>',
+ 'chev': '<path d="m9 5 7 7-7 7"/>',
 }
 def ic(name, size=40, cls=''):
     return (f'<svg class="ic {cls}" width="{size}" height="{size}" viewBox="0 0 24 24" fill="none" '
@@ -52,91 +53,129 @@ if os.path.exists(_p):
     if _m:
         APP_ICON = (f'<svg width="240" height="240" viewBox="0 0 100 100" aria-hidden="true">'
                     f'<rect width="100" height="100" rx="22" fill="#E4572E"/>{_m.group(1)}</svg>')
+BRAND_ICON = APP_ICON.replace('width="240" height="240"', 'width="56" height="56"') if APP_ICON else ''
 if not APP_ICON:
     APP_ICON = f'<div style="width:240px;height:240px;border-radius:52px;background:#E4572E;display:flex;align-items:center;justify-content:center;color:#fff">{ic("pin",140)}</div>'
+    BRAND_ICON = f'<div style="width:56px;height:56px;border-radius:14px;background:#E4572E;display:flex;align-items:center;justify-content:center;color:#fff">{ic("pin",32)}</div>'
 
-# ---------------------------------------------------------------- wireframe CSS (1280x1080 canvas, 1dp = 1px, dark theme)
+# ---------------------------------------------------------------- wireframe CSS (1280x1080 canvas, 1dp = 1px)
+# orange Liquid Glass style from the app icon (#E4572E). dark = default tokens, light = .frame.light (or .wl ancestor)
 WIRE_CSS = r'''
-.frame{position:relative;width:1280px;height:1080px;background:#0B0F17;color:#F3F5F8;overflow:hidden;
+.frame{--bg:#15100E;--fg:#FBF6F2;--muted:#B8A69B;--faint:#8C7B72;--line:rgba(255,255,255,.12);
+  --glass:rgba(255,255,255,.09);--glass2:rgba(255,255,255,.14);--edge:rgba(255,255,255,.22);--spec:rgba(255,255,255,.45);
+  --shadow:0 24px 60px rgba(0,0,0,.45);--shadow-s:0 10px 28px rgba(0,0,0,.32);--hi:linear-gradient(160deg,rgba(255,255,255,.20) 0%,rgba(255,255,255,0) 38%,rgba(255,255,255,0) 70%,rgba(255,255,255,.07) 100%);
+  --accent:#E4572E;--acc-t:#FF8A62;--acc-soft:rgba(228,87,46,.20);--acc-ring:rgba(228,87,46,.35);
+  --amber:#F2B544;--amber-bg:rgba(242,181,68,.16);--ok:#4CC38A;--ok-bg:rgba(76,195,138,.16);
+  --danger:#FF6B6B;--danger-fill:#C62828;--danger-edge:rgba(255,107,107,.45);
+  --overlay:rgba(12,7,5,.62);--field:rgba(0,0,0,.28);--off:rgba(255,255,255,.20);--map1:#1B1411;--map2:#201814;--kbd:rgba(0,0,0,.30);
+  position:relative;width:1280px;height:1080px;background:var(--bg);color:var(--fg);overflow:hidden;
   font-family:"Pretendard","Apple SD Gothic Neo","Malgun Gothic","Noto Sans KR",system-ui,sans-serif;font-size:28px;line-height:1.3;word-break:keep-all}
+.frame.light,.wl .frame{--bg:#F6EFEA;--fg:#1F1512;--muted:#6E5B53;--faint:#857168;--line:rgba(31,21,18,.10);
+  --glass:rgba(255,255,255,.78);--glass2:rgba(255,255,255,.95);--edge:rgba(255,255,255,.9);--spec:rgba(255,255,255,.95);
+  --shadow:0 24px 60px rgba(120,60,40,.18);--shadow-s:0 10px 26px rgba(120,60,40,.14);--hi:linear-gradient(160deg,rgba(255,255,255,.55) 0%,rgba(255,255,255,0) 40%);
+  --acc-t:#B83A18;--acc-soft:rgba(228,87,46,.14);--acc-ring:rgba(228,87,46,.28);
+  --amber:#8A5A00;--amber-bg:rgba(242,181,68,.28);--ok:#1B7F4D;--ok-bg:rgba(27,127,77,.13);
+  --danger:#C62828;--danger-fill:#C62828;--danger-edge:rgba(198,40,40,.40);
+  --overlay:rgba(70,40,28,.24);--field:rgba(255,255,255,.92);--off:rgba(31,21,18,.18);--map1:#EEE4DD;--map2:#E9DED6;--kbd:rgba(255,255,255,.7)}
 .frame *{box-sizing:border-box}
 .frame .ic{flex:none}
-.top{position:absolute;left:0;top:0;right:0;height:96px;display:flex;align-items:center;gap:16px;padding:0 24px 0 16px;border-bottom:2px solid #2C3646}
+.frame .ic.acc{color:var(--acc-t)}.frame .ic.faint{color:var(--faint)}.frame .ic.muted{color:var(--muted)}
+.top{position:absolute;left:0;top:0;right:0;height:96px;display:flex;align-items:center;gap:16px;padding:0 24px 0 16px}
 .top .title{font-size:36px;font-weight:600;flex:1}
-.top .iconbtn{width:80px;height:80px;display:flex;align-items:center;justify-content:center;border-radius:20px;color:#F3F5F8}
-.top .textbtn{height:76px;padding:0 28px;display:flex;align-items:center;gap:12px;border-radius:20px;border:2px solid #2C3646;font-size:30px;font-weight:600}
+.top .iconbtn{width:80px;height:80px;display:flex;align-items:center;justify-content:center;border-radius:50%;color:var(--fg);background:var(--glass) var(--hi);border:1px solid var(--edge);box-shadow:inset 0 1px 0 var(--spec),var(--shadow-s);backdrop-filter:blur(28px) saturate(170%)}
+.top .textbtn{height:76px;padding:0 28px;display:flex;align-items:center;gap:12px;border-radius:999px;border:1px solid var(--edge);background:var(--glass) var(--hi);box-shadow:inset 0 1px 0 var(--spec),var(--shadow-s);font-size:30px;font-weight:600;backdrop-filter:blur(28px) saturate(170%)}
+.top.home{left:40px;right:40px;top:28px;height:88px;padding:0}
+.top.home .iconbtn{width:88px;height:88px}
+.gpill{height:88px;display:flex;align-items:center;gap:16px;border-radius:999px;background:var(--glass) var(--hi);border:1px solid var(--edge);box-shadow:inset 0 1px 0 var(--spec),var(--shadow-s);backdrop-filter:blur(28px) saturate(170%)}
+.gpill.brand{padding:0 28px 0 16px;font-size:32px;font-weight:700}
+.gpill.brand svg{border-radius:14px}
+.gpill.loc{padding:0 30px;gap:14px;color:var(--muted);font-size:26px}
 .body{position:absolute;left:0;right:0;bottom:0;top:96px;padding:48px}
 .body.full{top:0}
-.btn{display:flex;align-items:center;justify-content:center;gap:16px;height:88px;padding:0 40px;border-radius:24px;border:2px solid #3A4557;background:#1E2635;font-size:32px;font-weight:600;color:#F3F5F8}
-.btn.primary{background:#2563EB;border-color:#2563EB;color:#fff}
+.body.home{top:140px;padding:16px 48px 48px;display:grid;grid-template-columns:600px minmax(0,1fr);gap:48px}
+.home .talk{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:40px}
+.home .side{display:flex;flex-direction:column;justify-content:center;gap:24px;min-width:0}
+.hrow{height:124px;padding:0 36px!important;display:flex;align-items:center;gap:24px}
+.hrow .ib{width:68px;height:68px;border-radius:22px;background:var(--glass2);border:1px solid var(--edge);display:flex;align-items:center;justify-content:center;flex:none}
+.hrow .tx{flex:1;min-width:0;display:flex;flex-direction:column;gap:4px}
+.hrow .t{font-size:34px;font-weight:600}
+.recent{display:flex;flex-direction:column;gap:16px;padding:28px 36px 32px!important}
+.recent .meta{display:flex;align-items:center;justify-content:space-between}
+.recent .nm{display:flex;align-items:center;gap:20px;font-size:38px;font-weight:700}
+.btn{display:flex;align-items:center;justify-content:center;gap:16px;height:88px;padding:0 40px;border-radius:999px;border:1px solid var(--edge);background:var(--glass2) var(--hi);box-shadow:inset 0 1px 0 var(--spec),var(--shadow-s);font-size:32px;font-weight:600;color:var(--fg);backdrop-filter:blur(28px) saturate(170%)}
+.btn.primary{background:linear-gradient(160deg,rgba(255,255,255,.22),rgba(255,255,255,0) 55%),var(--accent);border-color:rgba(255,255,255,.28);color:#fff;box-shadow:inset 0 1px 0 rgba(255,255,255,.5),0 12px 30px rgba(228,87,46,.35)}
 .btn.big{height:112px;font-size:36px}
-.btn.danger{background:transparent;border-color:#7F1D1D;color:#F87171}
-.btn.danger.fill{background:#B91C1C;border-color:#B91C1C;color:#fff}
-.btn.ghost{background:transparent;border-color:transparent;color:#A6B0C0}
-.card{background:#151B26;border:2px solid #2C3646;border-radius:28px;padding:32px}
-.muted{color:#A6B0C0}.small{font-size:24px}.h40{font-size:40px;font-weight:600}.h48{font-size:48px;font-weight:600}.h64{font-size:64px;font-weight:700;line-height:1.15}
-.chip{display:inline-flex;align-items:center;height:48px;padding:0 20px;border-radius:24px;border:2px solid #3A4557;font-size:24px;color:#C8D0DC;white-space:nowrap}
-.chip.on{background:#2563EB;border-color:#2563EB;color:#fff}
-.chip.warn{border-color:#B45309;color:#FCD34D}
-.chip.ok{border-color:#15803D;color:#86EFAC}
-.chip.dim{border-color:#2C3646;color:#6B7686}
-.row{display:flex;align-items:center;gap:24px;height:104px;padding:0 24px;border-bottom:2px solid #1E2635}
+.btn.danger{background:var(--glass2);border:2px solid var(--danger-edge);color:var(--danger);box-shadow:none}
+.btn.danger.fill{background:linear-gradient(160deg,rgba(255,255,255,.18),rgba(255,255,255,0) 55%),var(--danger-fill);border-color:var(--danger-fill);color:#fff;box-shadow:0 12px 30px rgba(198,40,40,.30)}
+.btn.ghost{background:transparent;border-color:transparent;box-shadow:none;color:var(--muted);backdrop-filter:none}
+.card{position:relative;background:var(--glass) var(--hi);border:1px solid var(--edge);border-radius:36px;padding:32px;box-shadow:inset 0 1px 0 var(--spec),var(--shadow);backdrop-filter:blur(28px) saturate(170%)}
+.muted{color:var(--muted)}.small{font-size:24px}.h40{font-size:40px;font-weight:600}.h48{font-size:48px;font-weight:600}.h64{font-size:64px;font-weight:700;line-height:1.15}
+.chip{display:inline-flex;align-items:center;height:48px;padding:0 20px;border-radius:24px;border:1px solid var(--edge);background:var(--glass2);font-size:24px;font-weight:600;color:var(--muted);white-space:nowrap}
+.chip.on{background:var(--accent);border-color:var(--accent);color:#fff}
+.chip.warn{background:var(--amber-bg);border-color:transparent;color:var(--amber)}
+.chip.ok{background:var(--ok-bg);border-color:transparent;color:var(--ok)}
+.chip.dim{background:transparent;border-color:var(--line);color:var(--faint)}
+.row{display:flex;align-items:center;gap:24px;height:104px;padding:0 24px;border-bottom:1px solid var(--line)}
 .row .name{font-size:32px;font-weight:600}
-.row.sel{background:#1B2A45;border-radius:20px;border-bottom-color:transparent}
-.toggle{width:96px;height:52px;border-radius:26px;background:#2563EB;position:relative;flex:none}
-.toggle::after{content:"";position:absolute;top:6px;right:6px;width:40px;height:40px;border-radius:50%;background:#fff}
-.toggle.off{background:#3A4557}.toggle.off::after{right:auto;left:6px}
-.seg{display:flex;border:2px solid #3A4557;border-radius:20px;overflow:hidden;height:80px}
-.seg div{padding:0 32px;display:flex;align-items:center;font-size:28px;color:#C8D0DC}
-.seg .on{background:#2563EB;color:#fff}
-.mapph{background:repeating-linear-gradient(45deg,#121926 0 24px,#161E2C 24px 48px);border:2px solid #2C3646;border-radius:28px;position:relative;color:#A6B0C0}
+.row.sel{background:var(--acc-soft);border-radius:24px;border-bottom-color:transparent}
+.toggle{width:96px;height:52px;border-radius:26px;background:var(--accent);position:relative;flex:none;box-shadow:inset 0 1px 0 rgba(255,255,255,.35)}
+.toggle::after{content:"";position:absolute;top:6px;right:6px;width:40px;height:40px;border-radius:50%;background:#fff;box-shadow:0 2px 6px rgba(0,0,0,.25)}
+.toggle.off{background:var(--off)}.toggle.off::after{right:auto;left:6px}
+.seg{display:flex;border:1px solid var(--edge);border-radius:999px;overflow:hidden;height:80px;background:var(--glass)}
+.seg div{padding:0 32px;display:flex;align-items:center;font-size:28px;color:var(--muted);border-radius:999px}
+.seg .on{background:var(--accent);color:#fff}
+.mapph{background:repeating-linear-gradient(45deg,var(--map1) 0 24px,var(--map2) 24px 48px);border:1px solid var(--line);border-radius:36px;position:relative;color:var(--muted)}
 .mapph .lab{position:absolute;left:24px;top:20px;font-size:24px}
 .mapph .lab.bot{top:auto;bottom:20px}
-.mapph .pin{position:absolute;color:#4F8DFF}
-.mapph .pin.me{color:#F3F5F8}
-.overlay{position:absolute;inset:0;background:rgba(5,8,14,.72)}
-.toast{position:absolute;left:140px;right:140px;height:120px;border-radius:28px;background:#151B26;border:2px solid #2C3646;display:flex;align-items:center;gap:24px;padding:0 40px;font-size:32px;font-weight:600}
-.toast .ok{color:#4ADE80}
-.toast .act{margin-left:auto;height:76px;padding:0 28px;border-radius:20px;border:2px solid #3A4557;display:flex;align-items:center;gap:12px;font-size:28px;color:#F3F5F8}
+.mapph .pin{position:absolute;color:var(--acc-t)}
+.mapph .pin.me{color:var(--fg)}
+.overlay{position:absolute;inset:0;background:var(--overlay)}
+.toast{position:absolute;left:140px;right:140px;height:120px;border-radius:36px;background:var(--glass2) var(--hi);border:1px solid var(--edge);box-shadow:inset 0 1px 0 var(--spec),var(--shadow);backdrop-filter:blur(28px) saturate(170%);display:flex;align-items:center;gap:24px;padding:0 40px;font-size:32px;font-weight:600}
+.frame .ok,.toast .ok{color:var(--ok)}
+.toast .act{margin-left:auto;height:76px;padding:0 28px;border-radius:999px;border:1px solid var(--edge);background:var(--glass2);display:flex;align-items:center;gap:12px;font-size:28px;color:var(--acc-t)}
 [data-co]{position:relative}
-[data-co]::after{content:attr(data-co);position:absolute;left:-18px;top:-18px;width:44px;height:44px;border-radius:50%;background:#F59E0B;color:#111;font-size:26px;font-weight:700;display:flex;align-items:center;justify-content:center;z-index:5;font-family:system-ui,sans-serif;line-height:1}
+[data-co]::after{content:attr(data-co);position:absolute;left:-18px;top:-18px;width:44px;height:44px;border-radius:50%;background:#7C3AED;color:#fff;box-shadow:0 0 0 3px rgba(255,255,255,.85);font-size:26px;font-weight:700;display:flex;align-items:center;justify-content:center;z-index:5;font-family:system-ui,sans-serif;line-height:1}
+.clean [data-co]::after{display:none}
 .top .iconbtn[data-co]::after{left:2px;top:2px}
 .top .textbtn[data-co]::after{top:-2px}
 .frame .toast,.frame .kbd{position:absolute}
 .copad{padding:0 52px}
 .wave{display:flex;align-items:center;gap:12px;height:120px}
-.wave i{display:block;width:16px;border-radius:8px;background:#4F8DFF}
-.wave.off i{background:#3A4557}
-.ring{width:72px;height:72px;border-radius:50%;border:8px solid #3A4557;border-top-color:#4F8DFF;flex:none}
-.mic{width:360px;height:360px;border-radius:50%;background:#2563EB;display:flex;align-items:center;justify-content:center;color:#fff;box-shadow:0 0 0 24px rgba(37,99,235,.18)}
+.wave i{display:block;width:16px;border-radius:8px;background:var(--acc-t)}
+.wave.off i{background:var(--off)}
+.ring{width:72px;height:72px;border-radius:50%;border:8px solid var(--off);border-top-color:var(--acc-t);flex:none}
+.mic{position:relative;width:360px;height:360px;border-radius:50%;display:flex;align-items:center;justify-content:center;color:#fff;
+  background:radial-gradient(circle at 35% 30%,rgba(255,255,255,.35),rgba(255,255,255,0) 45%),linear-gradient(160deg,rgba(255,255,255,.18),rgba(255,255,255,0) 50%),var(--accent);
+  box-shadow:inset 0 2px 0 rgba(255,255,255,.55),inset 0 -14px 30px rgba(120,30,10,.35),0 0 0 24px var(--acc-ring),0 0 0 56px rgba(228,87,46,.10),0 30px 70px rgba(228,87,46,.40)}
+.mic::before{content:"";position:absolute;inset:14px;border-radius:50%;border:1px solid rgba(255,255,255,.35)}
 .qr{width:280px;height:280px;border-radius:20px;background:
-  repeating-linear-gradient(90deg,#F3F5F8 0 20px,transparent 20px 40px),repeating-linear-gradient(0deg,#F3F5F8 0 20px,#0B0F17 20px 40px);border:12px solid #F3F5F8}
-.input{height:88px;border:2px solid #3A4557;border-radius:20px;background:#0F141D;display:flex;align-items:center;padding:0 24px;font-size:32px;gap:16px}
-.input.focus{border-color:#2563EB;box-shadow:0 0 0 4px rgba(37,99,235,.25)}
-.input .caret{width:3px;height:40px;background:#F3F5F8}
-.check{width:56px;height:56px;border-radius:14px;border:3px solid #6B7686;flex:none;display:flex;align-items:center;justify-content:center;color:#fff}
-.check.on{background:#2563EB;border-color:#2563EB}
-.radio{width:56px;height:56px;border-radius:50%;border:3px solid #6B7686;flex:none;position:relative}
-.radio.on{border-color:#2563EB}.radio.on::after{content:"";position:absolute;inset:10px;border-radius:50%;background:#2563EB}
-.num{width:72px;height:72px;border-radius:20px;background:#2563EB;color:#fff;font-size:40px;font-weight:700;display:flex;align-items:center;justify-content:center;flex:none}
-.slider{height:16px;border-radius:8px;background:#3A4557;position:relative;flex:1}
-.slider::before{content:"";position:absolute;left:0;top:0;bottom:0;width:60%;border-radius:8px;background:#2563EB}
-.slider::after{content:"";position:absolute;left:calc(60% - 28px);top:-20px;width:56px;height:56px;border-radius:50%;background:#fff}
-.hint{position:absolute;left:48px;right:48px;bottom:40px;text-align:center;color:#A6B0C0;font-size:28px}
-.timebar{position:absolute;left:40px;right:40px;bottom:0;height:10px;background:#1E2635;border-radius:5px 5px 0 0;overflow:hidden}
-.timebar i{display:block;height:100%;width:62%;background:#2563EB}
-.dialog{position:absolute;left:240px;right:240px;top:300px;background:#151B26;border:2px solid #2C3646;border-radius:28px;padding:48px 56px;display:flex;flex-direction:column;gap:24px}
-.kbd{position:absolute;left:0;right:0;bottom:0;height:320px;border-top:2px dashed #3A4557;background:#0F141D;display:flex;align-items:center;justify-content:center;gap:16px;color:#6B7686;font-size:28px}
+  repeating-linear-gradient(90deg,#1F1512 0 20px,transparent 20px 40px),repeating-linear-gradient(0deg,#1F1512 0 20px,#FFFFFF 20px 40px);border:12px solid #FFFFFF;box-shadow:var(--shadow-s)}
+.input{height:88px;border:1px solid var(--edge);border-radius:24px;background:var(--field);display:flex;align-items:center;padding:0 24px;font-size:32px;gap:16px;box-shadow:inset 0 1px 3px rgba(0,0,0,.18)}
+.input.focus{border:2px solid var(--accent);box-shadow:0 0 0 4px var(--acc-ring)}
+.input .caret{width:3px;height:40px;background:var(--acc-t)}
+.check{width:56px;height:56px;border-radius:16px;border:3px solid var(--faint);flex:none;display:flex;align-items:center;justify-content:center;color:#fff}
+.check.on{background:var(--accent);border-color:var(--accent)}
+.radio{width:56px;height:56px;border-radius:50%;border:3px solid var(--faint);flex:none;position:relative}
+.radio.on{border-color:var(--accent)}.radio.on::before{content:"";position:absolute;inset:10px;border-radius:50%;background:var(--accent)}
+.num{width:72px;height:72px;border-radius:50%;background:linear-gradient(160deg,rgba(255,255,255,.25),rgba(255,255,255,0) 55%),var(--accent);color:#fff;font-size:40px;font-weight:700;display:flex;align-items:center;justify-content:center;flex:none;box-shadow:inset 0 1px 0 rgba(255,255,255,.5)}
+.slider{height:16px;border-radius:8px;background:var(--off);position:relative;flex:1}
+.slider::before{content:"";position:absolute;left:0;top:0;bottom:0;width:60%;border-radius:8px;background:var(--accent)}
+.slider::after{content:"";position:absolute;left:calc(60% - 28px);top:-20px;width:56px;height:56px;border-radius:50%;background:#fff;box-shadow:0 4px 12px rgba(0,0,0,.25)}
+.hint{position:absolute;left:48px;right:48px;bottom:40px;text-align:center;color:var(--muted);font-size:28px}
+.timebar{position:absolute;left:40px;right:40px;bottom:0;height:10px;background:var(--off);border-radius:5px 5px 0 0;overflow:hidden}
+.timebar i{display:block;height:100%;width:62%;background:var(--accent)}
+.dialog{position:absolute;left:240px;right:240px;top:300px;background:var(--glass2) var(--hi);border:1px solid var(--edge);border-radius:36px;padding:48px 56px;display:flex;flex-direction:column;gap:24px;box-shadow:inset 0 1px 0 var(--spec),var(--shadow);backdrop-filter:blur(28px) saturate(170%)}
+.kbd{position:absolute;left:0;right:0;bottom:0;height:320px;border-top:1px dashed var(--edge);background:var(--kbd);backdrop-filter:blur(28px);display:flex;align-items:center;justify-content:center;gap:16px;color:var(--faint);font-size:28px}
 .cd{width:72px;height:72px;flex:none}
 .cd circle{fill:none;stroke-width:8}
-.cd .bg{stroke:#3A4557}.cd .fg{stroke:#4F8DFF;stroke-linecap:round;stroke-dasharray:176;stroke-dashoffset:0;transform:rotate(-90deg);transform-origin:center}
+.cd .bg{stroke:var(--off)}.cd .fg{stroke:var(--acc-t);stroke-linecap:round;stroke-dasharray:176;stroke-dashoffset:0;transform:rotate(-90deg);transform-origin:center}
 .bars{display:flex;gap:10px;align-items:flex-end;height:48px}
-.bars i{display:block;width:10px;border-radius:5px;background:#4F8DFF}
+.bars i{display:block;width:10px;border-radius:5px;background:var(--acc-t)}
 '''
 
 # animations run only inside .frame.play (doc: when scrolled into view / GIF pages); .frame.static shows the resting state
 ANIM_CSS = r'''
-@keyframes breathe{0%,100%{box-shadow:0 0 0 24px rgba(37,99,235,.18)}50%{box-shadow:0 0 0 40px rgba(37,99,235,.08)}}
+@keyframes breathe{0%,100%{box-shadow:inset 0 2px 0 rgba(255,255,255,.55),inset 0 -14px 30px rgba(120,30,10,.35),0 0 0 24px var(--acc-ring),0 0 0 56px rgba(228,87,46,.10),0 30px 70px rgba(228,87,46,.40)}50%{box-shadow:inset 0 2px 0 rgba(255,255,255,.55),inset 0 -14px 30px rgba(120,30,10,.35),0 0 0 40px rgba(228,87,46,.16),0 0 0 72px rgba(228,87,46,.06),0 30px 70px rgba(228,87,46,.40)}}
 @keyframes bar{0%,100%{transform:scaleY(.3)}50%{transform:scaleY(1)}}
 @keyframes spin{to{transform:rotate(360deg)}}
 @keyframes up{from{opacity:0;transform:translateY(24px)}}
@@ -150,7 +189,7 @@ ANIM_CSS = r'''
 @keyframes shake{0%,100%{transform:none}25%{transform:translateX(-8px)}75%{transform:translateX(8px)}}
 @keyframes pulse{0%{transform:scale(1);opacity:.8}100%{transform:scale(2.4);opacity:0}}
 @keyframes collapse{to{height:0;opacity:0;padding-top:0;padding-bottom:0;border-width:0;overflow:hidden}}
-@keyframes hl{from{background:#1B2A45}}
+@keyframes hl{from{background:var(--acc-soft)}}
 @keyframes slidex{from{opacity:0;transform:translateX(48px)}}
 @keyframes grow{from{transform:scale(1)}to{transform:scale(1.04)}}
 @keyframes dimout{to{opacity:.4}}
@@ -172,7 +211,7 @@ ANIM_CSS = r'''
 .play .toast.live{animation:toastloop 4.6s cubic-bezier(.2,0,0,1) infinite}
 .play .timebar.live i{animation:shrink var(--t,10s) linear infinite}
 .play .cd.live .fg{animation:dash var(--t,5s) linear infinite}
-.play .pulse{position:relative}.play .pulse::before{content:"";position:absolute;left:50%;top:50%;width:40px;height:40px;margin:-20px 0 0 -20px;border-radius:50%;background:#4F8DFF;animation:pulse 1.2s ease-out infinite}
+.play .pulse:not(.pin){position:relative}.play .pulse::before{content:"";position:absolute;left:50%;top:50%;width:40px;height:40px;margin:-20px 0 0 -20px;border-radius:50%;background:var(--acc-t);animation:pulse 1.2s ease-out infinite}
 .play .row.a-collapse{animation:collapse .2s cubic-bezier(.2,0,0,1) .8s forwards}
 .play .bars.live i{animation:bars .8s ease-in-out infinite;animation-delay:calc(var(--i,0)*120ms)}
 .play .a-text{animation:fade .08s linear both}
@@ -181,7 +220,7 @@ ANIM_CSS = r'''
 .static .a-collapse{display:none}
 .static .a-dim{opacity:.4}
 .static .a-grow{transform:scale(1.04)}
-.static .a-hl{background:#1B2A45}
+.static .a-hl{background:var(--acc-soft)}
 '''
 STD = 'cubic-bezier(.2,0,0,1)'
 
@@ -198,30 +237,45 @@ def countdown(sec=5):
     return (f'<svg class="cd live" viewBox="0 0 72 72" style="--t:{sec}s" aria-hidden="true">'
             f'<circle class="bg" cx="36" cy="36" r="28"/><circle class="fg" cx="36" cy="36" r="28"/></svg>')
 
-def home_bg(dim=.55, recent='<div class="card" style="height:120px"></div>', count='12'):
+def home(dim=1, recent='', count='12', sub1='근처 저장 가게 중 3곳 추천', sub2=None, co=None, live=False):
+    """glass home (S-01). co maps 'mic','eat','mine','rec','gear','loc' to callout numbers"""
+    co = co or {}
+    c = lambda k: f' data-co="{co[k]}"' if k in co else ''
+    sub2 = sub2 if sub2 is not None else f'{count}곳 · 미확인 3곳'
+    op = f';opacity:{dim}' if dim != 1 else ''
     return f'''
- <div class="top" style="border-bottom:0"><div style="width:16px"></div><div class="title">다음에 가게</div><div class="iconbtn">{ic("gear",48)}</div></div>
- <div class="body" style="display:grid;grid-template-columns:600px 1fr;gap:48px;padding-top:24px;opacity:{dim}">
-   <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;gap:36px">
-     <div class="mic">{ic("mic",160)}</div><div style="font-size:36px;font-weight:600">눌러서 말하기</div><div class="muted">&nbsp;</div>
+ <div class="top home"{'' if dim == 1 else f' style="opacity:{dim}"'}>
+   <div class="gpill brand">{BRAND_ICON}<span>다음에 가게</span></div>
+   <div class="gpill loc"{c('loc')}>{ic("navi",26,"acc")}<span>강남대로 · 북쪽</span></div>
+   <div style="flex:1"></div>
+   <div class="iconbtn"{c('gear')}>{ic("gear",40)}</div>
+ </div>
+ <div class="body home" style="{op[1:]}">
+   <div class="talk">
+     <div class="mic{' live' if live else ''}"{c('mic')}>{ic("mic",168)}</div>
+     <div style="text-align:center"><div class="h40">눌러서 말하기</div><div class="muted" style="margin-top:14px;line-height:1.5">“방금 지난 가게 저장해줘”<br>“뭐 먹을까”</div></div>
    </div>
-   <div style="display:flex;flex-direction:column;gap:32px;justify-content:center">
-     <div class="btn big">{ic("fork",44)} 뭐 먹을까</div><div class="btn big">{ic("list",44)} 내 맛집 <span class="muted" style="font-weight:400;font-size:28px">{count}</span></div>
+   <div class="side">
+     <div class="card hrow"{c('eat')}><span class="ib">{ic("fork",36,"acc")}</span><span class="tx"><span class="t">뭐 먹을까</span><span class="small muted">{sub1}</span></span>{ic("chev",32,"faint")}</div>
+     <div class="card hrow"{c('mine')}><span class="ib">{ic("pin",36,"acc")}</span><span class="tx"><span class="t">내 맛집</span><span class="small muted">{sub2}</span></span>{ic("chev",32,"faint")}</div>
      {recent}
    </div>
  </div>'''
 
-def recent_card(name, chip, co=None, cls=''):
+def home_bg(dim=.55, recent='', count='12'):
+    return home(dim=dim, recent=recent or recent_card('서울갈비','<span class="chip warn">미확인</span>'), count=count,
+                sub2=(f'{count}곳' if count == '0' else None))
+
+def recent_card(name, chip, co=None, cls='', when='어제 18:42'):
     c = f' data-co="{co}"' if co else ''
-    return f'''<div class="card {cls}"{c} style="display:flex;align-items:center;gap:24px;padding:28px 32px">
-       {ic("pin",44,"muted")}
-       <div style="flex:1"><div class="small muted">최근 저장</div><div style="font-size:32px;font-weight:600">{name}</div></div>
-       {chip}
+    return f'''<div class="card recent {cls}"{c}>
+       <div class="meta"><span class="small muted">최근 저장{(' · ' + when) if when else ''}</span>{chip}</div>
+       <div class="nm">{ic("pin",40,"acc")}<span>{name}</span></div>
      </div>'''
 
 def listen_card(status, middle, sentence, extra_cls='', btn_co='4', status_co='1'):
     return f'''
- <div class="top" style="border-bottom:0"><div style="width:16px"></div><div class="title">다음에 가게</div></div>
+ {home_bg(dim=1)}
  <div class="overlay a-fade"></div>
  <div class="card a-pop {extra_cls}" style="position:absolute;left:160px;top:200px;width:960px;height:640px;display:flex;flex-direction:column;align-items:center;justify-content:space-between;padding:48px">
    <div class="h48 copad" data-co="{status_co}">{status}</div>
@@ -323,29 +377,14 @@ screen('S-17','A','권한 없음','주행 중 · 정차 중','권한이 없는 �
 
 # ===== B. 음성으로 저장 =====
 screen('S-01','B','홈','주행 중 · 정차 중','앱 실행','F-01, F-09, F-12, F-15',
- f'''
- <div class="top" style="border-bottom:0">
-   <div style="width:16px"></div><div class="title">다음에 가게</div>
-   <div class="iconbtn" data-co="5">{ic("gear",48)}</div>
- </div>
- <div class="body" style="display:grid;grid-template-columns:600px 1fr;gap:48px;padding-top:24px">
-   <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;gap:36px">
-     <div class="mic live" data-co="1">{ic("mic",160)}</div>
-     <div style="font-size:36px;font-weight:600">눌러서 말하기</div>
-     <div class="muted" style="text-align:center">“방금 지난 가게 저장해줘”<br>“뭐 먹을까”</div>
-   </div>
-   <div style="display:flex;flex-direction:column;gap:32px;justify-content:center">
-     <div class="btn big" data-co="2">{ic("fork",44)} 뭐 먹을까</div>
-     <div class="btn big" data-co="3">{ic("list",44)} 내 맛집 <span class="muted" style="font-weight:400;font-size:28px">12</span></div>
-     {recent_card('서울갈비','<span class="chip warn">미확인</span>', co='4')}
-   </div>
- </div>
- ''',
+ home(recent=recent_card('서울갈비','<span class="chip warn">미확인</span>', co='4'), live=True,
+      co=dict(mic='1', eat='2', mine='3', gear='5', loc='6')),
  [('1','말하기 버튼','360dp 원형, 화면의 유일한 1순위 동작','누르면 S-02a. 주행 중에도 사용'),
   ('2','뭐 먹을까','추천 바로가기','누르면 S-06'),
   ('3','내 맛집','저장 개수 표시','정차 중 S-07, 주행 중 S-12'),
   ('4','최근 저장','마지막으로 저장한 가게 1건, 상태 칩(미확인/저장됨)','누르면 S-08 (미확인이면 S-09). 0건이면 S-01b'),
-  ('5','설정','','S-11')],
+  ('5','설정','','S-11'),
+  ('6','현재 위치','지금 달리는 도로 이름과 방향. 누를 수 없음','위치 권한이 없으면 숨김')],
  [('말하기 버튼','바깥 그림자가 24 → 40dp로 숨 쉬듯 커졌다 작아짐','2s · ease-in-out 반복','항상. 대비가 낮아 주행 중에도 허용'),
   ('버튼 누름','96%로 줄었다 복귀','120ms · standard','모든 버튼 공통'),
   ('최근 저장 카드','내용이 바뀔 때 페이드 교체','200ms','저장 완료 뒤'),
@@ -353,24 +392,12 @@ screen('S-01','B','홈','주행 중 · 정차 중','앱 실행','F-01, F-09, F-1
  '주행 중 화면은 버튼 4개가 전부다. 글자 최소 28dp, 터치 최소 88dp.', gif=True)
 
 screen('S-01b','B','홈 · 저장 전','주행 중 · 정차 중','저장한 가게가 0개일 때의 홈','F-01',
- f'''
- <div class="top" style="border-bottom:0"><div style="width:16px"></div><div class="title">다음에 가게</div><div class="iconbtn">{ic("gear",48)}</div></div>
- <div class="body" style="display:grid;grid-template-columns:600px 1fr;gap:48px;padding-top:24px">
-   <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;gap:36px">
-     <div class="mic live">{ic("mic",160)}</div>
-     <div style="font-size:36px;font-weight:600">눌러서 말하기</div>
-     <div class="muted" style="text-align:center">“방금 지난 가게 저장해줘”<br>“뭐 먹을까”</div>
-   </div>
-   <div style="display:flex;flex-direction:column;gap:32px;justify-content:center">
-     <div class="btn big">{ic("fork",44)} 뭐 먹을까</div>
-     <div class="btn big" data-co="2">{ic("list",44)} 내 맛집 <span class="muted" style="font-weight:400;font-size:28px">0</span></div>
-     <div class="card" data-co="1" style="display:flex;align-items:center;gap:24px;padding:28px 32px">
-       {ic("pin",44,"muted")}
-       <div style="flex:1"><div style="font-size:32px;font-weight:600">아직 저장한 가게가 없어요</div><div class="muted small">운전하다 “방금 지난 가게 저장해줘”라고 말해 보세요</div></div>
-     </div>
-   </div>
- </div>
- ''',
+ home(count='0', sub1='저장한 가게가 생기면 추천해요', sub2='0곳', co=dict(mine='2'), live=True,
+      recent='''<div class="card recent" data-co="1">
+       <div class="meta"><span class="small muted">최근 저장</span><span class="chip dim">없음</span></div>
+       <div style="font-size:32px;font-weight:600">아직 저장한 가게가 없어요</div>
+       <div class="muted small">운전하다 “방금 지난 가게 저장해줘”라고 말해 보세요</div>
+     </div>'''),
  [('1','안내 카드','최근 저장 자리에 안내 2줄','누를 수 없음'),
   ('2','내 맛집 0','개수 0 표시','누르면 S-07b')],
  [('말하기 버튼','S-01과 같은 숨쉬기','2s 반복',''),
@@ -410,7 +437,7 @@ screen('S-02c','B','다시 말해 주세요','주행 중 · 정차 중','S-02b�
   ('3','취소','닫기','두 번째도 실패하면 자동으로 닫히고 토스트 “다음에 다시 말해 주세요”')],
  [('문구 교체','페이드','160ms','실패 판정 직후'),
   ('카드','좌우 8dp 흔들림 1회','240ms · ease-in-out','문구와 함께'),
-  ('막대','파랑 → 회색 페이드','160ms','')],
+  ('막대','주황 → 회색 페이드','160ms','')],
  '')
 
 screen('S-14','B','가게 찾는 중','주행 중','S-02b에서 저장 의도가 확정된 뒤','F-02, F-04',
@@ -420,7 +447,7 @@ screen('S-14','B','가게 찾는 중','주행 중','S-02b에서 저장 의도가
    <div class="mapph a-fade" data-co="2" style="width:1000px;height:520px">
      <div class="lab">조금 전 지나온 길</div>
      <div class="pin me pulse" style="left:620px;top:300px">{ic("navi",56)}</div>
-     <div class="pin" style="left:430px;top:200px;color:#F59E0B">{ic("pin",64)}</div>
+     <div class="pin" style="left:430px;top:200px;color:var(--accent)">{ic("pin",64)}</div>
      <div class="lab bot">주황 핀 = 말한 시점에 있었던 곳(추정)</div>
    </div>
    <div class="muted" data-co="3" style="font-size:32px">“방금 지난 빨간 간판 고깃집 저장해줘”</div>
@@ -450,7 +477,7 @@ screen('S-03','B','확인','주행 중','S-14 뒤 후보가 있을 때','F-04, F
    </div>
    <div class="hint" style="display:flex;align-items:center;justify-content:center;gap:64px">
      <span data-co="5" style="display:flex;align-items:center;gap:16px">{countdown(5)}5초 안에 대답이 없으면 위치만 저장해요</span>
-     <span data-co="6" style="display:flex;align-items:center;gap:12px;color:#4F8DFF">{ic("mic",32)}<span class="bars live"><i style="--i:0;height:20px"></i><i style="--i:1;height:40px"></i><i style="--i:2;height:28px"></i><i style="--i:3;height:44px"></i></span></span>
+     <span data-co="6" style="display:flex;align-items:center;gap:12px;color:var(--acc-t)">{ic("mic",32)}<span class="bars live"><i style="--i:0;height:20px"></i><i style="--i:1;height:40px"></i><i style="--i:2;height:28px"></i><i style="--i:3;height:44px"></i></span></span>
    </div>
  </div>
  ''',
@@ -519,7 +546,7 @@ screen('S-05','C','리마인드','주행 중','저장 가게 500m 안 진입 (�
  f'''
  <div class="body full" style="padding:0">
    <div class="mapph" style="position:absolute;inset:0;border:0;border-radius:0"><div class="lab bot">현재 화면 (내비 등)</div></div>
-   <div class="card a-down" data-co="1" style="position:absolute;left:48px;right:48px;top:48px;height:300px;display:flex;align-items:center;gap:32px;padding:36px 40px;background:#151B26">
+   <div class="card a-down" data-co="1" style="position:absolute;left:48px;right:48px;top:48px;height:300px;display:flex;align-items:center;gap:32px;padding:36px 40px;background-color:var(--glass2)">
      {ic("pin",72)}
      <div style="flex:1">
        <div class="h40">지난주에 저장한 서울갈비</div>
@@ -545,7 +572,7 @@ screen('S-05b','C','리마인드 · 안내 시작','주행 중','S-05에서 안�
  f'''
  <div class="body full" style="padding:0">
    <div class="mapph" style="position:absolute;inset:0;border:0;border-radius:0"><div class="lab bot" data-co="2" style="left:48px">내비 화면으로 전환 중</div><div class="pin" style="left:760px;top:420px">{ic("pin",72)}</div><div class="pin me" style="left:520px;top:640px">{ic("navi",56)}</div></div>
-   <div class="card a-pop" data-co="1" style="position:absolute;left:48px;right:48px;top:48px;height:140px;display:flex;align-items:center;gap:24px;padding:0 40px;background:#151B26">
+   <div class="card a-pop" data-co="1" style="position:absolute;left:48px;right:48px;top:48px;height:140px;display:flex;align-items:center;gap:24px;padding:0 40px;background-color:var(--glass2)">
      {ic("check",48,"ok")}<div class="h40">서울갈비로 안내할게요</div><div class="muted" style="margin-left:auto;font-size:28px">내비로 넘어가요</div>
    </div>
  </div>
@@ -582,7 +609,7 @@ screen('S-06','D','추천','주행 중 · 정차 중','S-01 뭐 먹을까 / 음�
   ('3','다른 곳 추천','다음 순위 3곳으로 교체','최대 2회. 더 없으면 S-06b'),
   ('b','뒤로','홈','')],
  [('카드 3장','아래에서 24dp 올라오며 차례로 등장(60ms 간격)','200ms × 3 · standard','화면 열릴 때'),
-  ('읽는 카드 강조','TTS가 번호를 읽는 동안 그 카드 테두리만 파랑','120ms','카드마다 차례로'),
+  ('읽는 카드 강조','TTS가 번호를 읽는 동안 그 카드 테두리만 주황','120ms','카드마다 차례로'),
   ('다른 곳 추천','세 장이 왼쪽으로 나가고 새 세 장이 오른쪽에서 들어옴','200ms','버튼 · 음성 “다른 데”')],
  '', gif=True)
 
@@ -605,19 +632,19 @@ screen('S-06c','D','추천 · 선택됨','주행 중 · 정차 중','S-06에서 
  {top('뭐 먹을까')}
  <div class="body" style="display:flex;flex-direction:column;gap:40px;align-items:center;padding-top:40px">
    <div style="display:flex;gap:40px">
-     {rcard(1,'서울갈비','고깃집 · 1.2km','저장 11월 2일 · 안 가 봄', co1=True, cls='a-grow').replace('class="card a-grow"','class="card a-grow" data-sel="1"').replace('border:2px solid #2C3646','')}
+     {rcard(1,'서울갈비','고깃집 · 1.2km','저장 11월 2일 · 안 가 봄', co1=True, cls='a-grow').replace('class="card a-grow"','class="card a-grow" data-sel="1"')}
      {rcard(2,'카페 노을','카페 · 2.0km','방문 1회 · “괜찮았어”', cls='a-dim')}
      {rcard(3,'국밥집','국밥 · 3.4km','저장 10월 28일', cls='a-dim')}
    </div>
    <div class="btn a-dim" style="width:400px">다른 곳 추천</div>
  </div>
  <div class="toast live" data-co="2" style="top:920px">{ic("navi",44,"ok")}<span>서울갈비로 안내할게요</span></div>
- <style>.frame [data-sel]{{border-color:#2563EB;box-shadow:0 0 0 4px rgba(37,99,235,.35)}}.frame [data-sel] .a-dim{{opacity:1}}</style>
+ <style>.frame [data-sel]{{border:2px solid var(--accent);box-shadow:0 0 0 6px var(--acc-ring),var(--shadow)}}.frame [data-sel] .a-dim{{opacity:1}}</style>
  ''',
- [('1','선택한 카드','테두리 파랑 + 4% 확대, 나머지 카드는 흐려짐','1.5초 뒤 홈으로 돌아가고 내비가 안내 시작'),
+ [('1','선택한 카드','테두리 주황 + 4% 확대, 나머지 카드는 흐려짐','1.5초 뒤 홈으로 돌아가고 내비가 안내 시작'),
   ('2','안내 토스트','“서울갈비로 안내할게요” + TTS 동일',''),
   ('b','뒤로','홈 (선택 취소)','')],
- [('선택 카드','100 → 104% 확대, 테두리 파랑','200ms · standard','선택 직후'),
+ [('선택 카드','100 → 104% 확대, 테두리 주황','200ms · standard','선택 직후'),
   ('나머지 카드','불투명도 100 → 40%','200ms','선택 카드와 동시'),
   ('토스트','아래에서 올라옴','200ms','선택 직후'),
   ('홈으로','페이드','160ms','1.5초 뒤')],
@@ -628,7 +655,7 @@ screen('S-15','E','방문 메모','주행 중 · 정차 중','내비 도착 + 10
  f'''
  <div class="body full" style="padding:0">
    <div class="mapph" style="position:absolute;inset:0;border:0;border-radius:0"><div class="lab bot">현재 화면 (내비 등)</div></div>
-   <div class="card a-down" data-co="1" style="position:absolute;left:48px;right:48px;top:48px;height:300px;display:flex;align-items:center;gap:32px;padding:36px 40px;background:#151B26">
+   <div class="card a-down" data-co="1" style="position:absolute;left:48px;right:48px;top:48px;height:300px;display:flex;align-items:center;gap:32px;padding:36px 40px;background-color:var(--glass2)">
      {ic("flag",72)}
      <div style="flex:1">
        <div class="h40">서울갈비 다녀오셨네요</div>
@@ -681,7 +708,7 @@ def rows(skip=None, hl=None, sel0=True, collapse=None):
 def myplaces_map(co=None, pins=True):
     c = f' data-co="{co}"' if co else ''
     p = (f'<div class="pin" style="left:420px;top:300px">{ic("pin",64)}</div><div class="pin" style="left:180px;top:220px">{ic("pin",64)}</div>'
-         f'<div class="pin" style="left:520px;top:560px">{ic("pin",64)}</div><div class="pin" style="left:140px;top:640px;color:#F59E0B">{ic("pin",64)}</div>') if pins else ''
+         f'<div class="pin" style="left:520px;top:560px">{ic("pin",64)}</div><div class="pin" style="left:140px;top:640px;color:var(--amber)">{ic("pin",64)}</div>') if pins else ''
     return f'''<div class="mapph"{c} style="height:100%"><div class="lab">지도</div><div class="pin me" style="left:320px;top:420px">{ic("navi",56)}</div>{p}</div>'''
 
 screen('S-07','F','내 맛집','정차 중','S-01 내 맛집','F-12, F-07, F-13',
@@ -697,12 +724,12 @@ screen('S-07','F','내 맛집','정차 중','S-01 내 맛집','F-12, F-07, F-13'
  ''',
  [('1','필터 칩','전체 / 미확인 / 방문, 정렬(가까운 순·최근 저장 순)','누르면 목록만 바뀜'),
   ('2','가게 목록','이름·업종·거리·저장일 또는 방문 횟수·상태 칩, 줄 높이 104dp','누르면 S-08, 미확인은 S-09. 0건이면 S-07b'),
-  ('3','지도','저장 가게 핀(파랑), 미확인 핀(주황), 내 위치','핀을 누르면 목록에서 선택됨. 지도 SDK가 안 되면 비움'),
+  ('3','지도','저장 가게 핀(주황), 미확인 핀(노랑), 내 위치','핀을 누르면 목록에서 선택됨. 지도 SDK가 안 되면 비움'),
   ('4','공유','S-10',''),
   ('b','뒤로','홈','')],
  [('화면 전환','정차 화면끼리는 오른쪽 48dp에서 밀려 들어오며 페이드','200ms · standard','S-01 → S-07'),
   ('목록 줄','위에서부터 차례로 페이드 인(40ms 간격, 최대 8줄)','200ms','화면 열릴 때 · 필터 바꿀 때'),
-  ('줄 선택','배경이 파랑 톤으로','120ms','터치 · 지도 핀 터치'),
+  ('줄 선택','배경이 주황 톤으로','120ms','터치 · 지도 핀 터치'),
   ('지도 핀 선택','핀이 8dp 튀어 오름','200ms','목록 줄 터치')],
  '주행 중에 열면 S-12가 대신 뜬다.')
 
@@ -781,7 +808,7 @@ screen('S-08b','F','가게 수정','정차 중','S-08 수정','F-12',
   ('7','키보드 자리','입력창을 누르면 시스템 키보드가 아래 320dp를 차지','주행 중이면 S-12'),
   ('b','뒤로','취소와 같음','')],
  [('화면 전환','오른쪽에서 밀려 들어옴','200ms','S-08 → S-08b'),
-  ('입력창 포커스','테두리가 파랑으로, 바깥 4dp 번짐','120ms','입력창 터치'),
+  ('입력창 포커스','테두리가 주황으로, 바깥 4dp 번짐','120ms','입력창 터치'),
   ('키보드','아래에서 올라옴 (시스템)','240ms','입력창 터치')],
  '')
 
@@ -967,16 +994,16 @@ screen('S-16b','G','가져오기 완료','정차 중','S-16 내 지도에 추가
  <div class="toast live" data-co="1" style="top:900px">{ic("check",48,"ok")}<span>6곳을 내 지도에 추가했어요</span></div>
  ''',
  [('1','토스트','추가한 개수, 4초',''),
-  ('2','새 줄 강조','추가된 줄 배경이 파랑 톤에서 서서히 원래대로','정렬은 최근 저장 순으로 바뀜'),
+  ('2','새 줄 강조','추가된 줄 배경이 주황 톤에서 서서히 원래대로','정렬은 최근 저장 순으로 바뀜'),
   ('b','뒤로','홈','')],
- [('새 줄 배경','파랑 톤 → 투명','1.2s · ease-out','목록 열릴 때'),
+ [('새 줄 배경','주황 톤 → 투명','1.2s · ease-out','목록 열릴 때'),
   ('토스트','아래에서 올라옴','200ms','')],
  '')
 
 # ===== H. 설정과 주행 제한 =====
 def setrow(label, ctrl, co=None, danger=False):
     c = f' data-co="{co}"' if co else ''
-    return f'<div class="row"{c} style="height:112px;{"color:#F87171" if danger else ""}"><div class="name" style="flex:1">{label}</div>{ctrl}</div>'
+    return f'<div class="row"{c} style="height:112px;{"color:var(--danger)" if danger else ""}"><div class="name" style="flex:1">{label}</div>{ctrl}</div>'
 screen('S-11','H','설정','정차 중','S-01 설정','F-15',
  f'''
  {top('설정')}
@@ -1000,7 +1027,7 @@ screen('S-11','H','설정','정차 중','S-01 설정','F-15',
   ('b','뒤로','홈','')],
  [('화면 전환','오른쪽에서 밀려 들어옴','200ms',''),
   ('토글','손잡이가 좌우로 이동 + 배경색','160ms · standard','터치'),
-  ('구간 선택','파랑 배경이 옆 칸으로 미끄러짐','160ms','터치'),
+  ('구간 선택','주황 배경이 옆 칸으로 미끄러짐','160ms','터치'),
   ('음량','손잡이가 손가락을 따라 즉시 이동','0ms','드래그')],
  '')
 
@@ -1124,21 +1151,22 @@ def flow_svg():
 # ---------------------------------------------------------------- tables shared by html / md
 BASE_ROWS = [
  ['캔버스','1280 × 1080 (앱 영역). 전체 화면은 1920 × 1080 16:9를 좌우 1:2로 나눈 오른쪽','Pleos Connect 17인치 16:9, 좌우 1:2 분할. 해상도 값은 가정이며 에뮬레이터 확인 뒤 조정'],
- ['테마','다크·라이트 2가지 (차량 주/야간 설정을 따름). 다크: 배경 #0B0F17, 카드 #151B26, 글자 #F3F5F8, 보조 #A6B0C0. 라이트: 배경 #F4F6FA, 카드 #FFFFFF, 글자 #111827, 보조 #525C6B. 강조색·구조는 같음','다크는 야간 눈부심 방지. 이 문서의 와이어프레임은 다크 기준'],
- ['강조색','1순위 동작 파랑 #2563EB(흰 글자). 삭제만 빨강 #B91C1C 채움·#F87171 글자. 미확인 주황, 방문 초록','빨강은 차량에서 경고색이라 삭제에만 사용'],
+ ['테마','다크·라이트 2가지 (차량 주/야간 설정을 따름). 다크: 배경 #15100E, 글자 #FBF6F2, 보조 #B8A69B. 라이트: 배경 #F6EFEA, 글자 #1F1512, 보조 #6E5B53. 배경은 그림 없는 단색','다크는 야간 눈부심 방지. 색은 앱 아이콘 주황 #E4572E에서 뽑음. 이 문서의 와이어프레임은 위 단추로 다크·라이트를 바꿔 볼 수 있다'],
+ ['스타일','리퀴드 글라스: 카드·버튼·상단 버튼은 반투명 유리(다크 흰색 9~14%, 라이트 흰색 78~95%) + 흐림 28 + 밝은 윗선 + 1dp 테두리 + 그림자. 색이 있는 유리는 말하기 버튼 하나','유리는 콘텐츠 위 조작 층에만. 지도 화면에서는 지도가 콘텐츠 층. 투명도 줄이기를 켜면 불투명 카드 #1F1714 / #FFFFFF'],
+ ['강조색','1순위 동작 주황 #E4572E 채움(흰 글자). 주황 글자·아이콘은 다크 #FF8A62 · 라이트 #B83A18. 삭제만 빨강 #C62828 채움 · 다크 #FF6B6B 글자. 미확인 노랑 #F2B544 / #8A5A00, 방문 초록 #4CC38A / #1B7F4D. 파랑은 쓰지 않음','빨강은 차량에서 경고색이라 삭제에만 사용. 글자 대비 4.5:1 이상 (흰 글자 위 주황은 32dp 굵은 글자만)'],
  ['글꼴','Pretendard (없으면 Noto Sans KR). 본문 28dp, 버튼 32dp, 카드 제목 40dp, 질문 48dp, 가게 이름 64dp, 최소 24dp','70cm 시청 거리 기준'],
  ['터치 크기','버튼 높이 88dp 기본, 1순위 112dp, 목록 줄 96~112dp, 최소 76dp, 간격 24dp 이상','Android Automotive 주행 중 최소 76dp'],
- ['한 화면 규칙','1순위 버튼은 1개(파랑), 주행 중 글자 줄 수 3줄 이내, 목록 스크롤·키보드는 정차 중에만','기획서 8장 비기능 요구사항'],
+ ['한 화면 규칙','1순위 버튼은 1개(주황), 주행 중 글자 줄 수 3줄 이내, 목록 스크롤·키보드는 정차 중에만','기획서 8장 비기능 요구사항'],
  ['아이콘','Lucide 선 아이콘 1종, 이모지 금지. 앱 아이콘은 확정 15번(주황 핀)','design/icons/final/'],
  ['동작 시간','화면 전환 200ms 이내, 토스트 4초, 확인 대기 5초, 리마인드·방문 메모 카드 10초','5장 애니메이션 기준 참고'],
 ]
 COMMON_ROWS = [
  ['상단 바','높이 96dp: 뒤로(80×80) · 제목 36dp · 오른쪽 동작 1개','홈에는 뒤로 없음. 제목은 화면 이름 그대로'],
- ['1순위 버튼','파랑, 높이 88~136dp','화면에 1개만'],
- ['2순위 버튼','테두리형, 높이 88dp',''],
+ ['1순위 버튼','주황 채움 알약형, 높이 88~136dp','화면에 1개만'],
+ ['2순위 버튼','유리 알약형, 높이 88dp',''],
  ['삭제 버튼','테두리 빨강(상세·정리) 또는 채움 빨강(확인 창)','다른 버튼과 떨어뜨림'],
- ['카드','모서리 28dp, 안쪽 여백 32dp, 테두리 #2C3646',''],
- ['상태 칩','높이 48dp: 미확인(주황) · 방문(초록) · 선택(파랑) · 저장됨(회색)','글자와 색을 같이 써서 색만으로 구분하지 않음'],
+ ['카드','유리, 모서리 36dp, 안쪽 여백 32dp, 1dp 밝은 테두리 + 그림자','알림 카드·창·토스트는 더 진한 유리(다크 14% · 라이트 95%)'],
+ ['상태 칩','높이 48dp: 미확인(노랑) · 방문(초록) · 선택(주황) · 저장됨(회색)','글자와 색을 같이 써서 색만으로 구분하지 않음'],
  ['토스트','아래쪽(위에서 900dp), 좌우 140dp 여백, 높이 120dp, 4초','되돌리기 버튼은 삭제 뒤에만. 한 번에 1개'],
  ['확인 창','가운데, 폭 800dp, 질문 40dp + 설명 28dp + 버튼 2개','취소가 왼쪽, 실행이 오른쪽'],
  ['차량 알림 카드','위쪽 48dp, 높이 300dp, 아래 가장자리에 남은 시간 막대','리마인드(S-05) · 방문 메모(S-15)'],
@@ -1199,12 +1227,13 @@ th{background:var(--head);font-weight:600;white-space:nowrap}
 .tbl{overflow-x:auto}
 .screen{display:grid;grid-template-columns:640px 1fr;gap:28px;align-items:start}
 @media (max-width:1000px){.screen{grid-template-columns:1fr}}
-.shot{width:640px;height:540px;overflow:hidden;border-radius:12px;border:1px solid var(--line);background:#0B0F17;position:relative}
+.shot{width:640px;height:540px;overflow:hidden;border-radius:12px;border:1px solid var(--line);background:#15100E;position:relative}
+.wl .shot{background:#F6EFEA}
 .shot .frame{transform:scale(.5);transform-origin:0 0}
 .cap{color:var(--muted);font-size:.9em;margin-top:6px;display:flex;gap:12px;align-items:center}
 .cap button{font:inherit;font-size:.9em;padding:2px 10px;border-radius:6px;border:1px solid var(--line);background:var(--head);color:var(--fg);cursor:pointer}
 .spec table{margin-top:0}
-.spec .co{display:inline-flex;width:22px;height:22px;border-radius:50%;background:#F59E0B;color:#111;font-weight:700;font-size:13px;align-items:center;justify-content:center}
+.spec .co{display:inline-flex;width:22px;height:22px;border-radius:50%;background:#7C3AED;color:#fff;font-weight:700;font-size:13px;align-items:center;justify-content:center}
 .note{color:var(--muted);font-size:.93em;margin:.3em 0 0}
 .flow{width:100%;height:auto;display:block;margin:.6em 0}
 .flow text{fill:var(--fg);font-family:inherit}.flow .q{fill:var(--muted)}
@@ -1217,13 +1246,20 @@ th{background:var(--head);font-weight:600;white-space:nowrap}
 .toc{columns:3;font-size:.95em}.toc a{color:var(--accent);text-decoration:none}
 .grp{display:inline-block;padding:0 8px;border-radius:6px;background:var(--accent-bg);color:var(--accent);font-size:.8em;font-weight:600;vertical-align:middle;margin-left:6px}
 .gif{color:var(--muted);font-size:.85em}
-@media print{.shot{break-inside:avoid}h2{break-before:page}h2:first-of-type{break-before:auto}.cap button{display:none}}
+.themebar{position:sticky;top:0;z-index:20;display:flex;justify-content:flex-end;gap:8px;align-items:center;padding:8px 0;background:var(--bg);font-size:.9em;color:var(--muted)}
+.themebar button{font:inherit;padding:3px 14px;border-radius:999px;border:1px solid var(--line);background:var(--head);color:var(--fg);cursor:pointer}
+.themebar button[aria-pressed="true"]{background:#E4572E;border-color:#E4572E;color:#fff}
+@media print{.themebar{display:none}.shot{break-inside:avoid}h2{break-before:page}h2:first-of-type{break-before:auto}.cap button{display:none}}
 '''
 PAGE_JS = r'''
 (function(){
   var io=new IntersectionObserver(function(es){es.forEach(function(e){var f=e.target.querySelector('.frame');if(!f)return;
     if(e.isIntersecting){f.classList.remove('play');void f.offsetWidth;f.classList.add('play');}else{f.classList.remove('play');}});},{threshold:.35});
   document.querySelectorAll('.shot').forEach(function(s){io.observe(s);});
+  var tb=document.querySelectorAll('.themebar button');
+  function setT(t){document.body.classList.toggle('wl',t==='light');tb.forEach(function(b){b.setAttribute('aria-pressed',b.dataset.t===t?'true':'false');});}
+  tb.forEach(function(b){b.addEventListener('click',function(){setT(b.dataset.t);});});
+  setT(window.matchMedia&&window.matchMedia('(prefers-color-scheme: light)').matches?'light':'dark');
   document.querySelectorAll('.cap button').forEach(function(b){b.addEventListener('click',function(){var f=b.closest('.shotwrap').querySelector('.frame');f.classList.remove('play');void f.offsetWidth;f.classList.add('play');});});
 })();
 '''
@@ -1241,7 +1277,8 @@ INTRO = (f'주행 중에 쓰는 화면은 말하기 버튼과 큰 카드 몇 장
 parts = []
 parts.append('<h1>다음에 가게 — 화면 설계서</h1>')
 parts.append(f'<p class="meta">작성일 {DATE} · 작성자 재원 (easycd) · 기준 문서: <a href="01_개발기획서.md">01_개발기획서</a>의 기능 ID(F-xx)를 그대로 쓴다. 생성 스크립트 tools/gen_screens.py</p>')
-parts.append(f'<p>{INTRO} 와이어프레임은 화면에 보일 때 애니메이션이 한 번 재생되고, 아래 “다시 재생”으로 다시 볼 수 있다.</p>')
+parts.append('<div class="themebar">와이어프레임 테마 <button type="button" data-t="dark">다크</button><button type="button" data-t="light">라이트</button></div>')
+parts.append(f'<p>{INTRO} 와이어프레임은 화면에 보일 때 애니메이션이 한 번 재생되고, 아래 “다시 재생”으로 다시 볼 수 있다. 오른쪽 위 단추로 다크·라이트를 바꿔 본다. 보라색 번호는 설명용 표시로, 실제 화면에는 없다.</p>')
 parts.append('<p class="toc">' + ' · '.join(f'<a href="#{s["id"]}">{s["id"]} {s["name"]}</a>' for s in S) + '</p>')
 
 parts.append('<h2 id="base">1. 설계 기준</h2>')
@@ -1300,14 +1337,20 @@ doc = f'''<!DOCTYPE html>
 with open(os.path.join(OUT_DIR, '02_화면설계서.html'), 'w', encoding='utf-8') as f:
     f.write(doc)
 
-# standalone wire pages: static (PNG) and live (GIF)
+# standalone wire pages: static (PNG, dark + light) and live (GIF, dark); canvas boards without callouts
+LIGHT_DIR = os.path.join(WIRE_DIR, 'light'); BOARD_DIR = os.path.join(WIRE_DIR, 'boards')
+os.makedirs(LIGHT_DIR, exist_ok=True); os.makedirs(BOARD_DIR, exist_ok=True)
+def wire_page(s_, cls, bg, title=''):
+    t = f'<title>{title}</title>' if title else ''
+    return f'''<!DOCTYPE html><html lang="ko"><head><meta charset="utf-8">{t}<style>body{{margin:0;background:{bg}}}{WIRE_CSS}{ANIM_CSS}</style></head>
+<body><div class="frame {cls}" id="f" data-id="{s_["id"]}">{s_["wire"]}</div></body></html>'''
 for s in S:
-    for live in (False, True):
-        cls = 'play' if live else 'static'
-        page = f'''<!DOCTYPE html><html lang="ko"><head><meta charset="utf-8"><style>body{{margin:0;background:#0B0F17}}{WIRE_CSS}{ANIM_CSS}</style></head>
-<body><div class="frame {cls}" id="f" data-id="{s["id"]}">{s["wire"]}</div></body></html>'''
-        with open(os.path.join(LIVE_DIR if live else WIRE_DIR, f'{s["id"]}.html'), 'w', encoding='utf-8') as f:
-            f.write(page)
+    for d, cls, bg in ((WIRE_DIR, 'static', '#15100E'), (LIVE_DIR, 'play', '#15100E'), (LIGHT_DIR, 'static light', '#F6EFEA')):
+        with open(os.path.join(d, f'{s["id"]}.html'), 'w', encoding='utf-8') as f:
+            f.write(wire_page(s, cls, bg))
+    for theme, cls, bg in (('dark', 'static clean', '#15100E'), ('light', 'static clean light', '#F6EFEA')):
+        with open(os.path.join(BOARD_DIR, f'{s["id"]}_{theme}.dc.html'), 'w', encoding='utf-8') as f:
+            f.write(wire_page(s, cls, bg, f'{s["id"]} {s["name"]} · {"다크" if theme == "dark" else "라이트"}'))
 
 # data for the checker
 with open(os.path.join(WIRE_DIR, 'screens.json'), 'w', encoding='utf-8') as f:
@@ -1329,7 +1372,7 @@ def strip(s):
 
 md = ['# 다음에 가게 — 화면 설계서', '',
       f'작성일 {DATE} · 작성자 재원 (easycd) · 기준 문서: [01_개발기획서](01_개발기획서.md)의 기능 ID(F-xx)를 그대로 쓴다. 생성 스크립트 tools/gen_screens.py', '',
-      INTRO + ' 와이어프레임이 움직이는 원본은 [02_화면설계서.html](02_화면설계서.html)이고, 움직이는 미리보기는 screens/anim/ 의 GIF다.', '']
+      INTRO + ' 와이어프레임이 움직이는 원본은 [02_화면설계서.html](02_화면설계서.html)이고, 움직이는 미리보기는 screens/anim/ 의 GIF다. 화면마다 다크(screens/)와 라이트(screens/light/) 그림이 있다. 보라색 번호는 설명용 표시다.', '']
 md += ['## 1. 설계 기준', '', mdtbl(['항목','기준','근거'], BASE_ROWS), '']
 md += ['## 2. 화면 목록 (기능별)', '']
 for gid, gname, gf in GROUPS:
@@ -1357,7 +1400,8 @@ for s in S:
         cur = s['group']; g = next(g for g in GROUPS if g[0] == cur)
         md += [f'### {g[0]}. {g[1]} · {g[2]}', '']
     md += [f'#### {s["id"]} {s["name"]}', '', f'{s["when"]} · 들어오는 길: {s["entry"]} · {s["funcs"]}', '',
-           f'![{s["id"]} {s["name"]}](screens/{s["id"]}.png)', '']
+           '| 다크 | 라이트 |', '| --- | --- |',
+           f'| ![{s["id"]} {s["name"]} 다크](screens/{s["id"]}.png) | ![{s["id"]} {s["name"]} 라이트](screens/light/{s["id"]}.png) |', '']
     if s['gif']:
         md += [f'움직이는 미리보기: ![{s["id"]} 모션](screens/anim/{s["id"]}.gif)', '']
     md += [mdtbl(['번호','요소','내용','동작'], [[('뒤로' if co == 'b' else co), el, what, act] for co, el, what, act in s['spec']]), '']
