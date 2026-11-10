@@ -1,2 +1,10 @@
 ~$*
 __pycache__/
+# Android / Gradle
+.gradle/
+build/
+local.properties
+.idea/
+*.iml
+.kotlin/
+captures/

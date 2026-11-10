@@ -1,0 +1,91 @@
+[versions]
+agp = "8.7.3"
+kotlin = "2.0.21"
+ksp = "2.0.21-1.0.28"
+coroutines = "1.9.0"
+serialization = "1.7.3"
+composeBom = "2024.12.01"
+activityCompose = "1.9.3"
+lifecycle = "2.8.7"
+navigation = "2.8.5"
+hilt = "2.52"
+hiltAndroidx = "1.2.0"
+room = "2.6.1"
+datastore = "1.1.1"
+work = "2.10.0"
+coreKtx = "1.15.0"
+splash = "1.0.1"
+retrofit = "2.11.0"
+okhttp = "4.12.0"
+zxing = "3.5.3"
+junit4 = "4.13.2"
+junit5 = "5.11.3"
+turbine = "1.2.0"
+konsist = "0.17.3"
+pleosStt = "3.3.1"
+pleosTts = "3.3.1"
+pleosLocation = "1.1.3"
+pleosNavi = "3.0.5"
+
+[libraries]
+kotlinx-coroutines-core = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-core", version.ref = "coroutines" }
+kotlinx-coroutines-android = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-android", version.ref = "coroutines" }
+kotlinx-coroutines-test = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-test", version.ref = "coroutines" }
+kotlinx-serialization-json = { module = "org.jetbrains.kotlinx:kotlinx-serialization-json", version.ref = "serialization" }
+androidx-core-ktx = { module = "androidx.core:core-ktx", version.ref = "coreKtx" }
+androidx-core-splashscreen = { module = "androidx.core:core-splashscreen", version.ref = "splash" }
+androidx-activity-compose = { module = "androidx.activity:activity-compose", version.ref = "activityCompose" }
+androidx-lifecycle-runtime-compose = { module = "androidx.lifecycle:lifecycle-runtime-compose", version.ref = "lifecycle" }
+androidx-lifecycle-viewmodel-compose = { module = "androidx.lifecycle:lifecycle-viewmodel-compose", version.ref = "lifecycle" }
+androidx-lifecycle-process = { module = "androidx.lifecycle:lifecycle-process", version.ref = "lifecycle" }
+androidx-lifecycle-service = { module = "androidx.lifecycle:lifecycle-service", version.ref = "lifecycle" }
+androidx-navigation-compose = { module = "androidx.navigation:navigation-compose", version.ref = "navigation" }
+compose-bom = { module = "androidx.compose:compose-bom", version.ref = "composeBom" }
+compose-ui = { module = "androidx.compose.ui:ui" }
+compose-ui-graphics = { module = "androidx.compose.ui:ui-graphics" }
+compose-ui-tooling = { module = "androidx.compose.ui:ui-tooling" }
+compose-ui-tooling-preview = { module = "androidx.compose.ui:ui-tooling-preview" }
+compose-foundation = { module = "androidx.compose.foundation:foundation" }
+compose-material3 = { module = "androidx.compose.material3:material3" }
+compose-animation = { module = "androidx.compose.animation:animation" }
+hilt-android = { module = "com.google.dagger:hilt-android", version.ref = "hilt" }
+hilt-compiler = { module = "com.google.dagger:hilt-android-compiler", version.ref = "hilt" }
+hilt-navigation-compose = { module = "androidx.hilt:hilt-navigation-compose", version.ref = "hiltAndroidx" }
+hilt-work = { module = "androidx.hilt:hilt-work", version.ref = "hiltAndroidx" }
+hilt-androidx-compiler = { module = "androidx.hilt:hilt-compiler", version.ref = "hiltAndroidx" }
+javax-inject = { module = "javax.inject:javax.inject", version = "1" }
+room-runtime = { module = "androidx.room:room-runtime", version.ref = "room" }
+room-ktx = { module = "androidx.room:room-ktx", version.ref = "room" }
+room-compiler = { module = "androidx.room:room-compiler", version.ref = "room" }
+datastore-preferences = { module = "androidx.datastore:datastore-preferences", version.ref = "datastore" }
+work-runtime = { module = "androidx.work:work-runtime-ktx", version.ref = "work" }
+retrofit = { module = "com.squareup.retrofit2:retrofit", version.ref = "retrofit" }
+retrofit-serialization = { module = "com.squareup.retrofit2:converter-kotlinx-serialization", version.ref = "retrofit" }
+okhttp = { module = "com.squareup.okhttp3:okhttp", version.ref = "okhttp" }
+zxing-core = { module = "com.google.zxing:core", version.ref = "zxing" }
+junit4 = { module = "junit:junit", version.ref = "junit4" }
+junit5-api = { module = "org.junit.jupiter:junit-jupiter-api", version.ref = "junit5" }
+junit5-params = { module = "org.junit.jupiter:junit-jupiter-params", version.ref = "junit5" }
+junit5-engine = { module = "org.junit.jupiter:junit-jupiter-engine", version.ref = "junit5" }
+junit5-launcher = { module = "org.junit.platform:junit-platform-launcher", version = "1.11.3" }
+turbine = { module = "app.cash.turbine:turbine", version.ref = "turbine" }
+konsist = { module = "com.lemonappdev:konsist", version.ref = "konsist" }
+pleos-stt = { module = "ai.pleos.playground:SpeechToText", version.ref = "pleosStt" }
+pleos-tts = { module = "ai.pleos.playground:TextToSpeech", version.ref = "pleosTts" }
+pleos-location = { module = "ai.pleos.playground:FusedLocation", version.ref = "pleosLocation" }
+pleos-navi = { module = "ai.pleos.playground:NaviHelper", version.ref = "pleosNavi" }
+# build-logic
+android-gradle = { module = "com.android.tools.build:gradle", version.ref = "agp" }
+kotlin-gradle = { module = "org.jetbrains.kotlin:kotlin-gradle-plugin", version.ref = "kotlin" }
+compose-gradle = { module = "org.jetbrains.kotlin:compose-compiler-gradle-plugin", version.ref = "kotlin" }
+ksp-gradle = { module = "com.google.devtools.ksp:com.google.devtools.ksp.gradle.plugin", version.ref = "ksp" }
+
+[plugins]
+android-application = { id = "com.android.application", version.ref = "agp" }
+android-library = { id = "com.android.library", version.ref = "agp" }
+kotlin-android = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
+kotlin-jvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin" }
+kotlin-compose = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }
+kotlin-serialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlin" }
+ksp = { id = "com.google.devtools.ksp", version.ref = "ksp" }
+hilt = { id = "com.google.dagger.hilt.android", version.ref = "hilt" }

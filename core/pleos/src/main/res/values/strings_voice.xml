@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 음성 안내 문장 (기획서 6장 규칙 5): 고정 문구 25자 안, 가게 이름 12자까지, 한 번에 6초 안 (추천 목록 10초) -->
+<resources>
+    <string name="voice_confirm">%1$s 맞나요?</string>
+    <string name="voice_confirm_second">그럼 %1$s 맞나요?</string>
+    <string name="voice_saved">저장했어요</string>
+    <string name="voice_saved_named">%1$s 저장했어요</string>
+    <string name="voice_already_saved">이미 저장한 가게예요</string>
+    <string name="voice_saved_location_only">위치를 기억해 둘게요. 멈추면 확인해 주세요</string>
+    <string name="voice_saved_text_only">말씀은 기억해 둘게요</string>
+    <string name="voice_save_failed">지금은 저장하지 못했어요</string>
+    <string name="voice_cancelled">취소했어요</string>
+    <string name="voice_say_again">다시 한 번 말해 주세요</string>
+    <!-- 리마인드: %1$s 저장 시기, %2$s 이름+이/가, %3$s 거리 -->
+    <string name="voice_remind_ahead">%1$s 저장한 %2$s %3$s 앞이에요. 갈까요?</string>
+    <string name="voice_remind_near">%1$s 저장한 %2$s 근처에 있어요. 갈까요?</string>
+    <string name="voice_when_today">오늘</string>
+    <string name="voice_when_yesterday">어제</string>
+    <string name="voice_when_this_week">이번 주에</string>
+    <string name="voice_when_last_week">지난주에</string>
+    <string name="voice_when_this_month">이번 달에</string>
+    <string name="voice_when_long_ago">전에</string>
+    <string name="voice_when_shared">받아서</string>
+    <string name="voice_meters">%1$dm</string>
+    <string name="voice_km">%1$s킬로미터</string>
+    <string name="voice_route_start">%1$s 안내할게요</string>
+    <string name="voice_route_change">목적지를 %1$s 바꿀게요</string>
+    <string name="voice_route_failed">안내를 시작하지 못했어요</string>
+    <string name="voice_recommend_item">%1$d번 %2$s</string>
+    <string name="voice_recommend_tail">어디로 갈까요?</string>
+    <string name="voice_none_saved">아직 저장한 가게가 없어요</string>
+    <string name="voice_none_10km">근처에 저장한 가게가 없어요</string>
+    <string name="voice_none_10km_category">근처에 저장한 %1$s 없어요</string>
+    <string name="voice_none_30km">30킬로미터 안에 저장한 가게가 없어요</string>
+    <string name="voice_none_30km_category">30킬로미터 안에 저장한 %1$s 없어요</string>
+    <string name="voice_choose_range">1번부터 %1$d번 중에 골라 주세요</string>
+    <string name="voice_which_number">몇 번이요?</string>
+    <string name="voice_say_number">번호로 말해 주세요</string>
+    <string name="voice_no_more">더 없어요</string>
+    <string name="voice_visit_ask">%1$s 다녀오셨네요. 한 줄 남길까요?</string>
+    <string name="voice_note_saved">%1$s 남겼어요</string>
+
+    <string name="keeper_channel">위치 기록</string>
+    <string name="keeper_title">다음에 가게</string>
+    <string name="keeper_text">저장한 가게 근처를 알려 드리려고 위치를 받고 있어요</string>
+</resources>

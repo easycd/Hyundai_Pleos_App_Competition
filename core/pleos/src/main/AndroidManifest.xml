@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <uses-permission android:name="pleos.car.permission.STT_SERVICE" />
+    <uses-permission android:name="pleos.car.permission.TTS_SERVICE" />
+    <uses-permission android:name="pleos.car.permission.FUSED_LOCATION" />
+    <uses-permission android:name="pleos.car.permission.NAVI_ROUTE" />
+    <uses-permission android:name="pleos.car.permission.NAVI_ROUTE_SEARCH" />
+    <uses-permission android:name="pleos.car.permission.NAVI_CUSTOM_MAP" />
+    <uses-permission android:name="pleos.car.permission.CAR_DRIVE" />
+    <uses-permission android:name="android.car.permission.CAR_UX_RESTRICTIONS_CONFIGURATION" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_LOCATION" />
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
+
+    <application>
+        <service
+            android:name=".location.LocationKeeperService"
+            android:exported="false"
+            android:foregroundServiceType="location" />
+    </application>
+</manifest>
