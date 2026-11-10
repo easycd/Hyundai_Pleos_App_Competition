@@ -37,30 +37,18 @@ hr{border:0;border-top:1px solid var(--line);margin:2em 0}
 <body>
 <main>
 <h1 id="다음에-가게--개발-기획서">다음에 가게 — 개발 기획서</h1>
-<p class="meta">작성일 2026-11-08 · 작성자 재원 (easycd)</p>
+<p class="meta">작성일 2026-11-08 · 개정 2026-11-10 (문서 검토 보고서 53건 반영) · 작성자 재원 (easycd)</p>
 <h2 id="1-문서-개요">1. 문서 개요</h2>
-<p>이 문서는 Pleos Connect 앱 '다음에 가게'를 실제로 개발하기 위한
-기획서다. 공모전 제출용 기획서(docs/contest-application-consent.docx)가
-'왜 만드는가'를 설명했다면, 이 문서는 '무엇을, 어떤 순서로, 어떤 SDK로
-만들 것인가'를 정한다.</p>
+<p>이 문서는 Pleos Connect 앱 '다음에 가게'를 실제로 개발하기 위한 기획서다. 공모전 제출용 기획서(docs/contest-application-consent.docx)가 '왜 만드는가'를 설명했다면, 이 문서는 '무엇을, 어떤 순서로, 어떤 SDK로 만들 것인가'를 정한다.</p>
 <ul>
-<li>범위: 앱의 기능 정의, 사용자 흐름, 음성 대화 규칙, 데이터, 비기능
-요구사항, SDK 사용 계획, 개발 범위와 일정</li>
-<li>범위 밖: 화면 레이아웃과 UI 상세(화면 설계서에서 다룸), 클래스·모듈
-구조와 API 명세(기술서에서 다룸)</li>
-<li>기준 문서: <a
-href="https://document.pleos.ai/docs/pleos-only/connect-sdk-pleos/SpeechToText/intro">Pleos
-개발자 문서</a>의 Connect SDK 5종(SpeechToText, TextToSpeech,
-FusedLocation, NaviHelper, Vehicle)</li>
-<li>후속 문서: 화면 설계서 → 기술서 순서로 작성하며, 이 문서의 기능
-ID(F-xx)를 두 문서에서 그대로 참조한다.</li>
+<li>범위: 앱의 기능 정의, 사용자 흐름, 음성 대화 규칙, 데이터, 비기능 요구사항, SDK 사용 계획, 개발 범위와 일정</li>
+<li>범위 밖: 화면 레이아웃과 UI 상세(화면 설계서에서 다룸), 클래스·모듈 구조와 API 명세(기술서에서 다룸)</li>
+<li>기준 문서: <a href="https://document.pleos.ai/docs/pleos-only/connect-sdk-pleos/SpeechToText/intro">Pleos 개발자 문서</a>의 Connect SDK 5종(SpeechToText, TextToSpeech, FusedLocation, NaviHelper, Vehicle)</li>
+<li>후속 문서: 화면 설계서 → 기술서 순서로 작성하며, 이 문서의 기능 ID(F-xx)를 두 문서에서 그대로 참조한다.</li>
 </ul>
-<p>이 문서에서 결정이 필요한 항목은 마지막 장 '확인이 필요한 사항'에
-모아 두었다.</p>
+<p>이 문서에서 결정이 필요한 항목은 마지막 장 '확인이 필요한 사항'에 모아 두었다.</p>
 <h2 id="2-서비스-개요">2. 서비스 개요</h2>
-<p>'다음에 가게'는 운전 중 스쳐 지나간 가게를 말 한마디로 저장하면, 다시
-지나갈 때 Pleos가 대신 기억해 알려 주는 차량용 맛집 메모·추천
-앱이다.</p>
+<p>'다음에 가게'는 운전 중 스쳐 지나간 가게를 말 한마디로 저장하면, 다시 지나갈 때 Pleos가 대신 기억해 알려 주는 차량용 맛집 메모·추천 앱이다.</p>
 <div class="tbl"><table>
 <thead>
 <tr class="header">
@@ -79,32 +67,25 @@ ID(F-xx)를 두 문서에서 그대로 참조한다.</li>
 </tr>
 <tr class="odd">
 <td>해결하는 문제</td>
-<td>운전 중 본 가게는 이름도 모르고 메모도 못 해 금방 잊히고, 다시 그
-길을 지나도 떠올리지 못한다</td>
+<td>운전 중 본 가게는 이름도 모르고 메모도 못 해 금방 잊히고, 다시 그 길을 지나도 떠올리지 못한다</td>
 </tr>
 <tr class="even">
 <td>핵심 가치</td>
-<td>손과 눈을 떼지 않고 말 한마디로 저장, 차량 위치·진행 방향으로 가게
-자동 특정, 근처를 지날 때 차량이 먼저 알려 줌</td>
+<td>손과 눈을 떼지 않고 말 한마디로 저장, 차량 위치·진행 방향으로 가게 자동 특정, 근처를 지날 때 차량이 먼저 알려 줌</td>
 </tr>
 <tr class="odd">
 <td>사용자에게 남는 경험</td>
-<td>"Pleos가 기억해 준 덕분에 그 집에서 맛있게 먹었다"는 작은 성공이
-반복된다</td>
+<td>"Pleos가 기억해 준 덕분에 그 집에서 맛있게 먹었다"는 작은 성공이 반복된다</td>
 </tr>
 <tr class="even">
 <td>개발 체제</td>
-<td>1인 개발, 약 12주</td>
+<td>1인 개발. 1차 접수 11월 15일 → 2차 PT 12월 3~4일 → 본개발 12주 (11장)</td>
 </tr>
 </tbody>
 </table></div>
-<p>핵심 기능은 네 가지다. 말 한마디로 저장, 지나칠 때 리마인드, 동승자와
-함께 고르는 추천, 나만의 맛집 지도와 공유다. 네 기능 모두 음성이 기본
-입력이고 화면은 보조다.</p>
+<p>핵심 기능은 네 가지다. 말 한마디로 저장, 지나칠 때 리마인드, 동승자와 함께 고르는 추천, 나만의 맛집 지도와 공유다. 네 기능 모두 음성이 기본 입력이고 화면은 보조다.</p>
 <h2 id="3-사용자와-사용-환경">3. 사용자와 사용 환경</h2>
-<p>주 사용자는 운전자이고, 추천과 지도 화면은 동승자도 함께 본다. 모든
-기능은 주행 중 상황을 기본으로 설계하고, 정차 중에만 세부 화면을
-연다.</p>
+<p>주 사용자는 운전자이고, 추천과 지도 화면은 동승자도 함께 본다. 모든 기능은 주행 중 상황을 기본으로 설계하고, 정차 중에만 세부 화면을 연다.</p>
 <div class="tbl"><table>
 <thead>
 <tr class="header">
@@ -138,51 +119,35 @@ ID(F-xx)를 두 문서에서 그대로 참조한다.</li>
 </table></div>
 <p><strong>차량 환경의 전제</strong></p>
 <ul>
-<li>단말: Pleos Connect가 탑재된 차량의 중앙 디스플레이. 개발과 검증은
-Pleos Connect Emulator에서 한다.</li>
-<li>입력: 차량 마이크(SpeechToText SDK)와 터치. 웨이크워드가 없으므로
-음성 입력은 화면의 큰 버튼으로 시작한다.</li>
-<li>출력: 차량 스피커(TextToSpeech SDK)와 화면. 주행 중 화면은 한 번에
-한 가지만 크게 보여 준다.</li>
-<li>위치: FusedLocation SDK가 주는 위도·경도·진행 방향(heading).
-스마트폰 GPS보다 안정적이고 진행 방향을 바로 얻는다.</li>
-<li>네비게이션: NaviHelper SDK로 목적지를 넘기고 주행 상태 이벤트를
-받는다.</li>
-<li>네트워크: 차량 통신을 쓰지만 터널·산간에서 끈길 수 있다. 저장 요청은
-오프라인에서도 유실되지 않아야 한다.</li>
+<li>단말: Pleos Connect가 탑재된 차량의 중앙 디스플레이. 개발과 검증은 Pleos Connect Emulator에서 한다.</li>
+<li>입력: 차량 마이크(SpeechToText SDK)와 터치. 웨이크워드가 없으므로 음성 입력은 화면의 큰 버튼으로 시작한다.</li>
+<li>출력: 차량 스피커(TextToSpeech SDK)와 화면. 주행 중 화면은 한 번에 한 가지만 크게 보여 준다.</li>
+<li>위치: FusedLocation SDK가 주는 위도·경도·진행 방향(heading). 스마트폰 GPS보다 안정적이고 진행 방향을 바로 얻는다.</li>
+<li>네비게이션: NaviHelper SDK로 목적지를 넘기고 주행 상태 이벤트를 받는다.</li>
+<li>네트워크: 차량 통신을 쓰지만 터널·산간에서 끊길 수 있다. 저장 요청은 오프라인에서도 유실되지 않아야 한다.</li>
 </ul>
 <p><strong>주행 중 제약 (설계 원칙)</strong></p>
 <ol type="1">
-<li>한 번의 상호작용은 버튼 1회 + 발화 1회 + 대답 1회를 넘지
-않는다.</li>
-<li>주행 중에는 목록 스크롤, 키보드 입력, 지도 탐색을 열지 않는다. 이
-화면들은 정차 상태(주차 브레이크 또는 속도 0)에서만 연다.</li>
-<li>음성 안내는 짧고(10초 이내) 한 번에 한 가지만 말한다. 같은 가게
-리마인드는 하루 1회를 넘지 않는다.</li>
-<li>가게를 특정하지 못해도 위치와 발화 원문을 먼저 저장하고, 정차 후
-확인하게 한다. 기록은 어떤 경우에도 잃지 않는다.</li>
+<li>한 번의 상호작용은 버튼 1회 + 발화 1회 + 확인 대답 최대 2회(첫 후보가 틀렸을 때만 두 번째)를 넘지 않고, 버튼부터 끝날 때까지 20초 안에 끝난다.</li>
+<li>주행 중에는 목록 스크롤, 키보드 입력, 지도 탐색을 열지 않는다. 이 화면들은 차량 플랫폼이 주행 제한을 풀었을 때(Android CarUxRestrictions)만 열고, 앱이 속도나 브레이크로 직접 판단하지 않는다. 제한 상태를 아직 모르면 제한된 것으로 본다.</li>
+<li>음성 안내는 짧고(10초 이내) 한 번에 한 가지만 말한다. 같은 가게 리마인드는 하루 1회를 넘지 않는다.</li>
+<li>가게를 특정하지 못해도 위치와 발화 원문을 먼저 저장하고, 정차 후 확인하게 한다. 말이 끝나면 원문을 곧바로 DB에 '초안'으로 써 두므로 그 뒤에 앱이 꺼져도 기록은 남는다. 차량 저장소 오류처럼 보존할 수 없을 때는 저장했다고 말하지 않고 "지금은 저장하지 못했어요"라고 알린다. 사용자가 "취소"라고 말하면 아무것도 남기지 않는다.</li>
 </ol>
 <h2 id="4-핵심-사용자-흐름">4. 핵심 사용자 흐름</h2>
-<p>네 흐름 모두 '발화 → 앱 판단 → 음성 확인 → 실행' 한 바퀴로 끝난다.
-저장 흐름이 핵심이며 나머지는 저장된 데이터를 꺼내 쓰는 흐름이다.</p>
+<p>네 흐름 모두 '발화 → 앱 판단 → 음성 확인 → 실행' 한 바퀴로 끝난다. 저장 흐름이 핵심이며 나머지는 저장된 데이터를 꺼내 쓰는 흐름이다.</p>
 <p><strong>흐름 A. 말 한마디로 저장 (핵심)</strong></p>
 <ol type="1">
 <li>운전자가 화면의 마이크 버튼을 누른다. 앱은 이 순간의 위치·진행 방향을 '말한 곳'으로 고정하고, 직전 60초의 위치 버퍼도 함께 고정한다. 말하는 동안 차가 계속 움직여도(최대 15초, 시속 60km면 약 250m) 이후 가게 찾기는 모두 이 고정 위치를 기준으로 하고 실시간 위치는 다시 읽지 않는다.</li>
-<li>"방금 지난 빨간 간판 고깃집 저장해줘"라고 말한다. STT가 문장을
-텍스트로 바꾼다.</li>
-<li>앱이 의도(저장)와 단서(업종 '고깃집', 간판 색 '빨간', 시점 '방금',
-방향 '오른쪽' 등)를 뽑는다.</li>
-<li>'방금'에 해당하는 지점(기본 10~20초 전 구간) 주변 반경 150m의 POI를 검색하고(시점 단서가 없으면 말한 곳 주변), 업종·이름·좌우 방향으로 점수를 매겨 1순위를 고른다.</li>
-<li>TTS가 "서울갈비 맞나요?"라고 되묻는다. "응"이면 저장하고
-"저장했어요"로 끝난다. "아니"면 2순위를 한 번 더 묻고, 그래도 아니면
-위치와 원문만 '미확인 가게'로 저장한다.</li>
-<li>후보가 없거나 네트워크가 없으면 되묻지 않고 "위치를 기억해 둘게요,
-멈추면 확인해 주세요"로 바로 저장한다.</li>
+<li>"방금 지난 빨간 간판 고깃집 저장해줘"라고 말한다. STT가 문장을 텍스트로 바꾸고, 말이 끝나면 원문과 고정 위치를 바로 '초안'으로 DB에 써 둔다.</li>
+<li>앱이 의도(저장)와 단서(업종 '고깃집', 간판 색 '빨간', 시점 '방금', 방향 '오른쪽' 등)를 뽑는다.</li>
+<li>시점 단서로 기준 시각을 정한다. '방금'과 단서 없음은 버튼을 누른 시각의 N초 전(N은 설정값 10·20·30초, 기본 20초), '아까'는 45초 전, '여기'는 버튼을 누른 순간이다. 그 시각의 차량 위치 주변 반경 150m의 POI를 검색해 업종·이름·좌우 방향으로 점수를 매겨 1순위를 고른다.</li>
+<li>TTS가 "서울갈비 맞나요?"라고 되묻는다. "응"이면 저장하고 "저장했어요"로 끝난다. "아니"면 2순위를 한 번 더 묻고, 그래도 아니면 위치와 원문만 '미확인 가게'로 저장한다. "취소"라고 하면 초안을 지우고 아무것도 저장하지 않는다.</li>
+<li>후보가 없거나 네트워크가 없으면 되묻지 않고 "위치를 기억해 둘게요, 멈추면 확인해 주세요"로 바로 저장한다. 위치를 못 잡았으면(권한 없음, 3초 넘게 위치 없음) 검색하지 않고 원문만 남기며 "말씀은 기억해 둘게요"라고 한다.</li>
 </ol>
-<figure class="flow"><svg viewBox="0 0 760 420" role="img" aria-label="저장 흐름: 어느 분기로 가도 기록은 남는다" font-size="13">
+<figure class="flow"><svg viewBox="0 0 760 420" role="img" aria-label="저장 흐름: 취소하지 않는 한 기록은 남는다" font-size="13">
 <defs><marker id="save-arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" class="arrowhead"/></marker></defs>
-<text x="24" y="34" font-size="15" font-weight="600">저장 흐름: 어느 분기로 가도 기록은 남는다</text>
-<g class="edges"><path d="M174 96H198" marker-end="url(#save-arrow)"/><path d="M348 96H372" marker-end="url(#save-arrow)"/><path d="M522 96H546" marker-end="url(#save-arrow)"/><path d="M621 122V176" marker-end="url(#save-arrow)"/><path d="M551 214H522" marker-end="url(#save-arrow)"/><path d="M372 214H329" marker-end="url(#save-arrow)"/><path d="M273 248V310" marker-end="url(#save-arrow)"/><path d="M217 214H174" marker-end="url(#save-arrow)"/><path d="M99 188V156H447V188" marker-end="url(#save-arrow)"/><path d="M99 240V392H621V362" marker-end="url(#save-arrow)"/><path d="M621 252V310" marker-end="url(#save-arrow)"/></g>
+<text x="24" y="34" font-size="15" font-weight="600">저장 흐름: 취소하지 않는 한 기록은 남는다</text>
+<g class="edges"><path d="M174 96H198" marker-end="url(#save-arrow)"/><path d="M348 96H372" marker-end="url(#save-arrow)"/><path d="M522 96H546" marker-end="url(#save-arrow)"/><path d="M621 122V176" marker-end="url(#save-arrow)"/><path d="M551 214H522" marker-end="url(#save-arrow)"/><path d="M372 214H329" marker-end="url(#save-arrow)"/><path d="M273 248V310" marker-end="url(#save-arrow)"/><path d="M217 214H174" marker-end="url(#save-arrow)"/><path d="M99 188V156H447V188" marker-end="url(#save-arrow)"/><path d="M99 240V392H621V362" marker-end="url(#save-arrow)"/><path d="M621 252V310" marker-end="url(#save-arrow)"/><path d="M300 232V272H447V308" marker-end="url(#save-arrow)"/></g>
 <rect class="box" x="24" y="70" width="150" height="52" rx="8"/><text x="99" y="100" text-anchor="middle" >마이크 버튼</text>
 <rect class="box" x="198" y="70" width="150" height="52" rx="8"/><text x="273" y="92" text-anchor="middle">발화를 STT로</text><text x="273" y="109" text-anchor="middle">텍스트 변환</text>
 <rect class="box" x="372" y="70" width="150" height="52" rx="8"/><text x="447" y="92" text-anchor="middle">의도·단서 추출</text><text x="447" y="109" text-anchor="middle" class="quiet" font-size="11.5">규칙 기반</text>
@@ -199,46 +164,32 @@ Pleos Connect Emulator에서 한다.</li>
 <text class="quiet" x="195.5" y="204" text-anchor="middle" font-size="11.5">아니</text>
 <text class="quiet" x="273" y="150" text-anchor="middle" font-size="11.5">다음 후보로 (최대 1회)</text>
 <text class="quiet" x="107" y="320" font-size="11.5">또 아니</text>
-</svg><figcaption>저장 흐름 A · 7단계, 분기 2개</figcaption></figure>
-<p>후보가 없거나 두 번 아니라고 하면 미확인 저장으로 끝나고, 미확인
-가게는 정차 후 정리 화면(F-07)에서 확정한다.</p>
+<rect class="box" x="372" y="310" width="150" height="52" rx="8"/><text x="447" y="332" text-anchor="middle" font-weight="600">저장 안 함</text><text x="447" y="349" text-anchor="middle" class="quiet" font-size="11.5">초안 삭제</text>
+<text class="quiet" x="380" y="266" font-size="11.5">취소</text>
+</svg><figcaption>저장 흐름 A · 7단계, 분기 3개</figcaption></figure>
+<p>후보가 없거나 두 번 아니라고 하면 미확인 저장으로 끝나고, 미확인 가게는 정차 후 정리 화면(F-07)에서 확정한다. "취소"는 어느 단계에서 말해도 저장하지 않고 끝낸다.</p>
 <p><strong>흐름 B. 지나칠 때 리마인드</strong></p>
 <ol type="1">
-<li>저장된 가게마다 반경 500m 근접 알림을 등록한다.</li>
-<li>근접 알림이 오면 필터를 거친다. 식사 시간대(설정에서 끌 수 있고 기본은 켬, 11~14시, 17~20시)인가,
-오늘 이미 안내했는가, 네비 목적지가 따로 있는가, 직전 안내 후 10분이
-지났는가.</li>
-<li>통과하면 TTS가 "지난주에 저장한 서울갈비가 300m 앞이에요.
-갈까요?"라고 묻는다.</li>
-<li>"응"이면 NaviHelper로 목적지를 설정한다. 대답이 없거나 "아니"면
-조용히 끝내고 화면에도 아무것도 남기지 않는다(운전 중 화면을 덜 가리도록).</li>
+<li>알림 대상 가게(확인된 가게 · 좌표 있음 · 가게별 알림 켜짐 · 전역 리마인드 켜짐)마다 반경 500m(설정 300m·500m·1km) 근접 감시를 등록한다. 설정이나 가게가 바뀌면 감시를 다시 등록한다.</li>
+<li>근접 알림이 오면 필터를 거친다. 식사 시간대(설정에서 끌 수 있고 기본은 켬, 11~14시, 17~20시)인가, 오늘 이미 안내했는가, 네비 목적지가 따로 있는가, 직전 안내 후 10분이 지났는가. 식사 시간이 아니어서 걸러진 가게는 반경 안에 있는 동안 1분마다 다시 확인한다. 여러 곳이 동시에 걸리면 가장 가까운 1곳만 안내한다.</li>
+<li>통과하면 TTS가 "지난주에 저장한 서울갈비가 300m 앞이에요. 갈까요?"라고 묻는다. '앞'은 가게가 진행 방향 좌우 45도 안에 있을 때만 쓰고, 아니면 "근처에 있어요"라고 한다. 거리는 직선거리다.</li>
+<li>TTS가 끝난 뒤 음성 대답은 5초, 카드 버튼은 10초까지 받고, 먼저 들어온 대답 하나만 처리한다. "응"이면 NaviHelper로 목적지를 설정한다. 대답이 없거나 "아니"면 조용히 끝내고 화면에도 아무것도 남기지 않는다(운전 중 화면을 덜 가리도록).</li>
 </ol>
 <p><strong>흐름 C. 동승자와 함께 고르는 추천</strong></p>
 <ol type="1">
-<li>마이크 버튼 후 "뭐 먹을까" 또는 "근처 저장한 데 있어?"라고
-말한다.</li>
-<li>앱이 저장 가게 중 말한 곳(마이크 버튼이나 '뭐 먹을까' 카드를 누른 순간 고정한 위치) 기준 거리, 영업 여부, 메모·방문 기록,
-마지막 방문 경과를 점수화해 상위 3곳을 고른다.</li>
-<li>TTS가 세 곳을 번호와 함께 읽고, 화면에 카드 3장을 크게 보여 준다. 결과가 나온 뒤 차가 움직여도 순서와 거리는 바뀌지 않아, 읽어 준 번호와 화면의 번호가 어긋나지 않는다.
-동승자가 터치로 고를 수도 있다.</li>
-<li>"2번" 또는 가게 이름을 말하면 NaviHelper로 목적지를 설정하고 안내를
-시작한다.</li>
+<li>마이크 버튼 후 "뭐 먹을까" 또는 "근처 저장한 데 있어?"라고 말한다.</li>
+<li>앱이 말한 곳(마이크 버튼이나 '뭐 먹을까' 카드를 누른 순간 고정한 위치) 기준 10km 안의 확인된 가게를 거리, 메모·방문 평가, 마지막 방문 경과로 점수화해 상위 3곳을 고른다. 업종을 말했으면 그 업종만 고른다. 영업 여부는 카카오 응답에 영업시간이 없어 MVP 점수에서 뺀다.</li>
+<li>TTS가 세 곳을 번호와 함께 읽고, 화면에 카드 3장을 크게 보여 준다. 결과가 나온 뒤 차가 움직여도 순서와 거리는 바뀌지 않아, 읽어 준 번호와 화면의 번호가 어긋나지 않는다. 동승자가 터치로 고를 수도 있다. 후보가 1~2곳이면 그 수만큼만 보여 준다. "다른 곳"이라고 하면 4~6위, 7~9위 순으로 바꾸고, 10km 안에 없으면 30km까지 넓혀 볼 수 있다.</li>
+<li>"2번" 또는 가게 이름을 말하면 그 가게를 고른다. 같은 이름이 두 곳이면 번호를 다시 묻고, 없는 번호면 "1번부터 3번 중에 골라 주세요"라고 한 번 말한다. 고른 뒤 1.5초 안에는 뒤로 가기로 취소할 수 있고, 그 뒤 NaviHelper로 목적지를 보낸다. 결과 화면은 2분 동안 고르지 않으면 닫힌다.</li>
 </ol>
 <p><strong>흐름 D. 나만의 맛집 지도와 공유 (정차 중)</strong></p>
 <ol type="1">
-<li>지도 화면에 저장 가게(주황)와 방문 가게(초록)가 핀으로 쌓인다. 미확인 가게는 노랑 물음표 핀으로 보여 주고, 누르면 후보 목록에서 고를 수
-있다.</li>
-<li>방문은 네비 목적지 도착 이벤트와 해당 위치 체류(10분 이상)로 자동
-기록한다. 방문 후 "여기 괜찮았어" 같은 짧은 음성 메모를 남길 수
-있다.</li>
-<li>공유할 가게를 골라 '공유 링크 만들기'를 누르면 링크와 QR이
-만들어진다. 받는 사람은 링크를 열어 목록을 보고, 앱이 있으면 '내 지도에
-추가'로 가져온다.</li>
+<li>지도 화면에 저장 가게(주황)와 방문 가게(초록)가 핀으로 쌓인다. 미확인 가게는 노랑 물음표 핀으로 보여 주고, 누르면 후보 목록에서 고를 수 있다.</li>
+<li>방문은 앱이 Pleos 내비로 안내를 맡긴 가게에 도착(도착 이벤트 또는 50m 진입)한 뒤 100m 안에 10분 이상 머물면 기록하고, 100m 밖으로 1분 이상 벗어나면 출발로 본다. 출발할 때 "여기 괜찮았어" 같은 짧은 음성 메모를 그 방문에 남길 수 있다. 앱이 꺼져도 판정이 이어지도록 진행 상태를 DB에 둔다(7장 VisitSession).</li>
+<li>공유할 가게(최대 30곳)를 골라 '공유 링크 만들기'를 누르면 목록을 압축해 넣은 링크와 QR이 만들어진다(서버 없음). 받는 사람은 폰에서 링크를 열면 웹 목록을 보고, 차량에서 링크를 열 수 있으면 앱이 받아 '내 지도에 추가'로 가져온다.</li>
 </ol>
 <h2 id="5-기능-요구사항">5. 기능 요구사항</h2>
-<p>MVP는 저장·리마인드·추천·지도·공유까지 공모전 기획서에 약속한 네
-기능을 모두 포함하고, 방문 인증 리뷰와 LLM 문장 분석은 확장으로 둔다.
-기능 ID는 화면 설계서와 기술서에서 그대로 쓴다.</p>
+<p>MVP는 저장·리마인드·추천·지도·공유까지 공모전 기획서에 약속한 네 기능을 모두 포함하고, 방문 인증 리뷰와 LLM 문장 분석은 확장으로 둔다. 기능 ID는 화면 설계서와 기술서에서 그대로 쓴다.</p>
 <div class="tbl"><table>
 <thead>
 <tr class="header">
@@ -253,114 +204,105 @@ Pleos Connect Emulator에서 한다.</li>
 <tr class="odd">
 <td>F-01</td>
 <td>음성 입력 시작</td>
-<td>화면 마이크 버튼으로 녹음 시작, 부분·최종 인식 텍스트 수신, 발화
-종료 자동 감지</td>
+<td>화면 마이크 버튼으로 녹음 시작, 부분·최종 인식 텍스트 수신, 발화 종료 자동 감지</td>
 <td>MVP</td>
 <td>SpeechToText</td>
 </tr>
 <tr class="even">
 <td>F-02</td>
 <td>위치 버퍼</td>
-<td>주행 중 1초 간격 위치·진행 방향을 최근 60초분 메모리에 보관. 마이크 버튼을 누른 순간 현재 위치와 버퍼를 '말한 곳'으로 고정해 저장·추천 검색의 기준으로 씀</td>
+<td>위치·진행 방향을 SDK 시각(timestamp) 기준 최근 60초분 메모리에 보관(목표 1Hz, 최대 120칸). 마이크 버튼을 누른 순간 현재 위치와 버퍼를 '말한 곳'으로 고정해 저장·추천 검색의 기준으로 씀. 마지막 위치가 3초보다 오래되면 '위치 없음'</td>
 <td>MVP</td>
 <td>FusedLocation</td>
 </tr>
 <tr class="odd">
 <td>F-03</td>
 <td>발화 분석 (규칙 기반)</td>
-<td>의도(저장/추천/메모/취소)와 슬롯(업종, 색, 이름, 시점, 방향) 추출.
-네트워크 없이 동작</td>
+<td>의도(저장/추천/메모/취소)와 슬롯(업종, 색, 이름, 시점, 방향) 추출. 확인·선택·메모를 기다리는 중에는 그 단계에서 받을 수 있는 의도만 봄(6장). 네트워크 없이 동작</td>
 <td>MVP</td>
 <td>앱 내부</td>
 </tr>
 <tr class="even">
 <td>F-04</td>
 <td>가게 후보 검색</td>
-<td>추정 지점 주변 POI를 검색하고 업종·이름·좌우로 점수화해 상위 2곳
-선정</td>
+<td>추정 지점 주변 POI를 검색하고 업종·이름·좌우로 점수화해 상위 5곳 보관, 그중 1·2순위만 되묻기</td>
 <td>MVP</td>
 <td>카카오 로컬 API (확인 필요)</td>
 </tr>
 <tr class="odd">
 <td>F-05</td>
 <td>음성 확인 대화</td>
-<td>후보를 TTS로 되묻고 예/아니오 대답을 STT로 받아 확정. 무응답 5초면
-미확인 저장</td>
+<td>후보 이름을 넣어 TTS로 되묻고("서울갈비 맞나요?") 예/아니요/취소를 STT로 받음. 무응답 5초면 미확인 저장, 취소면 저장 안 함</td>
 <td>MVP</td>
 <td>TextToSpeech, SpeechToText</td>
 </tr>
 <tr class="even">
 <td>F-06</td>
 <td>가게 저장</td>
-<td>가게 정보, 저장 시각·위치, 발화 원문, 상태(확인/미확인)를 로컬 DB에
-저장</td>
+<td>말이 끝나면 원문·위치를 초안으로 먼저 쓰고, 확인 결과로 갱신(확인/미확인). 같은 가게를 다시 저장하면 새 행 대신 기존 행에 합침</td>
 <td>MVP</td>
 <td>Room</td>
 </tr>
 <tr class="odd">
 <td>F-07</td>
 <td>미확인 가게 정리</td>
-<td>정차 중 후보 목록에서 고르거나 검색해 확정, 또는 삭제</td>
+<td>정차 중 후보 목록에서 고르거나 검색해 확정, 또는 삭제. 이미 저장한 가게를 고르면 두 기록을 하나로 합침</td>
 <td>MVP</td>
 <td>카카오 로컬 API</td>
 </tr>
 <tr class="even">
 <td>F-08</td>
 <td>근접 리마인드</td>
-<td>저장 가게 반경 500m 진입 시 필터를 거쳐 TTS 안내, '갈까요' 응답 시
-길안내</td>
+<td>알림 대상 가게(확인됨 · 좌표 있음 · 가게별 알림 켜짐) 반경 500m 진입 시 필터를 거쳐 TTS 안내, '갈까요' 응답 시 길안내</td>
 <td>MVP</td>
 <td>FusedLocation(addProximityAlert), TextToSpeech, NaviHelper</td>
 </tr>
 <tr class="odd">
 <td>F-09</td>
 <td>추천</td>
-<td>말한 곳 기준 거리·영업·메모·방문 기록으로 상위 3곳 선정, TTS와 카드로 제시,
-번호·이름·터치로 선택</td>
+<td>말한 곳 기준 10km(넓히면 30km) 안에서 거리·메모·방문 기록으로 상위 3곳 선정, TTS와 카드로 제시, 번호·이름·터치로 선택. "다른 곳"은 다음 3곳</td>
 <td>MVP</td>
 <td>TextToSpeech, SpeechToText</td>
 </tr>
 <tr class="even">
 <td>F-10</td>
 <td>길안내 연동</td>
-<td>선택한 가게를 네비 목적지로 설정하고 도착 이벤트 수신</td>
+<td>선택한 가게의 좌표·이름·주소를 네비 목적지로 넘기고(카카오 ID는 넘기지 않음) 도착 이벤트 수신</td>
 <td>MVP</td>
 <td>NaviHelper</td>
 </tr>
 <tr class="odd">
 <td>F-11</td>
 <td>방문 기록</td>
-<td>네비 도착 + 10분 체류를 방문으로 기록, 음성 한 줄 메모</td>
+<td>앱이 안내한 가게에 도착 후 100m 안 10분 체류를 방문으로 기록, 출발 때 그 방문에 음성 한 줄 메모</td>
 <td>MVP</td>
 <td>NaviHelper, FusedLocation, SpeechToText</td>
 </tr>
 <tr class="even">
 <td>F-12</td>
 <td>나만의 맛집 지도</td>
-<td>저장·방문·미확인 가게를 지도와 목록으로 표시, 가게
-상세·수정·삭제</td>
+<td>저장·방문·미확인 가게를 지도와 목록으로 표시, 가게 상세·수정·삭제(4초 되돌리기), 가게별 근처 알림 켜기/끄기</td>
 <td>MVP</td>
 <td>지도 SDK (확인 필요)</td>
 </tr>
 <tr class="odd">
 <td>F-13</td>
 <td>맛집 지도 공유</td>
-<td>선택한 가게 목록을 공유 링크·QR로 내보내고, 받은 목록을 내 지도에
-가져오기</td>
+<td>선택한 가게 목록(최대 30곳)을 공유 링크·QR로 내보내고, 받은 목록을 내 지도에 가져오기</td>
 <td>MVP</td>
-<td>공유 방식 확인 필요 (9장)</td>
+<td>링크 안에 목록을 담음, 서버 없음 (9장)</td>
 </tr>
 <tr class="even">
 <td>F-14</td>
-<td>주행 상태 판단</td>
-<td>정차 여부를 판단해 세부 화면 열림을 제어</td>
+<td>주행 제한</td>
+<td>차량 플랫폼의 주행 제한 상태를 받아 세부 화면 열림을 제어. 상태를 모르면 제한된 것으로 봄</td>
 <td>MVP</td>
-<td>Vehicle(Brake 주차 브레이크), FusedLocation 속도</td>
+<td>Android CarUxRestrictionsManager (속도·브레이크로 직접 판단하지 않음)</td>
 </tr>
 <tr class="odd">
 <td>F-15</td>
 <td>설정</td>
-<td>리마인드 켜기/끄기, 반경, 식사 시간대, 음성 안내 음량</td>
+<td>리마인드 켜기/끄기, 반경, 식사 시간대, 음성 안내 음량, 가게를 특정할 때 쓰는 시간(10·20·30초, 기본 20), 모두 삭제</td>
 <td>MVP</td>
 <td>앱 내부</td>
 </tr>
@@ -388,18 +330,15 @@ Pleos Connect Emulator에서 한다.</li>
 <tr class="odd">
 <td>F-19</td>
 <td>글레오 음성 비서 연동</td>
-<td>핸들 음성 버튼으로 부른 글레오(Gleo AI)가 “다음에 가게에 방금 지난 가게 저장해줘” 같은 말을 받아 앱 기능을 실행. 등록 기능은 최대 3개(가게 저장 · 추천 · 저장 가게로 안내). 앱에 schema.json을 넣고 글레오 쪽 승인을 받아야 켜짐. 화면 말하기 버튼(F-01)이 기본이고 이 기능은 추가 입구</td>
+<td>글레오(Gleo AI)를 부르면(핸들 음성 버튼으로 부르는 것으로 예상하지만 공식 문서로는 확인되지 않음) 글레오가 “다음에 가게에 방금 지난 가게 저장해줘” 같은 말을 받아 앱 기능을 실행. 등록 기능은 최대 3개(가게 저장 · 추천 · 저장 가게로 안내). 앱에 schema.json을 넣고 글레오 쪽 승인을 받아야 켜짐. 화면 말하기 버튼(F-01)이 기본이고 이 기능은 추가 입구</td>
 <td>확장 (승인 필요)</td>
 <td>Gleo Interface</td>
 </tr>
 </tbody>
 </table></div>
-<p>확장 기능은 MVP 완성 후 시간이 남을 때만 착수하고, 기획서에는 향후
-계획으로만 남긴다.</p>
+<p>확장 기능은 MVP 완성 후 시간이 남을 때만 착수하고, 기획서에는 향후 계획으로만 남긴다.</p>
 <h2 id="6-음성-대화-설계">6. 음성 대화 설계</h2>
-<p>STT는 텍스트만 돌려주므로 의도와 단서는 앱이 직접 뽑는다. MVP는 아래
-표의 패턴만 규칙으로 처리하고, 패턴 밖 발화는 '저장'으로 간주해 위치와
-원문을 남긴다. 잘못 알아들어도 기록은 남기는 쪽이 안전하다.</p>
+<p>STT는 텍스트만 돌려주므로 의도와 단서는 앱이 직접 뽑는다. MVP는 아래 표의 패턴만 규칙으로 처리하고, 패턴 밖 발화는 '저장'으로 간주해 위치와 원문을 남긴다. 잘못 알아들어도 기록은 남기는 쪽이 안전하다.</p>
 <p><strong>의도와 대표 발화</strong></p>
 <div class="tbl"><table>
 <thead>
@@ -412,29 +351,71 @@ Pleos Connect Emulator에서 한다.</li>
 <tbody>
 <tr class="odd">
 <td>SAVE (저장)</td>
-<td>"방금 지난 빨간 간판 고깃집 저장해줘", "오른쪽에 저 카페 기억해",
-"여기 다음에 와보자"</td>
-<td>저장, 기억, 찍어, 다음에, 남겨</td>
+<td>"방금 지난 빨간 간판 고깃집 저장해줘", "오른쪽에 저 카페 기억해", "여기 다음에 와보자"</td>
+<td>저장해, 기억해, 찍어, 다음에, 남겨 ('저장한'처럼 꾸미는 말은 저장이 아님)</td>
 </tr>
 <tr class="even">
 <td>RECOMMEND (추천)</td>
 <td>"뭐 먹을까", "근처에 저장한 데 있어?", "저장한 고깃집 찾아줘"</td>
-<td>먹을까, 추천, 근처, 찾아</td>
+<td>먹을까, 추천, 근처, 찾아 ('저장한 ○○ 찾아줘'는 추천)</td>
 </tr>
 <tr class="odd">
 <td>NOTE (방문 메모)</td>
 <td>"여기 괜찮았어", "맛있었어", "다시는 안 와"</td>
-<td>괜찮, 맛있, 별로, 다시 (오늘 방문한 가게가 없으면 SAVE로 처리)</td>
+<td>괜찮, 맛있, 별로, 다시 (최근 3시간 안에 방문한 가게가 없으면 SAVE로 처리)</td>
 </tr>
 <tr class="even">
 <td>YES / NO (확인)</td>
-<td>"응", "맞아", "저장해" / "아니", "다른 데", "취소"</td>
-<td>응, 네, 맞아 / 아니, 취소</td>
+<td>"응", "맞아", "저장해" / "아니", "다른 데"</td>
+<td>응, 네, 맞아, 저장해 / 아니, 다른</td>
 </tr>
 <tr class="odd">
-<td>SELECT (선택)</td>
-<td>"2번", "두 번째", "서울갈비"</td>
-<td>숫자, 후보 이름</td>
+<td>CANCEL (취소)</td>
+<td>"취소", "그만", "저장하지 마", "됐어"</td>
+<td>취소, 그만, 하지 마, 됐어 (어느 단계에서나 가장 먼저 봄)</td>
+</tr>
+<tr class="even">
+<td>SELECT / NEXT (선택)</td>
+<td>"2번", "두 번째", "서울갈비" / "다른 곳"</td>
+<td>숫자, 후보 이름 / 다른</td>
+</tr>
+</tbody>
+</table></div>
+<p><strong>지금 단계에서 받는 의도</strong></p>
+<p>같은 말도 단계에 따라 뜻이 다르다. 각 단계는 아래 의도만 받고, 그 밖의 말은 오른쪽 열처럼 처리한다.</p>
+<div class="tbl"><table>
+<thead>
+<tr class="header">
+<th>지금 단계</th>
+<th>받는 의도 (판정 순서)</th>
+<th>그 밖의 말</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>홈에서 말하기</td>
+<td>CANCEL → RECOMMEND → NOTE → SAVE</td>
+<td>SAVE (위치와 원문 저장)</td>
+</tr>
+<tr class="even">
+<td>후보 확인 (S-03)</td>
+<td>CANCEL → YES · NO</td>
+<td>무응답과 같게 (미확인 저장)</td>
+</tr>
+<tr class="odd">
+<td>추천 선택 (S-06)</td>
+<td>CANCEL → SELECT · NEXT</td>
+<td>한 번 "번호로 말해 주세요", 그다음은 무시</td>
+</tr>
+<tr class="even">
+<td>리마인드 대답 (S-05)</td>
+<td>CANCEL(= NO) → YES · NO</td>
+<td>무응답과 같게</td>
+</tr>
+<tr class="odd">
+<td>방문 메모 (S-15)</td>
+<td>CANCEL("됐어", "괜찮아요")</td>
+<td>그 밖의 문장은 모두 메모</td>
 </tr>
 </tbody>
 </table></div>
@@ -455,8 +436,8 @@ Pleos Connect Emulator에서 한다.</li>
 </tr>
 <tr class="even">
 <td>시점</td>
-<td>방금(10~20초 전), 아까(30~60초 전), 여기(현재)</td>
-<td>방금</td>
+<td>방금(N초 전, N = 설정 10·20·30초, 기본 20), 아까(45초 전), 여기(버튼을 누른 순간)</td>
+<td>방금과 같음</td>
 </tr>
 <tr class="odd">
 <td>방향</td>
@@ -480,20 +461,15 @@ Pleos Connect Emulator에서 한다.</li>
 </tr>
 </tbody>
 </table></div>
-<p>외관 단서(간판 색 등)는 POI 데이터에 없으므로 매칭에는 쓰지 않고,
-정차 후 사용자가 후보를 고를 때 도움이 되도록 메모로 함께 보여 준다.</p>
+<p>외관 단서(간판 색 등)는 POI 데이터에 없으므로 매칭에는 쓰지 않고, 정차 후 사용자가 후보를 고를 때 도움이 되도록 메모로 함께 보여 준다.</p>
 <p><strong>확인 대화 규칙</strong></p>
 <ol type="1">
-<li>되묻는 문장은 가게 이름 + "맞나요?" 한 줄로 끝낸다. 주소나 업종은
-화면에만 보여 준다.</li>
+<li>되묻는 문장은 가게 이름 + "맞나요?" 한 줄로 끝낸다(두 번째는 "그럼 ○○ 맞나요?"). 화면 제목은 "이 가게 맞나요?"여도 음성에는 반드시 이름을 넣는다. 주소나 업종은 화면에만 보여 준다.</li>
 <li>되묻기는 최대 2회. 두 번 모두 아니면 미확인 저장으로 끝낸다.</li>
-<li>1순위 점수가 2순위보다 크게 높고(기준은 개발 중 조정) 업종까지
-일치하면 되묻지 않고 "서울갈비 저장했어요"로 바로 끝낸다. 틀렸으면 정차
-후 고칠 수 있다.</li>
-<li>대답 대기는 5초. 무응답은 "응"이 아니라 미확인 저장으로
-처리한다.</li>
-<li>모든 음성 안내 문장은 한 군데(strings)에 모아 두고, 길이는 25자
-안팀으로 제한한다.</li>
+<li>1순위 점수가 2순위보다 크게 높고(기준은 개발 중 조정) 업종까지 일치하면 되묻지 않고 "서울갈비 저장했어요"로 바로 끝낸다. 틀렸으면 정차 후 고칠 수 있다.</li>
+<li>대답 대기는 TTS가 끝난 순간부터 5초. 무응답은 "응"이 아니라 미확인 저장으로 처리하고, "취소"는 저장하지 않고 끝낸다.</li>
+<li>모든 음성 안내 문장은 한 군데(strings)에 모아 둔다. 고정 문구는 25자 안쪽, 가게 이름은 앞 12자까지만 읽고, 한 번의 안내는 재생 6초 이하(추천 3곳 목록은 10초 이하)로 한다. 길이는 글자 수가 아니라 실제 TTS 재생 시간으로 시험한다.</li>
+<li>음성 작업은 한 번에 하나만 돈다. 저장 대화 중에 온 리마인드·방문 메모는 대화가 끝난 뒤 나오고(리마인드는 30초 지나면 버림), 대화 중 말하기 버튼을 다시 누르면 진행 중인 대화는 미확인 저장으로 끝내고 새로 듣는다. 통화나 글레오가 소리를 가져가면 듣기를 멈추고 무응답으로 처리한다.</li>
 </ol>
 <p><strong>실패 처리</strong></p>
 <div class="tbl"><table>
@@ -513,6 +489,14 @@ Pleos Connect Emulator에서 한다.</li>
 <td>SAVE로 간주, 위치·원문 저장 후 "위치를 기억해 둘게요"</td>
 </tr>
 <tr class="odd">
+<td>위치를 못 잡음 (권한 없음 · 3초 넘게 위치 없음)</td>
+<td>검색 없이 원문만 미확인 저장(좌표 없음), "말씀은 기억해 둘게요"</td>
+</tr>
+<tr class="even">
+<td>취소</td>
+<td>초안을 지우고 "취소했어요"</td>
+</tr>
+<tr class="odd">
 <td>POI 후보 0건</td>
 <td>미확인 저장, 되묻지 않음</td>
 </tr>
@@ -525,15 +509,17 @@ Pleos Connect Emulator에서 한다.</li>
 <td>HYBRID 모드가 온디바이스로 자동 전환, 앱은 추가 처리 없음</td>
 </tr>
 <tr class="even">
+<td>DB 저장 실패</td>
+<td>3회 재시도, 그래도 안 되면 "지금은 저장하지 못했어요" (저장했다고 말하지 않음)</td>
+</tr>
+<tr class="odd">
 <td>주행 중 터치 요구 화면</td>
 <td>열지 않고 "멈춘 뒤에 보여 드릴게요"</td>
 </tr>
 </tbody>
 </table></div>
 <h2 id="7-데이터-정의">7. 데이터 정의</h2>
-<p>모든 데이터는 차량 내 로컬 DB(Room)에만 두고, 공유 시에만 사용자가
-고른 가게 목록을 내보낸다. 세 개의 핵심 엔티티와 하나의 임시 버퍼가
-있다.</p>
+<p>모든 데이터는 차량 내 로컬 DB(Room)에만 두고, 공유 시에만 사용자가 고른 가게 목록을 링크에 담아 내보낸다(밖에서 처리되는 것은 8장 개인정보). 핵심 엔티티 3개, 방문 판정 진행 상태 1개, 메모리 버퍼 1개가 있다.</p>
 <p><strong>Place (저장 가게)</strong></p>
 <div class="tbl"><table>
 <thead>
@@ -547,12 +533,12 @@ Pleos Connect Emulator에서 한다.</li>
 <tr class="odd">
 <td>id</td>
 <td>UUID</td>
-<td>기본 키</td>
+<td>기본 키 (앱 안에서만 쓰는 값, 공유 링크에 넣지 않음)</td>
 </tr>
 <tr class="even">
 <td>name</td>
 <td>String?</td>
-<td>가게 이름. 미확인이면 null</td>
+<td>가게 이름. 미확인이면 null이고, 화면은 1순위 후보 이름에 '?'를 붙여 보여 준다 (예: 서울갈비?)</td>
 </tr>
 <tr class="odd">
 <td>category</td>
@@ -566,28 +552,48 @@ Pleos Connect Emulator에서 한다.</li>
 </tr>
 <tr class="odd">
 <td>lat, lon</td>
-<td>Double</td>
-<td>가게 좌표. 미확인이면 추정 지점 좌표</td>
+<td>Double?</td>
+<td>가게 좌표. 미확인이면 추정 지점 좌표, 위치를 못 잡았으면 null</td>
 </tr>
 <tr class="even">
-<td>poiId</td>
-<td>String?</td>
-<td>외부 POI ID (중복 저장 방지)</td>
+<td>locationQuality</td>
+<td>Enum</td>
+<td>POI(가게 좌표 확정) / ESTIMATED(말한 시점 추정 지점) / NONE(좌표 없음)</td>
 </tr>
 <tr class="odd">
+<td>provider, providerId</td>
+<td>String?</td>
+<td>외부 POI 출처와 그 ID (예: kakao, 12345). 둘이 같으면 같은 가게(중복 저장 방지). 내비 목적지 ID로 쓰지 않음</td>
+</tr>
+<tr class="even">
 <td>status</td>
 <td>Enum</td>
-<td>CONFIRMED / UNCONFIRMED / VISITED</td>
-</tr>
-<tr class="even">
-<td>utterance</td>
-<td>String</td>
-<td>발화 원문</td>
+<td>UNCONFIRMED / CONFIRMED. 방문 여부는 Visit 개수로 따로 센다</td>
 </tr>
 <tr class="odd">
+<td>source</td>
+<td>Enum</td>
+<td>VOICE / TOUCH(위치만 저장) / SHARED(받은 목록) / GLEO</td>
+</tr>
+<tr class="even">
+<td>draft</td>
+<td>Boolean</td>
+<td>말이 끝나 원문만 먼저 쓴 초안인가 (확인이 끝나면 false. 앱을 다시 켰을 때 남아 있으면 미확인으로 마무리)</td>
+</tr>
+<tr class="odd">
+<td>utterance</td>
+<td>String?</td>
+<td>발화 원문. 터치 저장·받은 목록은 null</td>
+</tr>
+<tr class="even">
 <td>cues</td>
 <td>JSON</td>
-<td>뽑아낸 단서 (업종, 색, 방향, 시점, 메모)</td>
+<td>뽑아낸 단서 (업종, 색, 방향, 시점, 발화 속 메모). 고치지 않는 기록</td>
+</tr>
+<tr class="odd">
+<td>memo</td>
+<td>String?</td>
+<td>내 메모. 상세·수정 화면에서 보고 고치며, 공유에 담긴다</td>
 </tr>
 <tr class="even">
 <td>savedAt</td>
@@ -596,8 +602,8 @@ Pleos Connect Emulator에서 한다.</li>
 </tr>
 <tr class="odd">
 <td>savedLat, savedLon, savedHeading</td>
-<td>Double</td>
-<td>버튼을 누른 순간의 차량 위치·방향</td>
+<td>Double?</td>
+<td>버튼을 누른 순간의 차량 위치·방향. 위치를 못 잡았거나 받은 목록이면 null</td>
 </tr>
 <tr class="even">
 <td>candidates</td>
@@ -607,12 +613,17 @@ Pleos Connect Emulator에서 한다.</li>
 <tr class="odd">
 <td>remindEnabled</td>
 <td>Boolean</td>
-<td>가게별 리마인드 켜기/끄기</td>
+<td>가게별 근처 알림 켜기/끄기 (기본 켬, 상세 화면 S-08에서 바꿈)</td>
 </tr>
 <tr class="even">
 <td>lastRemindedAt</td>
 <td>DateTime?</td>
 <td>마지막 리마인드 시각 (하루 1회 제한용)</td>
+</tr>
+<tr class="odd">
+<td>deletedAt</td>
+<td>DateTime?</td>
+<td>삭제 예정 표시. 4초 동안 숨겼다가 지나면 실제로 지운다</td>
 </tr>
 </tbody>
 </table></div>
@@ -637,29 +648,61 @@ Pleos Connect Emulator에서 한다.</li>
 <td>Place 참조</td>
 </tr>
 <tr class="odd">
-<td>arrivedAt, leftAt</td>
+<td>arrivedAt</td>
 <td>DateTime</td>
-<td>도착·출발 시각 (네비 도착 이벤트 + 체류 판정)</td>
+<td>도착 시각 (도착 이벤트 또는 목적지 50m 진입)</td>
 </tr>
 <tr class="even">
-<td>verified</td>
-<td>Boolean</td>
-<td>네비 목적지 설정 후 도착이 확인된 방문인가 (확장 기능 리뷰의
-전제)</td>
+<td>leftAt</td>
+<td>DateTime?</td>
+<td>출발 시각. 아직 머무는 중이면 null</td>
 </tr>
 <tr class="odd">
-<td>note</td>
-<td>String?</td>
-<td>음성 한 줄 메모</td>
+<td>verified</td>
+<td>Boolean</td>
+<td>앱이 내비 목적지로 넘긴 가게에 도착해 100m 안에 10분 넘게 머문 방문인가 (확장 기능 리뷰의 전제. 실제로 식사했다는 증명은 아님)</td>
 </tr>
 <tr class="even">
+<td>note</td>
+<td>String?</td>
+<td>이 방문의 음성 한 줄 메모</td>
+</tr>
+<tr class="odd">
 <td>rating</td>
 <td>Int?</td>
 <td>확장: 1~5</td>
 </tr>
 </tbody>
 </table></div>
-<p><strong>ShareList (공유 목록)</strong></p>
+<p><strong>VisitSession (방문 판정 진행 상태)</strong></p>
+<div class="tbl"><table>
+<thead>
+<tr class="header">
+<th>필드</th>
+<th>타입</th>
+<th>설명</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>placeId</td>
+<td>UUID</td>
+<td>안내를 맡긴 가게</td>
+</tr>
+<tr class="even">
+<td>state</td>
+<td>Enum</td>
+<td>ROUTING(안내 요청) → ARRIVED(도착) → STAYING(머무는 중) → VISITED(방문 인정, Visit 생성) → LEFT(출발, leftAt 기록)</td>
+</tr>
+<tr class="odd">
+<td>startedAt, updatedAt</td>
+<td>DateTime</td>
+<td>3시간 안에 도착하지 않으면 버린다</td>
+</tr>
+</tbody>
+</table></div>
+<p>한 번에 1개만 있다. 다른 가게로 안내를 맡기면 새 행으로 바뀐다. 앱이 다시 켜지면 이 행으로 판정을 이어 간다. 같은 가게에 2시간 안에 다시 도착하면 새 방문이 아니라 같은 방문으로 본다.</p>
+<p><strong>ShareList (보낸 공유 목록)</strong></p>
 <div class="tbl"><table>
 <thead>
 <tr class="header">
@@ -672,7 +715,7 @@ Pleos Connect Emulator에서 한다.</li>
 <tr class="odd">
 <td>id</td>
 <td>String</td>
-<td>공유 링크에 들어가는 식별자</td>
+<td>앱 안에서만 쓰는 보낸 기록 ID (링크에는 넣지 않음)</td>
 </tr>
 <tr class="even">
 <td>title</td>
@@ -682,8 +725,7 @@ Pleos Connect Emulator에서 한다.</li>
 <tr class="odd">
 <td>places</td>
 <td>JSON</td>
-<td>name, category, address, lat, lon, note만 포함. 방문 시각·차량
-위치는 제외</td>
+<td>name, category, address, lat, lon, memo, provider, providerId만 포함. 방문 기록·차량 위치·발화 원문은 제외</td>
 </tr>
 <tr class="even">
 <td>createdAt</td>
@@ -692,8 +734,8 @@ Pleos Connect Emulator에서 한다.</li>
 </tr>
 </tbody>
 </table></div>
-<p><strong>LocationBuffer (메모리만, 저장 안 함)</strong>: 최근 60초의
-(시각, lat, lon, heading, speed) 목록. 앱 종료 시 버린다.</p>
+<p>링크에는 이 목록이 버전 번호와 함께 압축되어 들어간다(9장). 받은 목록은 ShareList로 두지 않고 Place(source = SHARED, 확인됨, 근처 알림 켬)로 바로 저장한다.</p>
+<p><strong>LocationBuffer (메모리만, 저장 안 함)</strong>: SDK 시각 기준 최근 60초의 (시각, lat, lon, heading, confidence) 목록, 최대 120칸. 같은 시각이거나 거꾸로 온 표본은 버리고, 5초 넘는 빈틈은 표시해 둔다. 앱 종료 시 버린다.</p>
 <h2 id="8-비기능-요구사항">8. 비기능 요구사항</h2>
 <p>운전 안전이 최우선이고, 그다음이 '기록은 언제나 남는다'는 신뢰다.</p>
 <div class="tbl"><table>
@@ -706,38 +748,31 @@ Pleos Connect Emulator에서 한다.</li>
 <tbody>
 <tr class="odd">
 <td>운전 안전</td>
-<td>주행 중 터치는 한 번 누르는 버튼(말하기·취소·예/아니요·안내 시작/닫기·추천 카드)만 허용하고, 같은 동작을 음성으로도 할 수 있게 한다. 글자 크기 최소
-24sp, 버튼 최소 76dp. 목록·편집·지도 탐색은 정차 시에만</td>
+<td>주행 중 터치는 한 번 누르는 버튼(말하기·취소·예/아니요·안내 시작/닫기·추천 카드)만 허용하고, 같은 동작을 음성으로도 할 수 있게 한다. 글자 크기 최소 24sp, 버튼 최소 76dp(칩·체크처럼 작게 보이는 것도 누르는 영역은 76dp). 목록·편집·지도 탐색은 차량 플랫폼이 주행 제한을 풀었을 때(CarUxRestrictions)만 열고, 제한 상태를 모르면 열지 않는다</td>
 </tr>
 <tr class="even">
 <td>응답 시간</td>
-<td>버튼 후 녹음 시작 0.5초 이내, 발화 종료 후 되묻기 시작 2초 이내 (POI
-검색 포함), 리마인드는 반경 진입 후 3초 이내</td>
+<td>버튼 후 녹음 시작 0.5초 이내. 말이 끝난 뒤(마지막 소리) 되묻기 TTS 시작까지 3초 이내이고, 듣는 동안 미리 찾은 후보를 그대로 쓸 수 있으면 2초 이내가 목표다. 측정은 마지막 부분 인식 · 최종 인식 · 검색 시작 · 검색 끝 · TTS 시작의 다섯 시각으로 나눠 잰다. 리마인드는 반경 진입 후 3초 이내</td>
 </tr>
 <tr class="odd">
 <td>오프라인</td>
-<td>저장 요청은 네트워크 없이도 반드시 기록된다. 리마인드·추천은 로컬
-데이터만으로 동작한다</td>
+<td>저장 요청은 네트워크 없이도 반드시 기록된다. 리마인드·추천은 로컬 데이터만으로 동작한다</td>
 </tr>
 <tr class="even">
 <td>리마인드 빈도</td>
-<td>같은 가게 하루 1회, 전체 10분에 1회 이하. 네비 안내 음성과 겹치면
-건너뛴다</td>
+<td>같은 가게 하루 1회(날짜는 차량 시간 0시 기준), 전체 10분에 1회 이하. 횟수는 TTS를 시작한 순간 센다. 네비 안내 음성과 겹치면 건너뛴다</td>
 </tr>
 <tr class="odd">
 <td>배터리·자원</td>
-<td>위치 버퍼는 1Hz, 메모리 60건. 근접 감시는 SDK의 addProximityAlert에
-맡겨 앱이 직접 폴링하지 않는다</td>
+<td>위치 버퍼는 목표 1Hz, 최근 60초(최대 120칸). 근접 감시는 SDK의 addProximityAlert에 맡겨 앱이 직접 폴링하지 않는다(안 되면 1Hz 위치로 반경에 걸친 격자 칸만 계산). 앱이 뒤에 있을 때 위치는 리마인드가 켜져 있거나 방문 판정 중일 때만 받는다</td>
 </tr>
 <tr class="even">
 <td>개인정보</td>
-<td>위치·발화 원문·방문 기록은 차량 내에만 보관. 외부로 나가는 것은 POI
-검색 좌표(가게 추정 지점)와 사용자가 고른 공유 목록뿐이다. 최초 실행 시
-한 화면으로 고지한다</td>
+<td>차 안에만 보관: 저장 가게, 위치, 발화 원문, 방문 기록. 밖에서 처리되는 것: ① 말소리 — Pleos STT·TTS를 서버(HYBRID) 모드로 쓰면 음성과 안내 문장이 Pleos 서버에서 처리된다(ON_DEVICE 모드면 차 안에서만) ② 가게 찾기 — 추정 지점 좌표와 검색어(업종·이름 일부)가 카카오로 간다 ③ 공유 — 사용자가 고른 목록만 링크에 담긴다. 최초 실행 화면(S-13)에서 이 셋을 나눠 고지한다</td>
 </tr>
 <tr class="odd">
 <td>삭제</td>
-<td>가게 단건 삭제는 4초 안에 되돌릴 수 있고(화면 설계서 S-08d), 전체 삭제(설정)는 확인 창을 거치며 되돌릴 수 없다</td>
+<td>가게 단건 삭제는 4초 안에 되돌릴 수 있다(화면 설계서 S-08d). 4초 동안은 삭제 예정으로 숨겨 두고(알림·추천에서도 빠짐) 지나면 지운다. 전체 삭제(설정)는 확인 창을 거치며 되돌릴 수 없다. 이미 보낸 공유 링크는 회수할 수 없다</td>
 </tr>
 <tr class="even">
 <td>언어</td>
@@ -745,23 +780,16 @@ Pleos Connect Emulator에서 한다.</li>
 </tr>
 <tr class="odd">
 <td>안정성</td>
-<td>SDK 연결 실패 시 재연결 3회, 실패해도 앱은 죽지 않고 터치 저장으로
-동작한다</td>
+<td>SDK 연결 실패 시 재연결 3회, 실패해도 앱은 죽지 않고 터치 저장으로 동작한다</td>
 </tr>
 <tr class="even">
 <td>검증 환경</td>
-<td>Pleos Connect Emulator에서 주행 경로를 재생해 위치 버퍼·매칭·근접
-알림을 시험한다. 실차 시험은 범위 밖</td>
+<td>Pleos Connect Emulator에서 주행 경로(docs/tools/route_gangnam_60s.json)를 재생해 위치 버퍼·매칭·근접 알림을 시험한다. 실차 시험은 범위 밖</td>
 </tr>
 </tbody>
 </table></div>
-<h2 id="9-pleos-sdk외부-api-사용-계획">9. Pleos SDK·외부 API 사용
-계획</h2>
-<p>Pleos Connect SDK는 다섯 종 전부를 쓴다. 가게 검색과 지도 표시는
-Pleos가 제공하지 않으므로 외부 API가 필요하고, 이 선택은 확인이
-필요하다. 버전은 2026-11-08 기준 <a
-href="https://document.pleos.ai/docs/pleos-only/connect-sdk-pleos/SpeechToText/intro">Pleos
-개발자 문서</a>에 적힌 값이다.</p>
+<h2 id="9-pleos-sdk외부-api-사용-계획">9. Pleos SDK·외부 API 사용 계획</h2>
+<p>Pleos Connect SDK는 다섯 종 전부를 쓴다. 가게 검색과 지도 표시는 Pleos가 제공하지 않으므로 외부 API가 필요하고, 이 선택은 확인이 필요하다. 버전은 2026-11-08 기준 <a href="https://document.pleos.ai/docs/pleos-only/connect-sdk-pleos/SpeechToText/intro">Pleos 개발자 문서</a>에 적힌 값이다.</p>
 <div class="tbl"><table>
 <thead>
 <tr class="header">
@@ -777,8 +805,7 @@ href="https://document.pleos.ai/docs/pleos-only/connect-sdk-pleos/SpeechToText/i
 <td>SpeechToText</td>
 <td>3.3.1</td>
 <td>F-01, F-05, F-09, F-11</td>
-<td>registerApp, initialize, setLocale(ko-KR), request, stop,
-ResultListener.onUpdated(stt, completed). HYBRID 모드</td>
+<td>registerApp, initialize, setLocale(ko-KR), request, stop, ResultListener.onUpdated(stt, completed). HYBRID 모드(서버 처리 포함, 8장 개인정보)</td>
 <td>pleos.car.permission.STT_SERVICE</td>
 </tr>
 <tr class="even">
@@ -792,30 +819,26 @@ ResultListener.onUpdated(stt, completed). HYBRID 모드</td>
 <td>FusedLocation</td>
 <td>1.1.3</td>
 <td>F-02, F-08, F-11, F-14</td>
-<td>getLastKnownLocation,
-registerFusedLocationCallback(lat/lon/heading), addProximityAlert</td>
+<td>getLastKnownLocation, registerFusedLocationCallback(lat/lon/heading), addProximityAlert</td>
 <td>pleos.car.permission.FUSED_LOCATION</td>
 </tr>
 <tr class="even">
 <td>NaviHelper</td>
 <td>3.0.5</td>
 <td>F-08, F-09, F-10, F-11</td>
-<td>initialize, addListener(NaviHelperEventListener), 목적지
-설정·확인·취소, 주행 상태·도착 이벤트</td>
-<td>pleos.car.permission.NAVI_ROUTE, NAVI_ROUTE_SEARCH,
-NAVI_CUSTOM_MAP</td>
+<td>initialize, addListener(NaviHelperEventListener), 목적지 설정·확인·취소, 주행 상태·도착 이벤트. RouteInfo의 poiId는 비우고 좌표·이름·주소만 넘김</td>
+<td>pleos.car.permission.NAVI_ROUTE, NAVI_ROUTE_SEARCH, NAVI_CUSTOM_MAP</td>
 </tr>
 <tr class="odd">
 <td>Vehicle</td>
 <td>2.3.2</td>
-<td>F-14</td>
-<td>getBrake(주차 브레이크), getDrivingMode. 없어도 속도 0으로 대체
-가능</td>
-<td>pleos.car.permission.CAR_DRIVE (Brake·DrivingMode·Odometer
-공통)</td>
+<td>진단 로그</td>
+<td>getBrake(주차 브레이크), getDrivingMode. 주행 제한 판단(F-14)에는 쓰지 않음</td>
+<td>pleos.car.permission.CAR_DRIVE (Brake·DrivingMode·Odometer 공통)</td>
 </tr>
 </tbody>
 </table></div>
+<p>주행 제한(F-14)은 Pleos SDK가 아니라 Android의 CarUxRestrictionsManager로 판단한다(<a href="https://document.pleos.ai/docs/pleos-only/vehicle-app-developer-guide/driving-restriction-development-guide">Pleos 주행 규제 개발 가이드</a>). registerListener로 onUxRestrictionsChanged를 받고, isRequiresDistractionOptimization()이 참이면 정차 전용 화면을 막는다. 지역별 규칙은 플랫폼이 이미 반영하므로 앱이 다시 만들지 않는다.</p>
 <p><strong>외부 API와 라이브러리 (선택 확인 필요)</strong></p>
 <div class="tbl"><table>
 <thead>
@@ -837,17 +860,21 @@ NAVI_CUSTOM_MAP</td>
 <td>지도 화면 (F-12)</td>
 <td>카카오맵 Android SDK</td>
 <td>네이버 지도 SDK</td>
-<td>POI와 같은 회사로 맞추는 편이 키 관리가 쉬움. AAOS 동작 여부는 개발
-초기에 확인</td>
+<td>POI와 같은 회사로 맞추는 편이 키 관리가 쉬움. AAOS 동작 여부는 개발 초기에 확인</td>
 </tr>
 <tr class="odd">
 <td>공유 링크 (F-13)</td>
 <td>공유 목록을 링크 안에 압축해 넣기 (서버 없음)</td>
 <td>Firebase 또는 Supabase에 목록 저장 + 짧은 링크</td>
-<td>1안은 서버가 없어 1인 개발에 유리하지만 가게 20곳 이상이면 링크가
-길어짐</td>
+<td>1안으로 간다(가정). 링크 = 정적 웹 뷰어 주소 + # 뒤 압축 목록(버전 1, 최대 30곳). # 뒤는 웹 서버로 전송되지 않는다. QR은 링크가 2,000자 이하일 때만</td>
 </tr>
 <tr class="even">
+<td>도로 이름 (홈 현재 위치)</td>
+<td>NaviHelper onCurrentLocationInfo</td>
+<td>카카오 좌표→주소 변환(30초에 1회)</td>
+<td>1안이 도로명을 주는지 Emulator에서 확인. 둘 다 안 되면 "현재 위치"만 표시</td>
+</tr>
+<tr class="odd">
 <td>문장 분석 보강 (F-16, 확장)</td>
 <td>Claude API</td>
 <td>없음</td>
@@ -855,21 +882,11 @@ NAVI_CUSTOM_MAP</td>
 </tr>
 </tbody>
 </table></div>
-<p>권한 이름과 NaviHelper의 requestRoute(RouteInfo),
-onDestinationArrived()는 2026년 11월 8일 공식 문서로 확인했다. 세부
-파라미터와 Emulator에서의 실제 동작은 10장 점검표에 따라 프로토타입 첫
-이틀에 확인한다.</p>
+<p>권한 이름과 NaviHelper의 requestRoute(RouteInfo), onDestinationArrived()는 2026년 11월 8일 공식 문서로 확인했다. 세부 파라미터와 Emulator에서의 실제 동작은 10장 점검표에 따라 프로토타입 첫 이틀에 확인한다.</p>
 <h2 id="10-기술-구현-가능성-점검">10. 기술 구현 가능성 점검</h2>
-<p>이 문서에 쓴 기술 17개 중 9개는 공식 문서로 호출 방법까지 확인되었고,
-4개는 존재만 확인되었으며, 4개는 아직 확인되지 않았다. 미확인 항목은
-모두 Pleos 바깥의 일이라 프로토타입 첫 이틀 안에 Emulator에서 직접 띄워
-봐야 한다. 점검 기준일: 2026-11-08. 근거는 <a
-href="https://document.pleos.ai/docs/pleos-only/connect-sdk-pleos/SpeechToText/intro">Pleos
-개발자 문서</a>를 직접 열어 확인한 내용이다.</p>
+<p>이 문서에 쓴 기술 20개 중 9개는 공식 문서로 호출 방법까지 확인됐고, 5개는 존재만 확인, 5개는 미확인, 1개는 범위 밖이다. 아직 어느 것도 Emulator에서 실제로 돌려 보지 않았으므로 '확인됨'도 실동작 확인은 아니다. 미확인 5개 중 3개(앱의 인터넷, 카카오맵, 공유 링크)는 Pleos 바깥 일이고, 2개(Playground 등록, 앱 밖 알림·백그라운드 위치)는 Pleos 정책 문제다. 점검 기준일: 2026-11-08, 18~20번은 2026-11-10. 근거는 <a href="https://document.pleos.ai/docs/pleos-only/connect-sdk-pleos/SpeechToText/intro">Pleos 개발자 문서</a>를 직접 열어 확인한 내용이다.</p>
 <p>17번 글레오 연동은 11월 9일에 추가했다. 근거는 <a href="https://document.pleos.ai/docs/pleos-only/app-integration-guide/guide/core-concepts">Gleo Interface 문서</a>와 <a href="https://document.pleos.ai/en/docs/pleos-only/vehicle-app-planning-guide/platform-api-architecture">하드웨어 접근 정책</a>이다.</p>
-<p>상태의 뜻: 확인됨 = 문서에서 메서드·권한까지 확인, 존재만 확인 =
-기능은 있으나 파라미터·동작 시점 미확인, 미확인 = 된다는 근거를 아직 못
-찾음.</p>
+<p>상태의 뜻: 확인됨 = 문서에서 메서드·권한까지 확인, 존재만 확인 = 기능은 있으나 파라미터·동작 시점 미확인, 미확인 = 된다는 근거를 아직 못 찾음, 범위 밖 = MVP에서 쓰지 않음. 어느 상태든 Emulator 실동작은 따로 확인한다.</p>
 <div class="tbl"><table>
 <thead>
 <tr class="header">
@@ -887,28 +904,23 @@ href="https://document.pleos.ai/docs/pleos-only/connect-sdk-pleos/SpeechToText/i
 <td>SpeechToText SDK 3.3.1</td>
 <td>F-01, F-05, F-09</td>
 <td>확인됨</td>
-<td>request/stop, onUpdated(stt, completed), HYBRID·ON_DEVICE 모드,
-ko-KR, 권한 pleos.car.permission.STT_SERVICE</td>
-<td>Emulator 마이크로 실제 인식 테스트. HYBRID는 Playground 앱 등록
-필요, ON_DEVICE는 불필요</td>
+<td>request/stop, onUpdated(stt, completed), HYBRID·ON_DEVICE 모드, ko-KR, 권한 pleos.car.permission.STT_SERVICE</td>
+<td>Emulator 마이크로 실제 인식 테스트. HYBRID는 Playground 앱 등록 필요, ON_DEVICE는 불필요</td>
 </tr>
 <tr class="even">
 <td>2</td>
 <td>TextToSpeech SDK 3.3.1</td>
 <td>F-05, F-08, F-09</td>
 <td>확인됨</td>
-<td>initialize/setLocale/speak/stop, HYBRID·SERVER·ON_DEVICE, 권한
-pleos.car.permission.TTS_SERVICE</td>
+<td>initialize/setLocale/speak/stop, HYBRID·SERVER·ON_DEVICE, 권한 pleos.car.permission.TTS_SERVICE</td>
 <td>프로토타입은 등록이 필요 없는 ON_DEVICE로 시작해도 됨</td>
 </tr>
 <tr class="odd">
 <td>3</td>
 <td>FusedLocation 위치 콜백</td>
-<td>F-02, F-14</td>
+<td>F-02</td>
 <td>확인됨</td>
-<td>registerFusedLocationCallback, LocationData = latitude, longitude,
-altitude, heading, confidence, timestamp. 권한
-pleos.car.permission.FUSED_LOCATION</td>
+<td>registerFusedLocationCallback, LocationData = latitude, longitude, altitude, heading, confidence, timestamp. 권한 pleos.car.permission.FUSED_LOCATION</td>
 <td>속도(speed) 필드는 없음 → 연속 위치로 계산. 갱신 주기 미기재</td>
 </tr>
 <tr class="even">
@@ -917,65 +929,54 @@ pleos.car.permission.FUSED_LOCATION</td>
 <td>F-08</td>
 <td>존재만 확인</td>
 <td>addProximityAlert / removeProximityAlert 존재</td>
-<td>반경·만료·등록 개수 제한·이벤트 전달 방식은 API Reference 확인. 안
-되면 위치 콜백으로 앱이 직접 거리 계산</td>
+<td>반경·만료·등록 개수 제한·이벤트 전달 방식은 API Reference 확인. 안 되면 위치 콜백으로 앱이 직접 거리 계산</td>
 </tr>
 <tr class="odd">
 <td>5</td>
 <td>NaviHelper 목적지 설정</td>
 <td>F-08, F-09, F-10</td>
 <td>확인됨</td>
-<td>requestRoute(RouteInfo(latitude, longitude, poiName, poiId,
-address)), cancelRoute, getDestinationInfo. 권한 NAVI_ROUTE,
-NAVI_ROUTE_SEARCH, NAVI_CUSTOM_MAP</td>
-<td>poiId가 Pleos 내비 전용 ID인지, 카카오 POI ID나 빈 값을 넣어도
-되는지 확인</td>
+<td>requestRoute(RouteInfo(latitude, longitude, poiName, poiId, address)), cancelRoute, getDestinationInfo. 권한 NAVI_ROUTE, NAVI_ROUTE_SEARCH, NAVI_CUSTOM_MAP</td>
+<td>poiId가 Pleos 내비 전용 ID인지, 카카오 POI ID나 빈 값을 넣어도 되는지 확인</td>
 </tr>
 <tr class="even">
 <td>6</td>
 <td>NaviHelper 도착 이벤트</td>
 <td>F-11, F-17</td>
 <td>존재만 확인</td>
-<td>onDestinationArrived(), onCurrentLocationInfo(),
-onNavigationStatus() 콜백 이름이 문서에 있음</td>
-<td>발생 시점과 페이로드 미기재. Emulator 내비 앱이 이 이벤트를 내는지
-미확인. 안 나오면 목적지 50m 진입 + 체류로 대체</td>
+<td>onDestinationArrived(), onCurrentLocationInfo(), onNavigationStatus() 콜백 이름이 문서에 있음</td>
+<td>발생 시점과 페이로드 미기재. Emulator 내비 앱이 이 이벤트를 내는지 미확인. 안 나오면 목적지 50m 진입 + 체류로 대체</td>
 </tr>
 <tr class="odd">
 <td>7</td>
 <td>Vehicle SDK 주차 브레이크</td>
-<td>F-14</td>
+<td>진단 로그</td>
 <td>확인됨</td>
 <td>Brake 도메인, 권한 pleos.car.permission.CAR_DRIVE</td>
-<td>속도 도메인은 없음. 없어도 위치 변화 0으로 대체 가능</td>
+<td>속도 도메인은 없음. 주행 제한 판단은 18번이 맡음</td>
 </tr>
 <tr class="even">
 <td>8</td>
 <td>Pleos Connect Emulator 2.1.0</td>
 <td>전체 검증</td>
 <td>존재만 확인</td>
-<td>Android Studio, API 28+, Gradle 8+, RAM 4GB 권장. Virtual Console은
-2.1.0 이상 필요</td>
-<td>Virtual Console로 위치·주행 경로를 주입할 수 있는지가 1순위 확인
-항목. 안 되면 앱 내부 가짜 위치 소스로 시연</td>
+<td>Android Studio, API 28+, Gradle 8+, RAM 4GB 권장. Virtual Console은 2.1.0 이상 필요</td>
+<td>Virtual Console로 위치·주행 경로를 주입할 수 있는지가 1순위 확인 항목. 안 되면 앱 내부 가짜 위치 소스로 시연</td>
 </tr>
 <tr class="odd">
 <td>9</td>
 <td>앱의 인터넷 접근</td>
 <td>F-04, F-13</td>
 <td>미확인</td>
-<td>문서에 명시 없음. STT/TTS HYBRID가 서버를 쓰므로 가능할 것으로
-추정</td>
-<td>Emulator에서 카카오 API 호출 1회로 확인. 막히면 POI는 앱에 내장한
-샘플 데이터로 시연</td>
+<td>문서에 명시 없음. STT/TTS HYBRID가 서버를 쓰므로 가능할 것으로 추정</td>
+<td>Emulator에서 카카오 API 호출 1회로 확인. 막히면 POI는 앱에 내장한 샘플 데이터로 시연</td>
 </tr>
 <tr class="even">
 <td>10</td>
 <td>카카오 로컬 REST API</td>
 <td>F-04, F-07</td>
 <td>확인됨</td>
-<td>좌표 반경 카테고리·키워드 검색, 음식점 FD6·카페 CE7 분류. 카카오
-개발자 콘솔 REST 키 필요</td>
+<td>좌표 반경 카테고리·키워드 검색, 음식점 FD6·카페 CE7 분류. 카카오 개발자 콘솔 REST 키 필요</td>
 <td>9번에 의존. 키는 재원 님 계정으로 발급</td>
 </tr>
 <tr class="odd">
@@ -984,8 +985,7 @@ onNavigationStatus() 콜백 이름이 문서에 있음</td>
 <td>F-12</td>
 <td>미확인</td>
 <td>일반 Android에서는 동작</td>
-<td>AAOS·Emulator 지원 여부 미확인. 프로토타입은 지도 대신 목록·카드
-화면으로 가도 됨</td>
+<td>AAOS·Emulator 지원 여부 미확인. 프로토타입은 지도 대신 목록·카드 화면으로 가도 됨</td>
 </tr>
 <tr class="even">
 <td>12</td>
@@ -1009,16 +1009,15 @@ onNavigationStatus() 콜백 이름이 문서에 있음</td>
 <td>F-13</td>
 <td>미확인</td>
 <td>링크 생성·QR 표시는 앱 내부로 가능</td>
-<td>받는 쪽이 차량이면 링크를 열 브라우저가 없을 수 있음. 스마트폰에서
-보는 정적 웹페이지가 필요할 수 있음 (결정 필요)</td>
+<td>받는 쪽이 차량이면 링크를 열 브라우저가 없을 수 있음. 스마트폰에서 보는 정적 웹페이지가 필요할 수 있음 (결정 필요)</td>
 </tr>
 <tr class="odd">
 <td>15</td>
 <td>Playground 앱 등록·배포 절차</td>
-<td>제출</td>
+<td>STT/TTS 서버 모드</td>
 <td>미확인</td>
 <td>My Project에서 자격 증명 발급 (STT/TTS 서버 모드용)</td>
-<td>프로토타입 제출 형식(APK, 영상, 저장소)을 공모전 안내에서 확인</td>
+<td>발급 절차와 소요 시간. 공모전 제출 형식은 11월 10일 공식 안내로 확인함(11장)</td>
 </tr>
 <tr class="even">
 <td>16</td>
@@ -1036,28 +1035,75 @@ onNavigationStatus() 콜백 이름이 문서에 있음</td>
 <td>앱 assets/schema.json에 기능 최대 3개 선언(이름 대문자, 설명 영어). 글레오가 기능 이름을 action으로 startActivity 또는 sendBroadcast 호출, 인자는 ACTION_PARAM(JSON). 결과는 ai.pleos.playground.intent.action.APP_ACTION_RESPONSE 브로드캐스트로 회신. 글레오 검토 승인 후 자동 활성화. 앱은 핸들 버튼 입력을 직접 받을 수 없음(하드웨어 직접 접근 금지)</td>
 <td>핸들 음성 버튼이 글레오를 부른다는 문장은 문서에 없음(가능성 높음). 승인 절차·공모전 참가자 신청 가능 여부·Emulator 시험 가능 여부 미기재 → Pleos에 문의. 안 되면 화면 말하기 버튼만으로 시연</td>
 </tr>
+<tr class="even">
+<td>18</td>
+<td>CarUxRestrictions (주행 제한)</td>
+<td>F-14</td>
+<td>확인됨</td>
+<td>CarUxRestrictionsManager.registerListener, onUxRestrictionsChanged, isRequiresDistractionOptimization(), getActiveRestrictions() (<a href="https://document.pleos.ai/docs/pleos-only/vehicle-app-developer-guide/driving-restriction-development-guide">주행 규제 개발 가이드</a>)</td>
+<td>앱 카테고리와 주행 중 사용(DO) 선언 방법은 지역별 정책 문서에서 확인. Emulator에서 주행·정차 전환 이벤트가 오는지</td>
+</tr>
+<tr class="odd">
+<td>19</td>
+<td>오디오 포커스</td>
+<td>F-05, F-08, F-11</td>
+<td>존재만 확인</td>
+<td>AudioFocusRequest, AUDIOFOCUS_GAIN_TRANSIENT_MAY_DUCK, 포커스 잃음 처리 필수(Pleos 정책), 글레오(VOICE_COMMAND)가 일반 소리보다 우선 (<a href="https://document.pleos.ai/docs/pleos-only/vehicle-app-developer-guide/audio-focus-development-guide/audio-focus-development">오디오 포커스 가이드</a>)</td>
+<td>TTS SDK가 포커스를 스스로 잡는지, 안내 문장에 맞는 usage(가정 ANNOUNCEMENT)를 Interaction Matrix에서 확인</td>
+</tr>
+<tr class="even">
+<td>20</td>
+<td>앱 밖 알림 · 백그라운드 위치</td>
+<td>F-08, F-11</td>
+<td>미확인</td>
+<td>Android 알림(heads-up)과 위치 포그라운드 서비스는 일반 Android 기능</td>
+<td>Pleos에서 heads-up이 내비 위에 뜨는지, 앱이 뒤에 있을 때 위치 콜백과 포그라운드 서비스가 허용되는지. 안 되면 내비 옆 앱 창에 카드를 띄우고 TTS로 알리며, 방문 판정은 앱이 켜져 있을 때만</td>
+</tr>
 </tbody>
 </table></div>
 <p><strong>프로토타입 첫 이틀에 Emulator에서 확인할 순서</strong></p>
 <ol type="1">
-<li>Emulator에서 앱이 인터넷에 나가는지 (9번). 안 되면 POI는 내장 샘플로
-간다.</li>
-<li>Virtual Console로 위치·진행 방향을 바꿀 수 있는지 (8번). 안 되면
-개발 빌드에 가짜 위치 소스를 넣는다.</li>
+<li>Emulator에서 앱이 인터넷에 나가는지 (9번). 안 되면 POI는 내장 샘플로 간다.</li>
+<li>Virtual Console로 위치·진행 방향을 바꿀 수 있는지 (8번). 안 되면 개발 빌드에 가짜 위치 소스를 넣는다.</li>
 <li>STT가 Emulator 마이크로 한국어를 인식하는지 (1번).</li>
-<li>requestRoute가 Emulator 내비 앱에서 안내를 시작하는지,
-onDestinationArrived가 오는지 (5, 6번).</li>
-<li>addProximityAlert 파라미터 (4번). 안 되면 앱이 직접 거리를 재어
-리마인드한다.</li>
-<li>카카오맵 SDK가 뜨는지 (11번). 안 뜨면 프로토타입은 목록 화면으로
-간다.</li>
+<li>requestRoute가 Emulator 내비 앱에서 안내를 시작하는지, onDestinationArrived가 오는지 (5, 6번).</li>
+<li>addProximityAlert 파라미터 (4번). 안 되면 앱이 직접 거리를 재어 리마인드한다.</li>
+<li>카카오맵 SDK가 뜨는지 (11번). 안 뜨면 프로토타입은 목록 화면으로 간다.</li>
+<li>주행·정차를 바꿀 때 CarUxRestrictions 이벤트가 오는지, 알림이 내비 위에 뜨는지, 앱이 뒤에 있을 때 위치가 오는지 (18, 20번). 권한마다 실행 중 요청이 필요한지도 이때 본다.</li>
 </ol>
 <h2 id="11-개발-범위와-일정">11. 개발 범위와 일정</h2>
-<p>일정은 두 단계다. 2026-11-18까지 공모전에 낼 프로토타입(뼈대)을
-만들고, 그 뒤에 12주 본개발로 MVP를 완성한다. 프로토타입은 저장 흐름 A와
-추천·길안내가 Emulator에서 한 바퀴 돌고, 나머지 화면은 빈 뼈대로만
-있으면 된다.</p>
-<p><strong>프로토타입 10일 계획 (11월 9일~18일)</strong></p>
+<p>일정은 세 단계다. <a href="https://appdevchallenge.auto-hmg.io/guide/schedule">공모전 일정</a>(2026-11-10 확인)에 따라 11월 15일(일) 1차 접수에 접수 양식과 개인정보 동의서(필수)를 내고, 시연 영상과 GitHub 저장소·APK(선택)를 함께 낸다. 선택 산출물은 1차 접수 때 같이 내야 가산점이 붙는다. 1차 결과는 11월 23일, 2차 PT는 12월 3~4일이며 PT 전까지 실제로 동작하는 앱을 완성해야 한다(<a href="https://appdevchallenge.auto-hmg.io/guide/submission">제출 안내</a>). 그 뒤 12주 본개발로 MVP를 마무리한다. 11월 8일에 잡았던 "11월 18일 제출"은 공식 마감보다 늦어 바로잡았다.</p>
+<div class="tbl"><table>
+<thead>
+<tr class="header">
+<th>단계</th>
+<th>기간</th>
+<th>목표</th>
+<th>낼 것</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>1. 1차 접수</td>
+<td>11/9~15</td>
+<td>저장 흐름 A와 추천·길안내가 Emulator에서 한 바퀴 돈다. 나머지 화면은 뼈대</td>
+<td>접수 양식(기획서)·동의서, 시연 영상, GitHub 저장소(소스, apk/ 폴더의 release APK, README)</td>
+</tr>
+<tr class="even">
+<td>2. PT 준비</td>
+<td>11/16~12/2</td>
+<td>리마인드·방문·정리·주행 제한·설정·공유까지 실제 SDK로 동작</td>
+<td>PT 시연 앱과 발표 자료. 1차 때 낸 저장소를 계속 고도화</td>
+</tr>
+<tr class="odd">
+<td>3. 본개발</td>
+<td>PT 이후 12주</td>
+<td>MVP 완성과 안정화</td>
+<td>전시용 빌드</td>
+</tr>
+</tbody>
+</table></div>
+<p><strong>1차 접수 7일 계획 (11월 9일~15일)</strong></p>
 <div class="tbl"><table>
 <thead>
 <tr class="header">
@@ -1069,48 +1115,67 @@ onDestinationArrived가 오는지 (5, 6번).</li>
 <tbody>
 <tr class="odd">
 <td>11/9~10</td>
-<td>Playground 프로젝트 등록, Emulator 설치, SDK 5종 의존성·권한, 10장의
-미확인 항목 6개 점검, 화면 설계서·기술서 초안</td>
+<td>Playground 프로젝트 등록, Emulator 설치, SDK 5종 의존성·권한, 10장 확인 순서 1~7, 세 문서 확정</td>
 <td>빈 앱이 Emulator에서 뜨고 STT·TTS·위치 값이 로그에 찍힘</td>
 </tr>
 <tr class="even">
-<td>11/11~13</td>
-<td>F-01 마이크 버튼, F-03 규칙 분석, F-05 TTS 되묻기·대답, F-06 Room
-저장</td>
+<td>11/11~12</td>
+<td>F-01 마이크 버튼, F-03 규칙 분석, F-05 TTS 되묻기·대답, F-06 Room 저장(초안 먼저 쓰기)</td>
 <td>"저장해줘" → "○○ 맞나요?" → "응" → 저장 목록에 표시</td>
 </tr>
 <tr class="odd">
-<td>11/14~15</td>
-<td>F-02 위치 버퍼, F-04 POI 검색·점수화 (인터넷 불가 시 내장 샘플),
-F-12 목록 화면</td>
+<td>11/13</td>
+<td>F-02 위치 버퍼, F-04 POI 검색·점수화 (인터넷 불가 시 내장 샘플), F-12 목록 화면</td>
 <td>가짜 주행 경로에서 "방금 지난 카페"가 실제 가게로 매칭됨</td>
 </tr>
 <tr class="even">
-<td>11/16</td>
-<td>F-09 추천 카드 3장, F-10 requestRoute 연동</td>
+<td>11/14</td>
+<td>F-09 추천 카드 3장, F-10 requestRoute 연동, release APK 빌드, README</td>
 <td>"뭐 먹을까" → 카드 → 내비 안내 시작</td>
 </tr>
 <tr class="odd">
-<td>11/17</td>
-<td>F-08 리마인드 (거리 계산 방식), 설정·지도·공유 화면 빈 뼈대, 시연
-영상, README</td>
-<td>시나리오 3개(저장·추천·리마인드)가 영상에 담김</td>
-</tr>
-<tr class="even">
-<td>11/18</td>
-<td>최종 점검, 커밋, 제출</td>
+<td>11/15</td>
+<td>시연 영상(저장·추천), 접수 양식 최종 확인, 이메일 제출. 공식 사이트에는 날짜만 있으므로 오후까지 보낸다</td>
 <td>제출 완료</td>
 </tr>
 </tbody>
 </table></div>
-<p>프로토타입에서 비우는 것: F-07 미확인 정리는 삭제만, F-11 방문 기록,
-F-13 공유, F-14 정차 판단, F-15 설정은 화면 뼈대만 두고 동작은 본개발로
-미룬다. 지도 화면은 카카오맵 SDK가 Emulator에서 뜨는 경우에만
-넣는다.</p>
-<p><strong>본개발 12주 계획 (프로토타입 제출 후)</strong></p>
-<p>1인 개발 12주를 기준으로, 저장 흐름이 끝나는 6주 차에 처음 시연이
-가능하도록 순서를 잡는다. 프로토타입에서 끝난 항목은 해당 주차를 검증과
-다듬기에 쓴다.</p>
+<p>1차 접수에서 비우는 것: F-07 미확인 정리는 삭제만, F-08 리마인드, F-11 방문 기록, F-13 공유, F-14 주행 제한, F-15 설정은 화면 뼈대만 둔다. 지도 화면은 카카오맵 SDK가 Emulator에서 뜨는 경우에만 넣는다. 시연 영상은 주행 제한을 끈 개발 빌드로 찍고, 영상 설명에 그렇게 적는다.</p>
+<p><strong>PT 준비 계획 (11월 16일~12월 2일)</strong></p>
+<div class="tbl"><table>
+<thead>
+<tr class="header">
+<th>기간</th>
+<th>만드는 것</th>
+<th>완료 기준</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>11/16~19</td>
+<td>F-14 CarUxRestrictions 주행 제한, F-08 리마인드(자격·필터·타이머), 음성 세션 하나로 묶기</td>
+<td>저장 가게 근처를 지날 때 1회 안내, 주행 중에는 정차 화면이 막힘</td>
+</tr>
+<tr class="even">
+<td>11/20~24</td>
+<td>F-11 방문 판정(진행 상태 DB), F-07 정리·합치기, F-12 상세·수정·되돌리기 삭제</td>
+<td>안내 → 도착 → 10분 → 출발 메모가 Emulator 경로로 재현됨</td>
+</tr>
+<tr class="odd">
+<td>11/25~28</td>
+<td>F-13 공유 링크·웹 뷰어·가져오기, F-15 설정</td>
+<td>링크로 내보낸 목록을 다른 Emulator에서 가져옴</td>
+</tr>
+<tr class="even">
+<td>11/29~12/2</td>
+<td>실패 경로 점검(기술서 10장 오류 표), 시연 리허설, 발표 자료</td>
+<td>저장·리마인드·추천·방문·공유 5개 시나리오를 끊김 없이 시연</td>
+</tr>
+</tbody>
+</table></div>
+<p>PT 시연은 실제 SDK(Real)로 한다. Emulator에서 안 되는 항목만 Fake로 돌리고, 화면 구석에 "시연용 가짜 위치"처럼 표시해 실제 동작과 구분한다.</p>
+<p><strong>본개발 12주 계획 (PT 이후)</strong></p>
+<p>1인 개발 12주를 기준으로 한 순서다. PT까지 만든 항목은 해당 주차를 실사용 검증과 다듬기(매칭 정확도, 시점·반경 조정)에 쓴다.</p>
 <div class="tbl"><table>
 <thead>
 <tr class="header">
@@ -1124,9 +1189,8 @@ F-13 공유, F-14 정차 판단, F-15 설정은 화면 뼈대만 두고 동작�
 <tr class="odd">
 <td>0. 준비</td>
 <td>1</td>
-<td>Pleos Playground 프로젝트 등록, Emulator 설치, 빈 앱에 SDK 5종
-의존성·권한 연결, 화면 설계서·기술서 작성</td>
-<td>Emulator에서 STT·TTS·위치가 각각 동작</td>
+<td>PT 피드백 정리, SDK 5종·권한·주행 제한 설정 점검</td>
+<td>실제 SDK로 STT·TTS·위치·주행 제한이 각각 동작</td>
 </tr>
 <tr class="even">
 <td>1. 음성 입출력</td>
@@ -1143,7 +1207,7 @@ F-13 공유, F-14 정차 판단, F-15 설정은 화면 뼈대만 두고 동작�
 <tr class="even">
 <td>3. 저장과 정리</td>
 <td>5~6</td>
-<td>F-06, F-07, F-14: Room 저장, 미확인 정리 화면, 정차 판단</td>
+<td>F-06, F-07, F-14: Room 저장, 미확인 정리 화면, 주행 제한(CarUxRestrictions)</td>
 <td>저장 흐름 A 전체가 끝까지 동작 (1차 시연 가능)</td>
 </tr>
 <tr class="odd">
@@ -1172,11 +1236,9 @@ F-13 공유, F-14 정차 판단, F-15 설정은 화면 뼈대만 두고 동작�
 </tr>
 </tbody>
 </table></div>
-<p>확장 기능(F-16~F-19)은 12주 안에 넣지 않는다. 6주 차 시연이 예정보다
-빨리 끝나면 F-17 방문 인증 리뷰를 먼저 검토한다.</p>
+<p>확장 기능(F-16~F-19)은 12주 안에 넣지 않는다. 6주 차 시연이 예정보다 빨리 끝나면 F-17 방문 인증 리뷰를 먼저 검토한다.</p>
 <h2 id="12-리스크와-대응">12. 리스크와 대응</h2>
-<p>가장 큰 리스크는 '방금 지난 가게'를 틀리게 고르는 것이다. 그래서 매칭
-정확도보다 '틀려도 기록은 남고 나중에 고칠 수 있다'를 먼저 보장한다.</p>
+<p>가장 큰 리스크는 '방금 지난 가게'를 틀리게 고르는 것이다. 그래서 매칭 정확도보다 '틀려도 기록은 남고 나중에 고칠 수 있다'를 먼저 보장한다.</p>
 <div class="tbl"><table>
 <thead>
 <tr class="header">
@@ -1189,81 +1251,69 @@ F-13 공유, F-14 정차 판단, F-15 설정은 화면 뼈대만 두고 동작�
 <tr class="odd">
 <td>가게 매칭 오류 (절반 이상 틀릴 수 있음)</td>
 <td>핵심 경험 훼손</td>
-<td>후보 5개를 함께 저장해 정차 후 한 번의 터치로 고칠 수 있게 한다.
-시점 구간(10~20초)과 반경(150m)은 설정값으로 두고 시험으로 조정한다</td>
+<td>후보 5개를 함께 저장해 정차 후 한 번의 터치로 고칠 수 있게 한다. 시점 구간(10~20초)과 반경(150m)은 설정값으로 두고 시험으로 조정한다</td>
 </tr>
 <tr class="even">
 <td>Emulator에서 위치·진행 방향을 재현하기 어려움</td>
 <td>시험 불가</td>
-<td>1주 차에 Emulator의 위치 주입 방법을 먼저 확인한다. 없으면 앱 내부에
-경로 재생용 가짜 위치 소스를 두고 개발 빌드에서만 켬다</td>
+<td>1주 차에 Emulator의 위치 주입 방법을 먼저 확인한다. 없으면 앱 내부에 경로 재생용 가짜 위치 소스(docs/tools/route_gangnam_60s.json)를 두고 개발 빌드에서만 켠다</td>
 </tr>
 <tr class="odd">
 <td>지도 SDK가 AAOS에서 동작하지 않음</td>
 <td>F-12 지연</td>
-<td>1주 차에 카카오맵·네이버 지도 SDK를 Emulator에서 각각 띄워 본다. 둘
-다 안 되면 정적 지도 이미지 + 목록으로 대체한다</td>
+<td>1주 차에 카카오맵·네이버 지도 SDK를 Emulator에서 각각 띄워 본다. 둘 다 안 되면 정적 지도 이미지 + 목록으로 대체한다</td>
 </tr>
 <tr class="even">
 <td>NaviHelper 도착 이벤트가 기대와 다름</td>
 <td>방문 기록 부정확</td>
-<td>도착 이벤트가 없으면 목적지 반경 50m 진입 + 속도 0 + 10분 체류로
-대체 판정한다</td>
+<td>도착 이벤트가 없으면 목적지 반경 50m 진입을 도착으로 보고, 100m 안 10분 체류로 방문을 판정한다(7장 VisitSession)</td>
 </tr>
 <tr class="odd">
-<td>STT가 가게 이름·업종을 잘못 받아적음</td>
-<td>단서 추출 실패</td>
-<td>업종 사전에 유사 발음·별칭을 넣고, 단서가 없어도 위치만으로
-저장한다</td>
+<td>차량에서 앱 밖 알림·백그라운드 위치가 막힘</td>
+<td>리마인드·방문 판정 불가</td>
+<td>10장 20번을 첫날 확인한다. 안 되면 내비 옆 앱 창의 카드와 TTS로 알리고, 방문 판정은 앱이 켜져 있을 때만 한다</td>
 </tr>
 <tr class="even">
-<td>리마인드가 성가시게 느껴짐</td>
-<td>설정에서 끄고 잊힘</td>
-<td>하루 1회, 식사 시간대, 네비 목적지 없을 때만. 첫 달 사용 로그로
-빈도를 조정한다</td>
+<td>STT가 가게 이름·업종을 잘못 받아적음</td>
+<td>단서 추출 실패</td>
+<td>업종 사전에 유사 발음·별칭을 넣고, 단서가 없어도 위치만으로 저장한다</td>
 </tr>
 <tr class="odd">
+<td>리마인드가 성가시게 느껴짐</td>
+<td>설정에서 끄고 잊힘</td>
+<td>하루 1회, 식사 시간대, 네비 목적지 없을 때만. 첫 달 사용 로그로 빈도를 조정한다</td>
+</tr>
+<tr class="even">
 <td>외부 API 키·쿼터 제한</td>
 <td>검색 중단</td>
-<td>검색 결과를 좌표 격자별로 24시간 캐시하고, 한 발화당 검색은 2회
-이하로 제한한다</td>
+<td>검색 결과를 검색 조건(검색어·업종·반경)과 100m 칸별로 24시간 캐시하고, 한 발화당 검색은 2회 이하로 제한한다</td>
+</tr>
+<tr class="odd">
+<td>1차 마감(11/15)까지 시간 부족</td>
+<td>접수 품질 저하</td>
+<td>필수 서류(접수 양식·동의서)를 11/14까지 먼저 끝내고, 개발물은 저장·추천 두 흐름만 낸다. 나머지는 PT 준비 단계로</td>
 </tr>
 <tr class="even">
 <td>1인 개발 일정 지연</td>
 <td>기능 누락</td>
-<td>6주 차에 저장 흐름만으로 시연 가능 상태를 만들고, 이후 단계는 하나씩
-더해 간다. 지연 시 공유(F-13)부터 미룬다</td>
+<td>6주 차에 저장 흐름만으로 시연 가능 상태를 만들고, 이후 단계는 하나씩 더해 간다. 지연 시 공유(F-13)부터 미룬다</td>
 </tr>
 </tbody>
 </table></div>
 <h2 id="13-확인이-필요한-사항">13. 확인이 필요한 사항</h2>
-<p>아래는 재원 님의 결정이 필요한 항목이다. 결정되면 본문의 '확인 필요'
-표기를 지우고 화면 설계서·기술서에 반영한다. 괄호 안은 결정 전까지 이
-문서가 가정한 값이다.</p>
+<p>아래는 재원 님의 결정이 필요한 항목이다. 결정되면 본문의 '확인 필요' 표기를 지우고 화면 설계서·기술서에 반영한다. 괄호 안은 결정 전까지 이 문서가 가정한 값이다.</p>
 <ul class="task-list">
-<li><label><input type="checkbox" checked="" />공모전 제출: 2026년 11월
-18일 프로토타입 제출, 뼈대 수준이면 됨 (11월 8일 확정). 11장 일정에
-반영</label></li>
-<li><label><input type="checkbox" />POI 검색과 지도 화면을 카카오로 할지
-네이버로 할지. 개발자 키 발급이 필요하다. (가정: 카카오)</label></li>
-<li><label><input type="checkbox" />공유 방식: 서버 없이 링크에 목록을
-담을지, Firebase 같은 간단한 백엔드를 둘지. 차량에는 브라우저가 없을 수
-있어 받는 쪽 화면도 정해야 한다. (가정: 서버 없음, 프로토타입 범위
-밖)</label></li>
+<li><label><input type="checkbox" checked="" />공모전 일정: 접수 마감 2026년 11월 15일(일), 2차 PT 12월 3~4일. 11월 8일에 정한 '18일 제출'은 11월 10일 공식 일정 확인으로 바로잡았다(11장).</label></li>
+<li><label><input type="checkbox" />POI 검색과 지도 화면을 카카오로 할지 네이버로 할지. 개발자 키 발급이 필요하다. (가정: 카카오)</label></li>
+<li><label><input type="checkbox" />공유 방식: 서버 없이 링크에 목록을 담을지, Firebase 같은 간단한 백엔드를 둘지. 차량에는 브라우저가 없을 수 있어 받는 쪽 화면도 정해야 한다. (가정: 서버 없음. 링크 = 정적 웹 뷰어 + # 뒤 압축 목록, 9장. 차량에서 링크를 열 수단이 없으면 폰 웹 보기까지만. 1차 접수 범위 밖)</label></li>
 <li><label><input type="checkbox" checked="" />음성 시작 방식: 화면 말하기 버튼이 기본 (11월 9일 확정). 앱은 핸들 음성 버튼을 직접 받을 수 없고, 글레오 음성 비서에 기능을 등록하는 F-19(확장, 승인 필요)로만 연결된다.</label></li>
-<li><label><input type="checkbox" />리마인드가 "갈까요?"까지 물을지,
-알려주기만 할지. (가정: 묻고 "응"이면 바로 길안내)</label></li>
-<li><label><input type="checkbox" />영문 패키지명과 저장소 내 앱 폴더
-이름. (가정: com.easycd.nextplace)</label></li>
-<li><label><input type="checkbox" />화면 설계서·기술서를 이 문서처럼
-별도 문서로 만들지, 저장소 docs/ 폴더의 Markdown으로 넣을지. Claude
-Code가 개발 중 참고하려면 저장소 안에 있는 편이 유리하다. (제안: 세 문서
-모두 docs/에도 Markdown으로 커밋)</label></li>
-<li><label><input type="checkbox" />프로토타입 제출 형식: APK만인지,
-시연 영상·저장소 링크도 내는지 공모전 안내를 확인해야 한다.</label></li>
+<li><label><input type="checkbox" />리마인드가 "갈까요?"까지 물을지, 알려주기만 할지. (가정: 묻고 "응"이면 바로 길안내)</label></li>
+<li><label><input type="checkbox" />영문 패키지명. (가정: com.easycd.nextplace) 앱 코드 폴더는 저장소 루트로 정했다(11월 9일).</label></li>
+<li><label><input type="checkbox" checked="" />문서 위치: 세 문서 모두 저장소 docs/에 Markdown·HTML로 커밋하고, 기획서·기술서는 Claude Doc을 편집 원본으로 둔다(11월 8~9일).</label></li>
+<li><label><input type="checkbox" checked="" />제출 형식(11월 10일 확인): 필수는 접수 양식(기획서)과 전원이 서명한 개인정보 동의서, 선택은 시연 영상과 GitHub 저장소(소스, apk/팀명_앱이름_release.apk, README). 이메일로 내고 마감 전까지 다시 보낼 수 있다.</label></li>
+<li><label><input type="checkbox" />앱 카테고리와 주행 중 사용(DO) 선언: Pleos 앱 등록 때 정해야 한다. (가정: 내비 보조 앱, 주행 중 화면은 말하기·확인·알림 카드·추천 카드만)</label></li>
 <li><label><input type="checkbox" />글레오 연동(F-19): 승인 절차, 공모전 참가자도 신청할 수 있는지, Emulator에서 시험할 수 있는지 Pleos에 문의해야 한다.</label></li>
 </ul>
-
 </main>
 </body>
 </html>

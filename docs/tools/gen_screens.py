@@ -13,6 +13,7 @@ WIRE_DIR = sys.argv[2] if len(sys.argv) > 2 else os.path.join(OUT_DIR, 'wires')
 LIVE_DIR = os.path.join(WIRE_DIR, 'live')
 os.makedirs(WIRE_DIR, exist_ok=True); os.makedirs(LIVE_DIR, exist_ok=True)
 DATE = '2026-11-09'
+REV = '2026-11-10 (문서 검토 보고서 53건 반영)'
 
 # ---------------------------------------------------------------- icons (Lucide style, 24 grid, stroke 2)
 ICONS = {
@@ -115,6 +116,7 @@ WIRE_CSS = r'''
 .chip.warn{background:var(--amber-bg);border-color:transparent;color:var(--amber)}
 .chip.ok{background:var(--ok-bg);border-color:transparent;color:var(--ok)}
 .chip.dim{background:transparent;border-color:var(--line);color:var(--faint)}
+.hit{display:inline-flex;align-items:center;justify-content:center;min-height:76px;min-width:76px}
 .row{display:flex;align-items:center;gap:24px;height:104px;padding:0 24px;border-bottom:1px solid var(--line)}
 .row .name{font-size:32px;font-weight:600}
 .row.sel{background:var(--acc-soft);border-radius:24px;border-bottom-color:transparent}
@@ -195,10 +197,10 @@ ANIM_CSS = r'''
 @keyframes bar{0%,100%{transform:scaleY(.3)}50%{transform:scaleY(1)}}
 @keyframes spin{to{transform:rotate(360deg)}}
 @keyframes up{from{opacity:0;transform:translateY(24px)}}
-@keyframes down{from{opacity:0;transform:translateY(-32px)}}
+@keyframes down{from{opacity:0;transform:translateY(-24px)}}
 @keyframes pop{from{opacity:0;transform:scale(.96)}}
 @keyframes fade{from{opacity:0}}
-@keyframes drop{0%{opacity:0;transform:translateY(-48px)}60%{opacity:1;transform:translateY(8px)}100%{opacity:1;transform:none}}
+@keyframes drop{0%{opacity:0;transform:translateY(-24px)}60%{opacity:1;transform:translateY(8px)}100%{opacity:1;transform:none}}
 @keyframes toastloop{0%{opacity:0;transform:translateY(24px)}5%{opacity:1;transform:none}88%{opacity:1;transform:none}93%{opacity:0;transform:translateY(8px)}100%{opacity:0;transform:translateY(8px)}}
 @keyframes shrink{from{width:100%}to{width:0}}
 @keyframes dash{to{stroke-dashoffset:176}}
@@ -207,6 +209,7 @@ ANIM_CSS = r'''
 @keyframes collapse{to{height:0;opacity:0;padding-top:0;padding-bottom:0;border-width:0;overflow:hidden}}
 @keyframes hl{from{background:var(--acc-soft)}}
 @keyframes slidex{from{opacity:0;transform:translateX(48px)}}
+@keyframes slides{from{opacity:0;transform:translateX(24px)}}
 @keyframes grow{from{transform:scale(1)}to{transform:scale(1.04)}}
 @keyframes dimout{to{opacity:.4}}
 @keyframes bars{0%,100%{height:12px}50%{height:48px}}
@@ -222,6 +225,7 @@ ANIM_CSS = r'''
 .play .a-fade{animation:fade .16s linear both}
 .play .a-drop{animation:drop .4s cubic-bezier(.05,.7,.1,1) both}
 .play .a-slidex{animation:slidex .2s cubic-bezier(.2,0,0,1) both}
+.play .a-slides{animation:slides .2s cubic-bezier(.2,0,0,1) both}
 .play .a-shake{animation:shake .24s ease-in-out .4s 1}
 .play .a-grow{animation:grow .2s cubic-bezier(.2,0,0,1) .3s both}
 .play .a-dim{animation:dimout .2s linear .3s both}
@@ -281,7 +285,7 @@ def home(dim=1, recent='', count='12', sub1='근처 저장 가게 중 3곳 추�
  </div>'''
 
 def home_bg(dim=.55, recent='', count='12'):
-    return home(dim=dim, recent=recent or recent_card('서울갈비','<span class="chip warn">미확인</span>'), count=count,
+    return home(dim=dim, recent=recent or recent_card('서울갈비?','<span class="chip warn">미확인</span>'), count=count,
                 sub2=(f'{count}곳' if count == '0' else None))
 
 def recent_card(name, chip, co=None, cls='', when='어제 18:42'):
@@ -341,7 +345,7 @@ screen('S-00','A','시작','주행 중 · 정차 중','앱 아이콘을 누름',
  ''',
  [('1','앱 아이콘','확정 아이콘(15번) 240dp','0.8초 안에 S-01 홈으로. 처음 실행이면 S-13'),
   ('2','앱 이름','56dp','')],
- [('앱 아이콘','위에서 48dp 떨어지며 살짝 튕김','400ms · emphasized','화면 열릴 때'),
+ [('앱 아이콘','위에서 24dp 내려오며 살짝 튕김','400ms · emphasized','화면 열릴 때 (주행 중에도 열리므로 24dp 이하)'),
   ('앱 이름·문구','페이드 인','160ms · 250ms 지연','아이콘 뒤이어'),
   ('홈으로 전환','페이드','200ms','불러오기 끝나면(최대 0.8초)')],
  '불러올 것이 없으면 이 화면은 0.3초만 보인다. 로딩 막대는 두지 않는다.', gif=True)
@@ -351,8 +355,8 @@ screen('S-13','A','처음 실행 안내','정차 중 권장','S-00 뒤 첫 실�
  {home_bg(dim=.35, recent=recent_card('—','<span class="chip dim">없음</span>'), count='0')}
  <div class="overlay a-fade"></div>
  <div class="card a-pop" data-co="1" style="position:absolute;left:200px;right:200px;top:160px;padding:48px 56px;display:flex;flex-direction:column;gap:28px">
-   <div class="h48">차 안에만 저장돼요</div>
-   <div class="muted" style="font-size:28px">말한 내용과 위치는 이 차에만 남고 밖으로 보내지 않아요. 아래 세 가지를 허용하면 바로 쓸 수 있어요.</div>
+   <div class="h48">기록은 차 안에만 남아요</div>
+   <div class="muted" style="font-size:28px">저장한 가게·위치·방문 기록은 이 차에만 보관해요. 말소리 인식과 가게 찾기에는 인터넷을 써요.</div>
    <div data-co="2" style="display:flex;flex-direction:column;gap:16px;padding-top:8px">
      <div style="display:flex;align-items:center;gap:20px;height:76px">{ic("mic",40)}<b>마이크</b><span class="muted">말한 내용으로 가게를 찾아요</span></div>
      <div style="display:flex;align-items:center;gap:20px;height:76px">{ic("locate",40)}<b>위치</b><span class="muted">지나친 가게를 추정하고 근처에서 알려요</span></div>
@@ -364,9 +368,9 @@ screen('S-13','A','처음 실행 안내','정차 중 권장','S-00 뒤 첫 실�
    </div>
  </div>
  ''',
- [('1','안내 카드','차 안에만 저장된다는 고지 1장',''),
+ [('1','안내 카드','무엇이 차 안에만 남고(저장 가게 · 위치 · 방문 기록) 무엇에 인터넷을 쓰는지(음성 인식 · 가게 검색) 알리는 카드 1장','기획서 8장 개인정보와 같은 내용'),
   ('2','허용 항목 3줄','마이크 · 위치 · 내비, 각각 쓰는 이유 한 줄',''),
-  ('3','시작하기','시스템 권한 창을 마이크 → 위치 → 내비 순서로 띄움','모두 끝나면 S-01'),
+  ('3','시작하기','실행 중 요청이 필요한 권한만 마이크 → 위치 → 내비 → 알림 순서로 시스템 창을 띄움. 선언만으로 되는 권한은 창 없이 지나감','모두 끝나면 S-01. 권한마다 창이 뜨는지는 Emulator에서 확인 (기술서 10장)'),
   ('4','나중에','권한 없이 홈으로. 말하기 버튼을 누르면 S-17','')],
  [('어두운 배경','페이드 인','160ms','카드 열릴 때'),
   ('안내 카드','96% → 100% 확대 + 페이드','200ms · standard','어두운 배경 뒤이어'),
@@ -375,7 +379,7 @@ screen('S-13','A','처음 실행 안내','정차 중 권장','S-00 뒤 첫 실�
 
 screen('S-17','A','권한 없음','주행 중 · 정차 중','권한이 없는 상태에서 말하기 · 리마인드 · 안내 시작을 누름','공통',
  f'''
- {home_bg(dim=.35, recent=recent_card('서울갈비','<span class="chip warn">미확인</span>'))}
+ {home_bg(dim=.35, recent=recent_card('서울갈비?','<span class="chip warn">미확인</span>'))}
  <div class="overlay a-fade"></div>
  <div class="dialog a-pop" style="top:280px;left:180px;right:180px">
    <div style="display:flex;align-items:center;gap:20px" data-co="1">{ic("alert",56,"muted")}<div class="h40">마이크를 쓸 수 없어요</div></div>
@@ -389,28 +393,28 @@ screen('S-17','A','권한 없음','주행 중 · 정차 중','권한이 없는 �
  </div>
  ''',
  [('1','안내','무엇을 못 쓰는지 한 줄 + 왜 필요한지 한 줄','위치면 “위치를 쓸 수 없어요 · 지나친 가게를 찾으려면 필요해요”, 음성 서비스 오류면 “음성 서비스를 쓸 수 없어요 · 잠시 뒤 다시 해 보세요”'),
-  ('2','설정에서 허용','차량 앱 권한 설정 화면을 염','주행 중이면 버튼 대신 “멈춘 뒤 설정에서 허용해 주세요” 문구'),
+  ('2','설정에서 허용','이 앱의 앱 정보(권한) 화면을 염','“다시 묻지 않음” 상태여도 같은 화면. 주행 중이면 버튼 대신 “멈춘 뒤 설정에서 허용해 주세요” 문구'),
   ('3','닫기','원래 화면으로',''),
-  ('4','위치만 저장','음성 없이 지금 위치만 미확인으로 저장 → S-04b. 주행 중에도 누를 수 있음','마이크 · 음성 서비스를 쓸 수 없을 때만 보임 (기획서 8장: SDK가 안 돼도 터치로 저장)')],
+  ('4','위치만 저장','음성 없이 지금 위치만 미확인으로 저장 → S-04b. 주행 중에도 누를 수 있음','마이크 · 음성 서비스를 쓸 수 없을 때만 보임 (기획서 8장: SDK가 안 돼도 터치로 저장). 위치도 쓸 수 없으면 숨김')],
  [('창 열림','어두운 배경 페이드 + 창 96% → 100%','160ms / 200ms','버튼을 눌렀을 때'),
   ('창 닫힘','페이드 아웃','160ms','닫기 · 설정으로 이동')],
  '')
 
 # ===== B. 음성으로 저장 =====
 screen('S-01','B','홈','주행 중 · 정차 중','앱 실행','F-01, F-09, F-12, F-15',
- home(recent=recent_card('서울갈비','<span class="chip warn">미확인</span>', co='4'), live=True,
+ home(recent=recent_card('서울갈비?','<span class="chip warn">미확인</span>', co='4'), live=True,
       co=dict(mic='1', eat='2', mine='3', gear='5', loc='6')),
  [('1','말하기 버튼','360dp 원형, 화면의 유일한 1순위 동작','누르면 S-02a. 주행 중에도 사용'),
   ('2','뭐 먹을까','추천 바로가기','누르면 S-06'),
   ('3','내 맛집','저장 개수 표시','정차 중 S-07, 주행 중 S-12'),
-  ('4','최근 저장','마지막으로 저장한 가게 1건, 상태 칩(미확인 · 저장됨 · 후보 찾음)','누르면 S-08 (미확인 · 후보 찾음이면 S-09). 주행 중이면 S-12. 0건이면 S-01b. 인터넷이 돌아와 미확인 가게의 후보를 찾으면 칩이 “후보 찾음”으로 바뀜'),
+  ('4','최근 저장','마지막으로 저장한 가게 1건, 상태 칩(미확인 · 저장됨 · 후보 찾음). 미확인 가게는 이름 뒤에 ?','누르면 S-08 (미확인 · 후보 찾음이면 S-09). 주행 중이면 S-12. 0건이면 S-01b. 인터넷이 돌아와 미확인 가게의 후보를 찾으면 칩이 “후보 찾음”으로 바뀜'),
   ('5','설정','','S-11'),
-  ('6','현재 위치','지금 달리는 도로 이름과 방향. 누를 수 없음','위치 권한이 없으면 숨김')],
+  ('6','현재 위치','지금 달리는 도로 이름과 방향. 누를 수 없음. 도로 이름은 내비 현재 위치 정보, 없으면 카카오 좌표→주소(앱이 앞에 있을 때 30초에 1회)','못 구하면 “현재 위치”, 위치 권한이 없으면 숨김')],
  [('말하기 버튼','바깥 그림자가 24 → 40dp로 숨 쉬듯 커졌다 작아짐','2s · ease-in-out 반복','항상. 대비가 낮아 주행 중에도 허용'),
   ('버튼 누름','96%로 줄었다 복귀','120ms · standard','모든 버튼 공통'),
   ('최근 저장 카드','내용이 바뀔 때 페이드 교체','200ms','저장 완료 뒤'),
   ('화면 전환','주행 중 화면끼리는 페이드만(이동 없음)','160ms','S-02a · S-06 · S-12로')],
- '주행 중 화면은 버튼 4개가 전부다. 글자 최소 28dp, 터치 최소 88dp.', gif=True)
+ '주행 중에 누를 곳은 말하기 · 뭐 먹을까 · 내 맛집 · 최근 저장 · 설정 다섯 곳이다. 내 맛집 · 최근 저장 · 설정은 주행 제한 중이면 S-12로 간다. 이 화면의 글자는 28dp 이상, 버튼은 88dp 이상.', gif=True)
 
 screen('S-01b','B','홈 · 저장 전','주행 중 · 정차 중','저장한 가게가 0개일 때의 홈','F-01',
  home(count='0', sub1='저장한 가게가 생기면 추천해요', sub2='0곳', co=dict(mine='2', eat='3'), live=True,
@@ -431,21 +435,21 @@ screen('S-02a','B','듣는 중','주행 중 · 정차 중','말하기 버튼 (S-
    '<span data-co="3" style="padding:0 20px">방금 지난 <span class="a-text d1">빨간 간판</span> <span class="a-text d2">고깃집</span><span class="muted a-text d3">…</span></span>'),
  [('1','상태 문구','“듣고 있어요”','말이 끝나면 S-02b'),
   ('2','소리 막대','마이크 입력 크기에 따라 17개 막대가 움직임',''),
-  ('3','인식 중 문장','STT 부분 결과를 실시간 표시 (40dp)','말이 끝나고 1.5초 지나면 자동 종료'),
-  ('4','취소','녹음 중단, 원래 화면으로','')],
+  ('3','인식 중 문장','STT 부분 결과를 실시간 표시 (40dp)','말이 끝나고 1.5초 지나면 자동 종료. 끝나면 원문을 먼저 기록(초안)'),
+  ('4','취소','녹음 중단, 아무것도 저장하지 않고 원래 화면으로','음성 “취소”와 같음')],
  [('어두운 배경','페이드 인','160ms','말하기 버튼을 누른 직후'),
   ('카드','96% → 100% 확대 + 페이드','200ms · standard','배경과 함께'),
   ('소리 막대','높이 30% ↔ 100% 반복, 막대마다 60ms씩 어긋남','900ms · ease-in-out 반복','마이크 입력 크기에 비례'),
   ('인식 문장','단어가 들어올 때마다 페이드로 붙음','80ms','STT 부분 결과')],
- '어느 화면 위에도 겹쳐 뜨는 레이어. 뒤 화면은 흐리게만 하고 내용은 바꾸지 않는다.', gif=True)
+ '어느 화면 위에도 겹쳐 뜨는 레이어. 뒤 화면은 흐리게만 하고 내용은 바꾸지 않는다. 이 대화가 끝날 때까지 리마인드 · 방문 메모 음성은 기다린다(기획서 6장 규칙 6). 대화 중에 말하기 버튼을 다시 누르면 지금 대화를 끝내고 새로 듣는다.', gif=True)
 
 screen('S-02b','B','알아듣는 중','주행 중 · 정차 중','S-02a에서 말이 끝난 뒤','F-03',
  listen_card('알아듣는 중', f'<div data-co="2" style="height:120px;display:flex;align-items:center"><div class="ring live"></div></div>',
    '<span data-co="3" style="padding:0 20px">방금 지난 빨간 간판 고깃집 저장해줘</span>'),
  [('1','상태 문구','“알아듣는 중”','규칙 분석은 0.3초 안에 끝남'),
   ('2','처리 표시','회전하는 링 72dp','1초를 넘기면 그대로 유지, 3초를 넘기면 S-02c'),
-  ('3','확정 문장','최종 인식 문장','저장이면 S-14, 추천이면 S-06, 메모면 오늘 방문한 가게에 남기고 S-15b(없으면 저장으로), 취소면 닫힘. 의도를 못 찾으면 저장으로 보고 S-14 (기획서 6장)'),
-  ('4','취소','분석 중단, 원래 화면으로','')],
+  ('3','확정 문장','최종 인식 문장','취소(“취소” · “됐어”)면 저장 없이 닫힘. 추천(“뭐 먹을까” · “저장한 ○○ 찾아줘”)이면 S-06. 메모(“여기 괜찮았어”, 최근 3시간 안 방문이 있을 때)면 S-15b. 그 밖은 저장으로 보고 S-14 (기획서 6장)'),
+  ('4','취소','분석 중단, 저장 없이 원래 화면으로','')],
  [('소리 막대 → 링','막대가 페이드 아웃되고 링이 페이드 인','160ms','말이 끝났을 때'),
   ('링','한 바퀴 회전 반복','1s · linear 반복','분석 끝날 때까지'),
   ('다음 화면으로','카드 페이드 아웃','160ms','의도 판정 뒤')],
@@ -475,14 +479,14 @@ screen('S-14','B','가게 찾는 중','주행 중','S-02b에서 저장 의도가
    <div class="muted" data-co="3" style="font-size:32px">“방금 지난 빨간 간판 고깃집 저장해줘”</div>
  </div>
  ''',
- [('1','문구 + 링','“주변 가게 찾는 중”','후보가 나오면 S-03. 1순위가 확실하면(2순위보다 30점 이상 높고 업종 일치) 묻지 않고 S-04a. 2초를 넘기거나 인터넷이 없으면 S-04b'),
+ [('1','문구 + 링','“주변 가게 찾는 중”','후보가 나오면 S-03. 1순위가 확실하면(2순위보다 30점 이상 높고 업종 일치) 묻지 않고 S-04a. 검색이 1.2초를 넘기거나 인터넷이 없으면 S-04b'),
   ('2','추정 위치 지도','위치 버퍼로 계산한 지점(주황)과 현재 위치','지도가 없으면 이 자리는 비움'),
   ('3','말한 문장','확정 문장 그대로','')],
  [('링','회전 반복','1s · linear','검색 중'),
   ('현재 위치 핀','원이 퍼지며 사라지는 맥박','1.2s · ease-out 반복','검색 중'),
   ('지도','페이드 인','160ms','화면 열릴 때'),
   ('다음 화면으로','페이드','160ms','후보 확정')],
- '보통 1초 안에 지나가는 화면이라 글자는 두 줄뿐이다.', gif=True)
+ '보통 1초 안에 지나가는 화면이라 글자는 두 줄뿐이다. 말한 순간의 위치를 못 잡았으면 이 화면 없이 S-04b(위치 없음)로 간다.', gif=True)
 
 screen('S-03','B','확인','주행 중','S-14 뒤 후보가 있을 때','F-04, F-05',
  f'''
@@ -503,24 +507,24 @@ screen('S-03','B','확인','주행 중','S-14 뒤 후보가 있을 때','F-04, F
    </div>
  </div>
  ''',
- [('1','질문','TTS로 같은 문장을 읽음',''),
+ [('1','질문','화면은 짧게 “이 가게 맞나요?”, TTS는 가게 이름을 넣어 “서울갈비 맞나요?”','가게 이름은 12자까지 읽음'),
   ('2','후보 카드','가게 이름 64dp, 업종·거리·방향, 주소','1순위 후보 1개만'),
   ('3','예','오른쪽. 저장 → S-04a','음성 “응·맞아”와 같음'),
   ('4','아니요','왼쪽. 2순위가 있으면 S-03b, 없으면 S-04b','음성 “아니”와 같음'),
-  ('5','대기 표시','5초 카운트다운 링','시간이 지나면 S-04b'),
+  ('5','대기 표시','5초 카운트다운 링, TTS가 끝난 뒤 시작','시간이 지나면 S-04b'),
   ('6','듣는 중 표시','대답을 듣는 동안 작은 막대가 움직임','TTS가 끝난 뒤부터')],
  [('후보 카드','아래에서 24dp 올라오며 페이드 인','200ms · standard','화면 열릴 때'),
   ('카운트다운 링','원 테두리가 5초 동안 줄어듦','5s · linear','TTS가 끝난 뒤 시작'),
   ('듣는 중 막대','4개 막대 높이 반복','800ms 반복','TTS 끝난 뒤'),
   ('예 누름','카드가 페이드 아웃되고 S-04a 토스트','160ms','버튼 · 음성 응'),
-  ('아니요 누름','카드가 왼쪽으로 48dp 밀려 나가고 새 카드가 오른쪽에서 들어옴','200ms','S-03b로')],
- '', gif=True)
+  ('아니요 누름','카드가 페이드 아웃되고 새 카드가 오른쪽 24dp에서 페이드 인','200ms · standard','S-03b로')],
+ '음성 “취소”는 아무것도 저장하지 않고 닫는다. 알아듣지 못한 대답은 무응답과 같다(TTS가 끝나고 5초 뒤 위치만 저장).', gif=True)
 
 screen('S-03b','B','확인 · 두 번째 후보','주행 중','S-03에서 아니요 1회','F-04, F-05',
  f'''
  <div class="body full" style="display:flex;flex-direction:column;align-items:center;gap:40px;padding-top:72px">
    <div class="h48 copad" data-co="1">그럼 이 가게인가요?</div>
-   <div class="card a-slidex" data-co="2" style="width:1000px;height:400px;display:flex;flex-direction:column;justify-content:center;gap:20px;padding:48px 56px">
+   <div class="card a-slides" data-co="2" style="width:1000px;height:400px;display:flex;flex-direction:column;justify-content:center;gap:20px;padding:48px 56px">
      <div class="h64">명품갈비</div>
      <div style="font-size:32px">고깃집 · 140m 뒤 · 오른쪽</div>
      <div class="muted">서울 강남구 강남대로 131</div>
@@ -535,27 +539,27 @@ screen('S-03b','B','확인 · 두 번째 후보','주행 중','S-03에서 아니
    </div>
  </div>
  ''',
- [('1','질문','“그럼 이 가게인가요?” TTS 동일',''),
+ [('1','질문','화면은 “그럼 이 가게인가요?”, TTS는 “그럼 명품갈비 맞나요?”',''),
   ('2','2순위 카드','S-03과 같은 구성','세 번째 후보는 묻지 않음'),
   ('3','예','오른쪽. 저장 → S-04a','음성 “응”과 같음'),
   ('4','아니요','왼쪽. S-04b (위치만 저장)','음성 “아니”와 같음'),
   ('5','대기 표시','5초 카운트다운 링, 처음부터 다시','시간이 지나면 S-04b'),
   ('6','듣는 중 표시','S-03과 같음','TTS가 끝난 뒤부터')],
- [('카드 교체','이전 카드는 왼쪽으로 나가고 새 카드가 오른쪽 48dp에서 들어옴','200ms · standard','아니요 직후'),
+ [('카드 교체','이전 카드는 페이드 아웃, 새 카드가 오른쪽 24dp에서 페이드 인 (주행 중 화면이라 24dp 이하)','200ms · standard','아니요 직후'),
   ('카운트다운 링','처음부터 다시 5초','5s · linear','새 TTS 끝난 뒤')],
  '')
 
 screen('S-04a','B','저장 완료','주행 중 · 정차 중','S-03 · S-03b에서 예 / S-14에서 1순위가 확실할 때','F-06',
  home_bg(dim=.7, recent=recent_card('서울갈비','<span class="chip ok">저장됨</span>', co='2', cls='a-fade')) +
  f'''<div class="toast live" data-co="1" style="top:900px">{ic("check",48,"ok")}<span>저장했어요 · 서울갈비</span></div>''',
- [('1','저장 토스트','가게 이름 포함, 4초 뒤 사라짐','TTS “저장했어요”'),
+ [('1','저장 토스트','가게 이름 포함, 4초 뒤 사라짐','TTS “저장했어요”. 같은 가게가 이미 있으면 “이미 저장한 가게예요”(새로 만들지 않고 기존 가게에 합침). 저장에 실패하면 이 화면 대신 “지금은 저장하지 못했어요”'),
   ('2','최근 저장 카드','방금 저장한 가게로 바뀜, 칩 “저장됨”','')],
  [('토스트','아래에서 24dp 올라오며 페이드 인, 4초 뒤 페이드 아웃','200ms 들어옴 · 200ms 나감','저장 직후'),
   ('체크 아이콘','선이 그려지듯 나타남','300ms','토스트와 함께'),
   ('최근 저장 카드','내용 페이드 교체','200ms','토스트와 동시')],
  '토스트가 떠 있는 동안에도 말하기 버튼은 바로 누를 수 있다.', gif=True)
 
-screen('S-04b','B','위치만 저장','주행 중 · 정차 중','후보 없음 · 인터넷 없음 · 아니요 2회 · 5초 무응답','F-06',
+screen('S-04b','B','위치만 저장','주행 중 · 정차 중','후보 없음 · 인터넷 없음 · 아니요 2회 · 5초 무응답 · 위치 없음','F-06',
  home_bg(dim=.7, recent=recent_card('이름 모름 · 강남대로','<span class="chip warn">미확인</span>', co='2', cls='a-fade')) +
  f'''
  <div class="toast live" data-co="1" style="top:880px;height:150px;align-items:flex-start;padding-top:28px;flex-direction:column;gap:8px">
@@ -566,10 +570,10 @@ screen('S-04b','B','위치만 저장','주행 중 · 정차 중','후보 없음 
   ('2','최근 저장 카드','“이름 모름 · 도로명” + 칩 “미확인”','누르면 S-09 (정차 중)')],
  [('토스트','S-04a와 같은 들어옴·나감','200ms / 200ms',''),
   ('최근 저장 카드','페이드 교체','200ms','')],
- 'S-04a와 동시에 뜨지 않는다. 둘 중 하나만.')
+ 'S-04a와 동시에 뜨지 않는다. 둘 중 하나만. 말한 순간의 위치를 못 잡았으면 토스트는 “말씀은 기억해 둘게요”, 카드는 “이름 모름 · 위치 없음”이 되고, S-09에서는 직접 검색으로만 정리한다.')
 
 # ===== C. 근처 리마인드 =====
-screen('S-05','C','리마인드','주행 중','저장 가게 500m 안 진입 (차량 알림)','F-08, F-10',
+screen('S-05','C','리마인드','주행 중','알림 대상 가게의 알림 거리(기본 500m) 안 진입 (차량 알림)','F-08, F-10',
  f'''
  <div class="body full" style="padding:0">
    <div class="mapph" style="position:absolute;inset:0;border:0;border-radius:0"><div class="lab bot">현재 화면 (Pleos 내비 등)</div></div>
@@ -586,14 +590,14 @@ screen('S-05','C','리마인드','주행 중','저장 가게 500m 안 진입 (�
    </div>
  </div>
  ''',
- [('1','알림 카드','가게 이름·저장 시기·거리·방향. TTS “…300m 앞이에요. 갈까요?”','10초 뒤 자동으로 닫히고 화면에 아무것도 남기지 않음'),
+ [('1','알림 카드','가게 이름·저장 시기·거리·방향. TTS “…300m 앞이에요. 갈까요?”. “앞”은 가게가 진행 방향 ±45° 안일 때만, 아니면 “근처에 있어요”. 거리는 직선거리','시간이 지나면 자동으로 닫히고 화면에 아무것도 남기지 않음'),
   ('2','안내 시작','내비 목적지 설정 (requestRoute) → S-05b','음성 “응”과 같음'),
   ('3','닫기','오늘은 다시 알리지 않음','음성 “아니”·무응답과 같음'),
-  ('4','남은 시간 막대','카드 아래 가장자리, 10초 동안 줄어듦','')],
- [('알림 카드','위에서 32dp 내려오며 페이드 인','240ms · emphasized','500m 진입'),
+  ('4','남은 시간 막대','카드 아래 가장자리, TTS가 끝난 뒤 10초 동안 줄어듦','버튼은 10초, 음성 대답은 5초까지 받음. 먼저 들어온 대답 하나만 처리')],
+ [('알림 카드','위에서 24dp 내려오며 페이드 인','240ms · emphasized','알림 거리 진입'),
   ('남은 시간 막대','가로 길이가 100 → 0%','10s · linear','TTS 끝난 뒤'),
-  ('닫힘','위로 32dp 올라가며 페이드 아웃','200ms','닫기 · 시간 끝 · 아니')],
- '차량 알림(heads-up) 형태. 같은 가게는 하루 1회. “식사 시간에만 알림”은 기본으로 켜져 있고 설정(S-11)에서 끌 수 있다.', gif=True)
+  ('닫힘','위로 24dp 올라가며 페이드 아웃','200ms','닫기 · 시간 끝 · 아니')],
+ '차량 알림(heads-up) 형태. 알림 대상은 확인된 가게 중 리마인드(S-11)와 가게별 근처 알림(S-08)이 켜진 곳. 같은 가게는 하루 1회, 전체는 10분에 1회, 여러 곳이면 가장 가까운 1곳. “식사 시간에만 알림”은 기본으로 켜져 있고 설정(S-11)에서 끌 수 있다. 다른 음성 대화 중이면 끝날 때까지 기다리고 30초가 지나면 생략한다.', gif=True)
 
 screen('S-05b','C','리마인드 · 안내 시작','주행 중','S-05에서 안내 시작 · 음성 “응”','F-10',
  f'''
@@ -604,11 +608,11 @@ screen('S-05b','C','리마인드 · 안내 시작','주행 중','S-05에서 안�
    </div>
  </div>
  ''',
- [('1','확인 문구','TTS로 같은 문장. 1.5초 뒤 사라짐',''),
+ [('1','확인 문구','TTS로 같은 문장. 1.5초 뒤 사라짐','이미 목적지가 있으면 “목적지를 서울갈비로 바꿀게요”'),
   ('2','Pleos 내비 화면','차량 기본 내비 앱이 화면을 넘겨받아 길안내. 앱은 목적지(가게 좌표 · 이름)만 넘기고 길을 그리지 않음','도착해 10분 넘게 머물면 방문 기록(F-11), 다시 출발할 때 S-15')],
  [('카드 줄어듦','높이 300 → 140dp, 버튼 사라짐','200ms · standard','응답 직후'),
   ('카드 닫힘','위로 올라가며 페이드','200ms','1.5초 뒤')],
- '길안내는 Pleos 내비가 한다. 이 앱에는 길안내 화면이 없고, NaviHelper SDK로 목적지만 설정한다. 확인 문구는 Pleos 내비 화면 위에 잠깐 겹쳐 보인다.')
+ '길안내는 Pleos 내비가 한다. 이 앱에는 길안내 화면이 없고, NaviHelper SDK로 목적지만 설정한다. 확인 문구는 앱이 그리는 겹침 창이 아니라 차량 알림(heads-up)으로 Pleos 내비 화면 위에 잠깐 뜬다.')
 
 # ===== D. 추천 =====
 def rcard(n, name, meta, note, co1=False, co2=False, cls=''):
@@ -631,16 +635,16 @@ screen('S-06','D','추천','주행 중 · 정차 중','S-01 뭐 먹을까 / 음�
    <div class="btn" data-co="3" style="width:400px">다른 곳 추천</div>
  </div>
  ''',
- [('1','추천 카드 3장','번호·이름·업종·거리·메모. 거리는 말한 곳 기준이고 화면이 열린 뒤 다시 계산하지 않음. TTS는 번호와 이름만 읽음','“2번” 또는 이름을 말하면 선택 → S-06c'),
+ [('1','추천 카드 최대 3장','번호·이름·업종·거리·메모. 후보가 1~2곳이면 그만큼만. 거리는 말한 곳 기준이고 화면이 열린 뒤 다시 계산하지 않음. TTS는 번호와 이름만 읽음','“2번” 또는 이름을 말하면 선택 → S-06c. 없는 번호면 “1번부터 n번 중에 골라 주세요”, 같은 이름이 둘이면 “몇 번이요?” 1회'),
   ('2','안내 시작','카드별 1개 (반복 카드 안의 1순위 버튼은 4장 예외)','누르면 S-06c. 카드 아무 곳을 눌러도 같음'),
-  ('3','다른 곳 추천','다음 순위 3곳으로 교체','최대 2회. 더 없으면 S-06b'),
+  ('3','다른 곳 추천','4~6위로, 한 번 더 누르면 7~9위로 교체','최대 2회. 더 없으면 “더 없어요”라고 말하고 지금 카드를 둠'),
   ('b','뒤로','홈','')],
  [('카드 3장','아래에서 24dp 올라오며 차례로 등장(60ms 간격)','200ms × 3 · standard','화면 열릴 때'),
   ('읽는 카드 강조','TTS가 번호를 읽는 동안 그 카드 테두리만 주황','120ms','카드마다 차례로'),
-  ('다른 곳 추천','세 장이 왼쪽으로 나가고 새 세 장이 오른쪽에서 들어옴','200ms','버튼 · 음성 “다른 데”')],
- '“저장한 고깃집 찾아줘”처럼 업종을 말하면 제목이 “고깃집 추천”으로 바뀌고 그 업종에서만 고른다.', gif=True)
+  ('다른 곳 추천','지금 카드가 페이드 아웃되고 새 카드가 아래 24dp에서 차례로 올라옴','200ms · standard','버튼 · 음성 “다른 데”')],
+ '2분 동안 고르지 않으면 홈으로 닫힌다. “저장한 고깃집 찾아줘”처럼 업종을 말하면 제목이 “고깃집 추천”으로 바뀌고 그 업종에서만 고른다.', gif=True)
 
-screen('S-06b','D','추천할 가게 없음','주행 중 · 정차 중','반경 안에 저장 가게가 없을 때','F-09',
+screen('S-06b','D','추천할 가게 없음','주행 중 · 정차 중','10km 안에 추천할 저장 가게가 없을 때 / 저장 가게 0곳','F-09',
  f'''
  {top('뭐 먹을까')}
  <div class="body" style="display:flex;flex-direction:column;align-items:center;justify-content:center;gap:40px">
@@ -649,10 +653,10 @@ screen('S-06b','D','추천할 가게 없음','주행 중 · 정차 중','반경 
  </div>
  ''',
  [('1','안내','한 줄 + TTS 동일 문장',''),
-  ('2','30km까지 넓혀 보기','반경을 넓혀 S-06 다시','그래도 없으면 버튼이 사라지고 “저장한 가게가 없어요”'),
+  ('2','30km까지 넓혀 보기','반경을 넓혀 S-06 다시','30km 안에도 없으면 버튼 없이 “30km 안에 저장한 가게가 없어요”'),
   ('b','뒤로','홈','')],
  [('안내','페이드 인','160ms','화면 열릴 때')],
- '')
+ '빈 상태는 세 가지다. 10km 안에 없음(이 그림, 30km 버튼 있음) · 30km 안에도 없음(버튼 없음) · 저장한 가게가 0곳(“아직 저장한 가게가 없어요”, 버튼 없음). 업종을 말했으면 “근처에 저장한 고깃집이 없어요”처럼 업종을 넣는다.')
 
 screen('S-06c','D','추천 · 선택됨','주행 중 · 정차 중','S-06에서 카드 선택 (터치 · 번호 · 이름)','F-09, F-10',
  f'''
@@ -668,9 +672,9 @@ screen('S-06c','D','추천 · 선택됨','주행 중 · 정차 중','S-06에서 
  <div class="toast live" data-co="2" style="top:920px">{ic("navi",44,"ok")}<span>서울갈비로 안내할게요</span></div>
  <style>.frame [data-sel]{{border:2px solid var(--accent);box-shadow:0 0 0 6px var(--acc-ring),var(--shadow)}}.frame [data-sel] .a-dim{{opacity:1}}</style>
  ''',
- [('1','선택한 카드','테두리 주황 + 4% 확대, 나머지 카드는 흐려짐','1.5초 뒤 홈으로 돌아가고 Pleos 내비가 안내 시작 (S-05b와 같음)'),
-  ('2','안내 토스트','“서울갈비로 안내할게요” + TTS 동일',''),
-  ('b','뒤로','홈 (선택 취소)','')],
+ [('1','선택한 카드','테두리 주황 + 4% 확대, 나머지 카드는 흐려짐','1.5초 동안 취소할 수 있고, 지나면 Pleos 내비에 목적지를 보내고 홈으로 (S-05b와 같음)'),
+  ('2','안내 토스트','“서울갈비로 안내할게요” + TTS 동일','이미 목적지가 있으면 “목적지를 서울갈비로 바꿀게요”'),
+  ('b','뒤로','1.5초 안이면 S-06으로 (아무것도 보내지 않음)','보낸 뒤의 안내 취소는 Pleos 내비에서')],
  [('선택 카드','100 → 104% 확대, 테두리 주황','200ms · standard','선택 직후'),
   ('나머지 카드','불투명도 100 → 40%','200ms','선택 카드와 동시'),
   ('토스트','아래에서 올라옴','200ms','선택 직후'),
@@ -678,7 +682,7 @@ screen('S-06c','D','추천 · 선택됨','주행 중 · 정차 중','S-06에서 
  '')
 
 # ===== E. 방문 기록 =====
-screen('S-15','E','방문 메모','주행 중 · 정차 중','내비 도착 + 10분 체류 뒤 다시 출발할 때 (차량 알림)','F-11',
+screen('S-15','E','방문 메모','주행 중 · 정차 중','앱이 안내한 가게에 도착해 10분 넘게 머문 뒤, 100m 밖으로 1분 넘게 나갈 때 (차량 알림)','F-11',
  f'''
  <div class="body full" style="padding:0">
    <div class="mapph" style="position:absolute;inset:0;border:0;border-radius:0"><div class="lab bot">현재 화면 (Pleos 내비 등)</div></div>
@@ -695,20 +699,20 @@ screen('S-15','E','방문 메모','주행 중 · 정차 중','내비 도착 + 10
    </div>
  </div>
  ''',
- [('1','알림 카드','가게 이름, 방문 횟수 기록됨, 질문. TTS “…다녀오셨네요. 한 줄 남길까요?”','방문 기록 자체는 이미 저장됨'),
+ [('1','알림 카드','가게 이름, 방문 횟수 기록됨, 질문. TTS “…다녀오셨네요. 한 줄 남길까요?”','방문 기록은 이미 저장됨. 메모는 이 방문에 붙음'),
   ('2','말하기','S-02a로 메모 한 문장 받음 → S-15b','바로 말하면 버튼 없이 진행'),
-  ('3','다음에','메모 없이 닫힘','무응답 10초와 같음'),
-  ('4','남은 시간 막대','10초','')],
- [('알림 카드','위에서 32dp 내려오며 페이드 인','240ms · emphasized','출발 감지'),
+  ('3','다음에','메모 없이 닫힘','음성 “됐어” · 무응답과 같음 (음성 5초 · 버튼 10초)'),
+  ('4','남은 시간 막대','TTS가 끝난 뒤 10초','')],
+ [('알림 카드','위에서 24dp 내려오며 페이드 인','240ms · emphasized','출발 감지'),
   ('남은 시간 막대','100 → 0%','10s · linear','TTS 끝난 뒤'),
   ('닫힘','위로 올라가며 페이드 아웃','200ms','')],
- '리마인드(S-05)와 같은 틀을 쓴다. 주행 중이면 TTS와 음성만으로 끝낸다.', gif=True)
+ '리마인드(S-05)와 같은 틀을 쓴다. 주행 중이면 TTS와 음성만으로 끝낸다. “됐어” · “괜찮아요”는 메모 없이 닫고, 그 밖의 문장은 모두 메모로 받는다.', gif=True)
 
-screen('S-15b','E','방문 메모 저장','주행 중 · 정차 중','S-15에서 말한 뒤','F-11',
+screen('S-15b','E','방문 메모 저장','주행 중 · 정차 중','S-15에서 말한 뒤 / 홈에서 “여기 괜찮았어” (최근 3시간 안 방문)','F-11',
  home_bg(dim=.7, recent=recent_card('서울갈비','<span class="chip ok">방문 1회</span>', co='2', cls='a-fade')) +
- f'''<div class="toast live" data-co="1" style="top:900px">{ic("check",48,"ok")}<span>메모 남겼어요 · “괜찮았어”</span></div>''',
- [('1','토스트','메모 문장 포함, 4초','TTS “남겼어요”'),
-  ('2','최근 저장 카드','칩이 “방문 1회”로','상세(S-08)에 메모가 쌓임')],
+ f'''<div class="toast live" data-co="1" style="top:900px">{ic("check",48,"ok")}<span>서울갈비에 남겼어요 · “괜찮았어”</span></div>''',
+ [('1','토스트','가게 이름 · 메모 문장 포함, 4초','TTS “서울갈비에 남겼어요”'),
+  ('2','최근 저장 카드','같은 가게일 때만 칩이 “방문 1회”로. 다른 가게면 카드는 그대로, 토스트만','메모는 상세(S-08)의 방문 메모에 쌓임')],
  [('토스트','S-04a와 같음','200ms / 200ms',''),
   ('칩 교체','페이드','200ms','')],
  '')
@@ -717,10 +721,10 @@ screen('S-15b','E','방문 메모 저장','주행 중 · 정차 중','S-15에서
 def lrow(name, meta, chip, sel=False, co=None, cls='', i=0):
     c = f' data-co="{co}"' if co else ''
     return f'''<div class="row{' sel' if sel else ''} {cls}"{c} style="--i:{i}">{ic("pin",40,"muted")}<div style="flex:1"><div class="name">{name}</div><div class="muted small">{meta}</div></div>{chip}</div>'''
-ROWS = [('서울갈비','고깃집 · 1.2km · 11월 2일','<span class="chip warn">미확인</span>'),
+ROWS = [('서울갈비','고깃집 · 1.2km · 방문 1회','<span class="chip ok">방문</span>'),
         ('카페 노을','카페 · 2.0km · 방문 1회','<span class="chip ok">방문</span>'),
         ('국밥집','국밥 · 3.4km · 10월 28일',''),
-        ('빵집 (이름 없음)','4.1km · 10월 25일','<span class="chip warn">미확인</span>'),
+        ('빵집?','이름 모름 · 4.1km · 10월 25일','<span class="chip warn">미확인</span>'),
         ('할머니 손칼국수','칼국수 · 6.8km · 방문 2회','<span class="chip ok">방문</span>'),
         ('파스타 집','양식 · 8.2km · 10월 12일','')]
 def rows(skip=None, hl=None, sel0=True, collapse=None):
@@ -743,14 +747,14 @@ screen('S-07','F','내 맛집','정차 중','S-01 내 맛집','F-12, F-07, F-13'
  {top('내 맛집', right=f'<div class="textbtn" data-co="4">{ic("share",36)} 공유</div>')}
  <div class="body a-slidex" style="display:grid;grid-template-columns:560px 1fr;gap:40px;padding:32px 48px">
    <div style="display:flex;flex-direction:column;gap:20px;min-height:0">
-     <div style="display:flex;gap:12px" data-co="1"><span class="chip on">전체 12</span><span class="chip">미확인 3</span><span class="chip">방문 4</span><span class="chip">가까운 순</span></div>
+     <div style="display:flex;gap:12px" data-co="1"><span class="hit"><span class="chip on">전체 12</span></span><span class="hit"><span class="chip">미확인 3</span></span><span class="hit"><span class="chip">방문 4</span></span><span class="hit"><span class="chip">가까운 순</span></span></div>
      <div data-co="2" style="padding-top:8px"><div style="overflow:hidden">{rows()}</div></div>
    </div>
    {myplaces_map(co='3')}
  </div>
  ''',
- [('1','필터 칩','전체 / 미확인 / 방문, 정렬(가까운 순·최근 저장 순)','누르면 목록만 바뀜'),
-  ('2','가게 목록','이름·업종·거리·저장일 또는 방문 횟수·상태 칩, 줄 높이 104dp','누르면 S-08, 미확인은 S-09. 0건이면 S-07b'),
+ [('1','필터 칩','전체 / 미확인 / 방문, 정렬(가까운 순·최근 저장 순). 칩은 48dp로 보이고 누르는 영역은 76dp','누르면 목록만 바뀜'),
+  ('2','가게 목록','이름·업종·거리·저장일 또는 방문 횟수·상태 칩, 줄 높이 104dp. 미확인은 이름 뒤에 ?','누르면 S-08, 미확인은 S-09. 0건이면 S-07b'),
   ('3','지도','저장 핀(주황) · 방문 핀(초록) · 미확인 핀(노랑 + ?) · 내 위치. 색은 상태 칩과 같음','핀을 누르면 목록에서 선택됨, 미확인 핀은 S-09. 지도 SDK가 안 되면 비움'),
   ('4','공유','S-10',''),
   ('b','뒤로','홈','')],
@@ -786,8 +790,9 @@ screen('S-08','F','가게 상세','정차 중','S-07 목록 / 홈 최근 저장'
      <div style="font-size:32px">고깃집 · 1.2km</div>
      <div class="muted">서울 강남구 강남대로 123</div>
      <div style="display:flex;gap:12px"><span class="chip">저장 11월 2일</span><span class="chip ok">방문 1회</span></div>
-     <div class="card" style="padding:24px 28px"><div class="small muted">메모</div><div style="font-size:32px">줄 서 있던 집, 괜찮았어</div></div>
+     <div class="card" style="padding:24px 28px"><div class="small muted">내 메모</div><div style="font-size:32px">줄 서 있던 집</div><div class="muted small" style="margin-top:8px">방문 메모 · 11월 5일 “괜찮았어”</div></div>
      <div class="muted small">저장할 때 한 말 · “방금 지난 빨간 간판 고깃집 저장해줘”</div>
+     <div data-co="7" style="display:flex;align-items:center;gap:24px;height:76px"><span style="font-size:28px">근처 알림</span><span class="hit"><span class="toggle"></span></span></div>
    </div>
    <div class="mapph" data-co="2"><div class="lab">위치</div><div class="pin a-drop" style="left:200px;top:140px">{ic("pin",72)}</div></div>
    <div style="grid-column:1 / -1;display:flex;gap:24px;align-items:center">
@@ -798,12 +803,13 @@ screen('S-08','F','가게 상세','정차 중','S-07 목록 / 홈 최근 저장'
    </div>
  </div>
  ''',
- [('1','정보','업종·거리·주소·저장일·방문 횟수·메모·저장할 때 한 말',''),
+ [('1','정보','업종·거리·주소·저장일·방문 횟수·내 메모·방문 메모(방문마다, 최근 것부터)·저장할 때 한 말','내 메모는 S-08b에서 고침'),
   ('2','위치 지도','핀 1개',''),
-  ('3','안내 시작','Pleos 내비 목적지 설정 → Pleos 내비로 넘어감 + 확인 문구 “서울갈비로 안내할게요”','S-05b와 같음. 앱은 길을 그리지 않음'),
+  ('3','안내 시작','Pleos 내비 목적지 설정 → Pleos 내비로 넘어감 + 확인 문구 “서울갈비로 안내할게요”','S-05b와 같음. 앱은 길을 그리지 않음. 좌표가 없는 가게면 흐리고 누를 수 없음'),
   ('4','수정','S-08b',''),
   ('5','삭제','S-08c 확인 창','다른 버튼과 떨어뜨려 배치'),
   ('6','공유에 담기','S-10 목록에 추가. 누르면 “담았어요”로 바뀜',''),
+  ('7','근처 알림','이 가게만 리마인드 켜기/끄기 (기본 켜짐)','설정(S-11)의 리마인드가 꺼져 있으면 흐리게. 바꾸면 근처 감시를 바로 다시 등록'),
   ('b','뒤로','S-07 (홈에서 왔으면 홈)','')],
  [('화면 전환','오른쪽 48dp에서 밀려 들어오며 페이드','200ms · standard','S-07 → S-08'),
   ('지도 핀','위에서 떨어지며 튕김','400ms · emphasized','화면 열릴 때'),
@@ -816,7 +822,7 @@ screen('S-08b','F','가게 수정','정차 중','S-08 수정','F-12',
  <div class="body a-slidex" style="padding:32px 48px 0;display:grid;grid-template-columns:1fr 1fr;gap:32px 48px;align-content:start">
    <div><div class="small muted" style="margin-bottom:8px">이름</div><div class="input focus" data-co="1">서울갈비<span class="caret"></span></div></div>
    <div><div class="small muted" style="margin-bottom:8px">업종</div><div data-co="2" style="display:flex;gap:12px;flex-wrap:wrap"><span class="chip on" style="height:76px;padding:0 28px;font-size:28px">고깃집</span><span class="chip" style="height:76px;padding:0 28px;font-size:28px">카페</span><span class="chip" style="height:76px;padding:0 28px;font-size:28px">국밥</span><span class="chip" style="height:76px;padding:0 28px;font-size:28px">양식</span><span class="chip" style="height:76px;padding:0 28px;font-size:28px">기타</span></div></div>
-   <div style="grid-column:1 / -1"><div class="small muted" style="margin-bottom:8px">메모</div><div class="input" data-co="3">줄 서 있던 집, 괜찮았어</div></div>
+   <div style="grid-column:1 / -1"><div class="small muted" style="margin-bottom:8px">내 메모</div><div class="input" data-co="3">줄 서 있던 집</div></div>
    <div style="grid-column:1 / -1;display:flex;gap:24px;align-items:center">
      <div class="btn" data-co="4" style="width:360px">{ic("search",36)} 후보 다시 고르기</div>
      <div style="flex:1"></div>
@@ -828,8 +834,8 @@ screen('S-08b','F','가게 수정','정차 중','S-08 수정','F-12',
  ''',
  [('1','이름','글자 입력. 비우면 저장 불가',''),
   ('2','업종','칩에서 하나 고름',''),
-  ('3','메모','한 줄',''),
-  ('4','후보 다시 고르기','S-09로 가서 다른 가게로 바꿈',''),
+  ('3','내 메모','한 줄','방문 메모는 여기서 고치지 않음'),
+  ('4','후보 다시 고르기','S-09로 가서 다른 가게로 바꿈. 이름 · 주소 · 좌표만 바뀌고 내 메모 · 저장일 · 알림 설정은 그대로','방문 기록이 있으면 흐리고 누를 수 없음(방문이 다른 가게로 옮겨 붙지 않게, 새로 저장)'),
   ('5','저장','S-08로 돌아감 + 토스트 “수정했어요”',''),
   ('6','취소','바뀐 내용 버림',''),
   ('7','키보드 자리','입력창을 누르면 시스템 키보드가 아래 320dp를 차지','주행 중이면 S-12'),
@@ -856,14 +862,14 @@ screen('S-08d','F','삭제 뒤 되돌리기','정차 중','S-08c 삭제 뒤 (목
  {top('내 맛집', right=f'<div class="textbtn">{ic("share",36)} 공유</div>')}
  <div class="body" style="display:grid;grid-template-columns:560px 1fr;gap:40px;padding:32px 48px">
    <div style="display:flex;flex-direction:column;gap:20px;min-height:0">
-     <div style="display:flex;gap:12px"><span class="chip on">전체 11</span><span class="chip">미확인 2</span><span class="chip">방문 4</span><span class="chip">가까운 순</span></div>
+     <div style="display:flex;gap:12px"><span class="hit"><span class="chip on">전체 11</span></span><span class="hit"><span class="chip">미확인 3</span></span><span class="hit"><span class="chip">방문 3</span></span><span class="hit"><span class="chip">가까운 순</span></span></div>
      <div data-co="2" style="padding-top:8px"><div style="overflow:hidden">{rows(collapse=0, sel0=False)}</div></div>
    </div>
    {myplaces_map()}
  </div>
  <div class="toast live" data-co="1" style="top:900px">{ic("trash",44,"muted")}<span>삭제했어요 · 서울갈비</span><div class="act">{ic("undo",32)} 되돌리기</div></div>
  ''',
- [('1','토스트 + 되돌리기','4초. 되돌리기를 누르면 줄이 제자리에 다시 생김','되돌리기 버튼은 삭제 뒤에만 씀'),
+ [('1','토스트 + 되돌리기','4초. 되돌리기를 누르면 줄이 제자리에 다시 생김','되돌리기 버튼은 삭제 뒤에만 씀. 4초 안에 다른 가게를 지우면 앞의 삭제는 바로 확정되고 토스트는 새 것 1개. 그 사이 앱이 꺼져도 확정'),
   ('2','목록','지운 줄이 접히며 사라짐, 개수 칩 갱신',''),
   ('b','뒤로','홈','')],
  [('지운 줄','높이 104 → 0dp로 접히며 페이드','200ms · standard','삭제 직후'),
@@ -897,8 +903,8 @@ screen('S-09','F','미확인 가게 정리','정차 중','S-07 미확인 항목 
  </div>
  ''',
  [('1','그때 상황','저장 시각·위치·진행 방향·말한 문장','판단 근거'),
-  ('2','후보 5곳','가까운 순, 업종·거리·좌우. 기본 선택은 1순위','하나 고르면 지도 핀도 강조'),
-  ('3','이걸로 저장','선택한 후보로 확정 → S-08 + 토스트 “저장했어요”',''),
+  ('2','후보 5곳','맞을 가능성 높은 순(업종 · 이름 · 거리 · 좌우 점수), 업종·거리·좌우. 기본 선택은 1순위','하나 고르면 지도 핀도 강조'),
+  ('3','이걸로 저장','선택한 후보로 확정 → S-08 + 토스트 “저장했어요”','이미 저장한 가게를 고르면 두 기록을 하나로 합치고 토스트 “이미 저장한 가게라 합쳤어요”'),
   ('4','직접 검색','S-09b',''),
   ('5','삭제','상단 오른쪽 (S-08 수정 버튼 자리). 다른 버튼과 떨어뜨림','S-08c 확인 창'),
   ('b','뒤로','S-07','')],
@@ -927,11 +933,11 @@ screen('S-09b','F','직접 검색','정차 중','S-09 직접 검색','F-07',
  <div class="kbd a-up"><span data-co="4" style="display:flex;align-items:center;gap:16px">{ic("keyboard",40)} 차량 키보드 (시스템)</span></div>
  ''',
  [('1','검색창','이름 일부로 검색. 그때 위치 2km 안을 먼저 보여 줌',''),
-  ('2','결과 목록','이름·업종·주소·거리, 하나 선택','한 글자 칠 때마다 갱신'),
-  ('3','이걸로 저장','S-08 + 토스트 “저장했어요”',''),
+  ('2','결과 목록','이름·업종·주소·거리, 하나 선택','입력이 0.3초 멈추면 검색. 늦게 온 이전 결과는 버림'),
+  ('3','이걸로 저장','S-08 + 토스트 “저장했어요”','이미 저장한 가게면 S-09와 같이 합침'),
   ('4','키보드 자리','시스템 키보드 320dp',''),
   ('b','뒤로','S-09','')],
- [('결과 목록','갱신될 때 페이드 교체','160ms','글자 입력마다'),
+ [('결과 목록','갱신될 때 페이드 교체','160ms','검색 결과가 올 때'),
   ('키보드','아래에서 올라옴','240ms','화면 열릴 때')],
  '')
 
@@ -943,7 +949,7 @@ screen('S-10','G','맛집 지도 공유','정차 중','S-07 공유 / S-08 공유
  {top('맛집 지도 공유')}
  <div class="body a-slidex" style="display:grid;grid-template-columns:520px 1fr;gap:48px;padding:32px 48px">
    <div style="display:flex;flex-direction:column;gap:16px">
-     <div style="display:flex;align-items:center;gap:16px;padding-left:4px" data-co="1"><span class="chip on">전체 선택</span><span class="muted small">7곳 선택됨 · 미확인 가게는 뺌</span></div>
+     <div style="display:flex;align-items:center;gap:16px;padding-left:4px" data-co="1"><span class="hit"><span class="chip on">전체 선택</span></span><span class="muted small">7곳 선택됨 · 미확인 가게는 뺌</span></div>
      <div>
        {chk('서울갈비','고깃집')}{chk('카페 노을','카페 · 방문 1회')}{chk('국밥집','국밥')}{chk('할머니 손칼국수','칼국수 · 방문 2회')}{chk('파스타 집','양식')}{chk('두부마을','한식', on=False)}
      </div>
@@ -953,20 +959,20 @@ screen('S-10','G','맛집 지도 공유','정차 중','S-07 공유 / S-08 공유
      <div style="display:flex;gap:32px;align-items:center">
        <div class="qr a-fade" data-co="3" style="width:240px;height:240px"></div>
        <div style="flex:1;display:flex;flex-direction:column;gap:20px">
-         <div class="muted small" style="word-break:break-all">nextplace.app/s/8Kd2…</div>
+         <div class="muted small" style="word-break:break-all">easycd.github.io/nextplace/s#eJx…</div>
          <div class="btn primary" data-co="4">링크 복사</div>
          <div class="btn">{ic("share",36)} 보내기</div>
        </div>
      </div>
-     <div class="card" data-co="5" style="padding:24px 28px"><div class="small muted">받는 사람 화면</div><div style="font-size:28px;margin-top:6px">링크를 열면 가게 목록이 보이고, 앱이 있으면 <b>내 지도에 추가</b> 버튼이 뜬다 (S-16).</div></div>
+     <div class="card" data-co="5" style="padding:24px 28px"><div class="small muted">받는 사람 화면</div><div style="font-size:28px;margin-top:6px">폰에서는 웹 목록이 열리고, Pleos 차량에서 열면 <b>내 지도에 추가</b>(S-16)로 간다.</div></div>
    </div>
  </div>
  ''',
- [('1','가게 고르기','체크 목록, 전체 선택. 미확인 가게는 목록에 없음','고를 때마다 링크·QR이 다시 만들어짐'),
+ [('1','가게 고르기','체크 목록, 전체 선택. 미확인 가게는 목록에 없음. 최대 30곳','고를 때마다 링크·QR이 다시 만들어짐. 0곳이면 링크 복사 · 보내기가 흐려짐'),
   ('2','제목','기본값 “이름의 맛집 N곳”, 정차 중 키보드로 수정',''),
-  ('3','QR','동승자가 폰으로 바로 찍음',''),
-  ('4','링크 복사 / 보내기','보내기는 차량의 다른 앱(문자 등)으로. 링크에 가게 이름·업종·주소·좌표·메모만 담김','방문 기록·차량 위치는 안 들어감'),
-  ('5','받는 사람','웹 목록 → 앱 있으면 S-16 가져오기',''),
+  ('3','QR','동승자가 폰으로 바로 찍음','링크가 2,000자 이하일 때만. 넘으면 링크만'),
+  ('4','링크 복사 / 보내기','보내기는 차량의 다른 앱(문자 등)으로. 가게 이름·업종·주소·좌표·메모를 압축해 링크 안에 담음(서버 없음)','방문 기록·차량 위치는 안 들어감. 보낸 링크는 회수할 수 없음'),
+  ('5','받는 사람','폰: 웹 목록 · 지도로 보기 / Pleos 차량: 앱 링크로 S-16 가져오기',''),
   ('b','뒤로','S-07','')],
  [('화면 전환','오른쪽에서 밀려 들어옴','200ms',''),
   ('체크 토글','채움 + 체크 표시','120ms','줄 터치'),
@@ -992,27 +998,27 @@ screen('S-16','G','받은 목록 가져오기','정차 중','공유 링크를 �
  </div>
  ''',
  [('1','제목 · 보낸 사람','링크에 담긴 제목과 날짜',''),
-  ('2','목록','체크로 고름. 이미 있는 가게는 체크가 풀린 채 흐리게, “이미 있음” 칩','이미 있는 가게는 고를 수 없음'),
+  ('2','목록','체크로 고름. 이미 있는 가게는 체크가 풀린 채 흐리게, “이미 있음” 칩','이미 있는 가게는 고를 수 없음. 모두 이미 있으면 추가 버튼이 흐려짐'),
   ('3','지도','받은 가게 핀',''),
-  ('4','내 지도에 추가','선택한 가게를 저장 → S-16b','받은 가게는 방문 기록 없이 “저장됨”'),
+  ('4','내 지도에 추가','선택한 가게를 한 번에 저장 → S-16b. 하나라도 실패하면 아무것도 저장하지 않고 “다시 해 보세요”','받은 가게는 확인된 가게 · 근처 알림 켬 · 방문 기록 없음 · 보낸 메모는 내 메모로'),
   ('5','닫기','저장 안 함',''),
   ('b','뒤로','닫기와 같음','')],
  [('화면 전환','오른쪽에서 밀려 들어옴','200ms',''),
   ('추가 누름','줄마다 체크가 차례로 채워짐(40ms 간격)','120ms × N','추가 직후')],
- '차량에서 링크를 열 브라우저가 없으면 폰에서 보는 웹 목록만 쓴다(기획서 9장 결정 대기).')
+ '링크가 깨졌으면 목록 대신 “목록을 열 수 없어요”와 닫기만, 더 새 버전 앱에서 만든 목록이면 “앱을 업데이트해 주세요”가 보인다. 차량에서 링크를 열 수 없으면 폰 웹 목록으로 끝낸다(기획서 9장).')
 
 screen('S-16b','G','가져오기 완료','정차 중','S-16 내 지도에 추가 뒤','F-13',
  f'''
  {top('내 맛집', right=f'<div class="textbtn">{ic("share",36)} 공유</div>')}
  <div class="body" style="display:grid;grid-template-columns:560px 1fr;gap:40px;padding:32px 48px">
    <div style="display:flex;flex-direction:column;gap:20px;min-height:0">
-     <div style="display:flex;gap:12px"><span class="chip on">전체 18</span><span class="chip">미확인 3</span><span class="chip">방문 4</span><span class="chip">최근 저장 순</span></div>
+     <div style="display:flex;gap:12px"><span class="hit"><span class="chip on">전체 18</span></span><span class="hit"><span class="chip">미확인 3</span></span><span class="hit"><span class="chip">방문 4</span></span><span class="hit"><span class="chip">최근 저장 순</span></span></div>
      <div data-co="2" style="padding-top:8px"><div style="overflow:hidden">
        {lrow('서울갈비 (강릉)','고깃집 · 방금 추가','<span class="chip">저장됨</span>', cls='a-hl')}
        {lrow('카페 노을','카페 · 방금 추가','<span class="chip">저장됨</span>', cls='a-hl')}
        {lrow('국밥집','국밥 · 방금 추가','<span class="chip">저장됨</span>', cls='a-hl')}
        {lrow('할머니 손칼국수','칼국수 · 방금 추가','<span class="chip">저장됨</span>', cls='a-hl')}
-       {lrow('빵집 (이름 없음)','4.1km · 10월 25일','<span class="chip warn">미확인</span>')}
+       {lrow('빵집?','이름 모름 · 4.1km · 10월 25일','<span class="chip warn">미확인</span>')}
        {lrow('파스타 집','양식 · 8.2km · 10월 12일','')}
      </div></div>
    </div>
@@ -1045,12 +1051,12 @@ screen('S-11','H','설정','정차 중','S-01 설정','F-15',
    <div class="muted small" style="padding:16px 24px 0">버전 0.1 · 저장 가게와 방문 기록은 이 차 안에만 보관</div>
  </div>
  ''',
- [('1','리마인드','켜기/끄기',''),
-  ('2','알림 거리','300m / 500m / 1km',''),
+ [('1','리마인드','켜기/끄기','바꾸면 근처 감시를 바로 다시 등록. 끄면 전부 해제'),
+  ('2','알림 거리','300m / 500m / 1km','바꾸면 근처 감시를 바로 다시 등록'),
   ('3','식사 시간에만 알림','11~14시, 17~20시',''),
   ('4','음성 안내 음량','',''),
   ('5','모두 삭제','S-11b 확인 창. 다른 항목과 떨어뜨림',''),
-  ('6','가게를 특정할 때 쓰는 시간','말한 시점에서 얼마나 거슬러 올라가 위치를 잡을지 (10 / 20 / 30초)',''),
+  ('6','가게를 특정할 때 쓰는 시간','말한 시점에서 얼마나 거슬러 올라가 위치를 잡을지 (10 / 20 / 30초, 기본 20)','“방금”이나 시점 단서가 없을 때 이 값. “아까”는 45초, “여기”는 0초 (기획서 4장)'),
   ('b','뒤로','홈','')],
  [('화면 전환','오른쪽에서 밀려 들어옴','200ms',''),
   ('토글','손잡이가 좌우로 이동 + 배경색','160ms · standard','터치'),
@@ -1059,17 +1065,17 @@ screen('S-11','H','설정','정차 중','S-01 설정','F-15',
  '')
 
 screen('S-11b','H','모두 삭제 확인','정차 중','S-11 모두 삭제','F-15',
- dialog('저장한 가게 12곳을 모두 삭제할까요?', '방문 기록과 메모도 함께 지워지고, 되돌릴 수 없어요.', ic("trash",36)+' 모두 삭제',
+ dialog('저장한 가게 12곳을 모두 삭제할까요?', '방문 기록 · 메모 · 공유 기록도 지워지고 되돌릴 수 없어요. 이미 보낸 링크는 회수되지 않아요.', ic("trash",36)+' 모두 삭제',
         bg=f'''{top('설정', back=False)}<div class="body" style="opacity:.5"></div>'''),
  [('1','질문','개수를 넣은 한 줄',''),
-  ('2','경고','되돌릴 수 없음을 분명히',''),
+  ('2','경고','되돌릴 수 없음과 보낸 링크는 회수되지 않음을 분명히',''),
   ('3','모두 삭제','빨강 채움. 삭제 뒤 S-01b','되돌리기 토스트 없음'),
   ('4','취소','창 닫기','')],
  [('창 열림','S-08c와 같음','160ms / 200ms',''),
   ('삭제 뒤','설정 → 홈(S-01b)으로 페이드','200ms','')],
  '')
 
-screen('S-12','H','주행 중 안내','주행 중','주행 중 S-07 ~ S-11, S-16 진입 시','F-14',
+screen('S-12','H','주행 중 안내','주행 중','주행 제한 중 S-07 ~ S-11, S-16 진입 시 (홈은 열림)','F-14',
  f'''
  {top('내 맛집')}
  <div class="body a-fade" style="display:flex;flex-direction:column;align-items:center;justify-content:center;gap:40px">
@@ -1077,12 +1083,12 @@ screen('S-12','H','주행 중 안내','주행 중','주행 중 S-07 ~ S-11, S-16
    <div class="btn primary" data-co="2" style="width:400px;height:112px;font-size:36px">{ic("mic",44)} 말하기</div>
  </div>
  ''',
- [('1','안내','정차(주차 브레이크 또는 속도 0)하면 원래 화면으로 자동 전환','제목은 열려던 화면 이름'),
+ [('1','안내','차량이 주행 제한을 풀면(CarUxRestrictions) 원래 화면으로 자동 전환','제목은 열려던 화면 이름. 제한 상태를 아직 모르면 이 화면'),
   ('2','말하기','S-02a',''),
   ('b','뒤로','홈','')],
  [('대신 뜰 때','페이드만 (이동 없음)','160ms','주행 중 정차 화면 진입'),
-  ('정차 감지','원래 화면으로 페이드','200ms','주차 브레이크 · 속도 0 2초 유지'),
-  ('주행 다시 시작','열려 있던 정차 화면이 이 화면으로 페이드','160ms','속도 > 0')],
+  ('제한 풀림','원래 화면으로 페이드','200ms','주행 제한 해제 이벤트'),
+  ('제한 시작','열려 있던 정차 화면이 이 화면으로 페이드','160ms','주행 제한 이벤트')],
  '')
 
 # ===== 세로 창 (1칸) =====
@@ -1116,7 +1122,7 @@ def phome(recent='', count='12', sub1='근처 3곳 추천', sub2=None, co=None, 
  {talk}'''
 
 pscreen('P-01', 'S-01', '홈',
- phome(recent=recent_card('서울갈비', '<span class="chip warn">미확인</span>', co='2'), live=True,
+ phome(recent=recent_card('서울갈비?', '<span class="chip warn">미확인</span>', co='2'), live=True,
        co=dict(mic='1', eat='3', mine='4', gear='5', loc='6')),
  [('1','말하기 버튼','240dp 원형, 하단 가운데 고정','S-01과 같음 (누르면 P-02a)'),
   ('2','최근 저장','카드 묶음 맨 위','S-01과 같음'),
@@ -1127,7 +1133,7 @@ pscreen('P-01', 'S-01', '홈',
  '말하기 버튼이 손이 닿기 쉬운 아래쪽 가운데에 오고, 카드 3장은 그 위에 쌓인다. 가로 화면의 왼쪽 버튼 · 오른쪽 카드를 위아래로 바꾼 배치다.')
 
 pscreen('P-02a', 'S-02a', '듣는 중',
- phome(recent=recent_card('서울갈비', '<span class="chip warn">미확인</span>'), mic=False) + f'''
+ phome(recent=recent_card('서울갈비?', '<span class="chip warn">미확인</span>'), mic=False) + f'''
  <div class="overlay a-fade"></div>
  <div class="card a-pop" style="position:absolute;left:32px;right:32px;top:176px;height:560px;display:flex;flex-direction:column;align-items:center;justify-content:space-between;padding:48px 32px">
    <div class="h48 copad" data-co="1">듣고 있어요</div>
@@ -1160,7 +1166,7 @@ pscreen('P-03', 'S-03', '확인',
    <div class="btn" data-co="4" style="width:272px;height:136px;font-size:40px">아니요</div>
    <div class="btn primary" data-co="3" style="width:272px;height:136px;font-size:40px">{ic("check",48)} 예</div>
  </div>''',
- [('1','질문','S-03과 같음',''),
+ [('1','질문','S-03과 같음','TTS는 “서울갈비 맞나요?”'),
   ('2','후보 카드','폭 576dp, 이름 64dp',''),
   ('3','예','하단 오른쪽, 높이 136dp','S-03과 같음'),
   ('4','아니요','하단 왼쪽, 높이 136dp','S-03과 같음'),
@@ -1212,7 +1218,7 @@ FLOWS = {
  'B': dict(nodes={'S-01':(0,0),'S-02a':(1,0),'S-02b':(2,0),'S-14':(3,0),'S-03':(4,0),'S-04a':(5,0),
                   'S-02c':(1,1),'S-06':(2,1),'S-03b':(4,1),'S-04b':(5,1),'S-01b':(0,1)},
            edges=[('S-01','S-02a','말하기'),('S-02a','S-02b','말 끝남'),('S-02b','S-14','저장 의도'),('S-14','S-03','후보 있음'),('S-03','S-04a','예'),
-                  ('S-02b','S-02c','인식 실패'),('S-02b','S-06','추천'),('S-14','S-04a','확실하면 바로'),('S-03','S-03b','아니요'),('S-03b','S-04a','예'),('S-03b','S-04b','아니요 · 무응답'),('S-14','S-04b','후보 없음'),
+                  ('S-02b','S-02c','인식 실패'),('S-02b','S-06','추천'),('S-14','S-04a','확실하면 바로'),('S-03','S-03b','아니요'),('S-03b','S-04a','예'),('S-03b','S-04b','아니요 · 무응답'),('S-14','S-04b','후보 · 위치 없음'),
                   ('S-01b','S-02a','말하기')]),
  'C': dict(nodes={'S-05':(0,0),'S-05b':(1,0),'NAV':(2,0)},
            edges=[('S-05','S-05b','응'),('S-05b','NAV','')]),
@@ -1300,13 +1306,15 @@ BASE_ROWS = [
  ['테마','다크·라이트 2가지 (차량 주/야간 설정을 따름). 다크: 배경 #15100E, 글자 #FBF6F2, 보조 #B8A69B. 라이트: 배경 #F6EFEA, 글자 #1F1512, 보조 #6E5B53. 배경은 그림 없는 단색','다크는 야간 눈부심 방지. 색은 앱 아이콘 주황 #E4572E에서 뽑음. 이 문서의 와이어프레임은 위 단추로 다크·라이트를 바꿔 볼 수 있다'],
  ['스타일','리퀴드 글라스: 카드·버튼·상단 버튼은 반투명 유리(다크 흰색 9~14%, 라이트 흰색 78~95%) + 흐림 28 + 밝은 윗선 + 1dp 테두리 + 그림자. 색이 있는 유리는 말하기 버튼 하나','유리는 콘텐츠 위 조작 층에만. 지도 화면에서는 지도가 콘텐츠 층. 투명도 줄이기를 켜면 불투명 카드 #1F1714 / #FFFFFF'],
  ['강조색','1순위 동작 주황 #E4572E 채움(흰 글자). 주황 글자·아이콘은 다크 #FF8A62 · 라이트 #B83A18. 삭제만 빨강 #C62828 채움 · 다크 #FF6B6B 글자. 미확인 노랑 #F2B544 / #8A5A00, 방문 초록 #4CC38A / #1B7F4D. 파랑은 쓰지 않음','빨강은 차량에서 경고색이라 삭제에만 사용. 글자 대비 4.5:1 이상 (흰 글자 위 주황은 32dp 굵은 글자만)'],
- ['글꼴','Pretendard (없으면 Noto Sans KR). 본문 28dp, 버튼 32dp, 카드 제목 40dp, 질문 48dp, 가게 이름 64dp, 최소 24dp','70cm 시청 거리 기준'],
- ['터치 크기','버튼 높이 88dp 기본, 1순위 112dp, 목록 줄 96~112dp, 최소 76dp, 간격 24dp 이상','Android Automotive 주행 중 최소 76dp'],
- ['한 화면 규칙','1순위 버튼은 1개(주황), 주행 중 글자 줄 수 3줄 이내, 목록 스크롤·키보드는 정차 중에만','기획서 8장 비기능 요구사항'],
+ ['글꼴','차량 시스템 글꼴(와이어프레임은 Pretendard로 근사). 글자 단위는 sp: 본문 28, 버튼 32, 카드 제목 40, 질문 48, 가게 이름 64, 최소 24. 글자 크기 설정 1.3배에서도 잘림 · 겹침 없이','70cm 시청 거리 기준. 캔버스는 1dp = 1px로 가정'],
+ ['터치 크기','버튼 높이 88dp 기본, 1순위 112dp, 목록 줄 96~112dp, 최소 76dp, 간격 24dp 이상. 칩 · 토글처럼 작게 보이는 것도 누르는 영역은 76dp','Android Automotive 주행 중 최소 76dp. 자동 검사가 누르는 영역을 잰다'],
+ ['한 화면 규칙','1순위 버튼은 1개(주황, 같은 카드가 반복되면 카드마다 1개), 주행 중 카드 하나의 글자는 3줄 이내, 목록 스크롤·키보드는 정차 중에만','기획서 8장 비기능 요구사항'],
  ['주행 중 터치','한 번 누르는 버튼은 허용(말하기 · 취소 · 예/아니요 · 안내 시작/닫기 · 추천 카드). 스크롤 · 글자 입력 · 지도 조작은 금지','재원 결정 2026-11-10. 음성과 같은 동작을 버튼으로도 할 수 있어야 안전하다 (기획서 8장)'],
  ['버튼 순서','실행(예 · 안내 시작 · 말하기 · 저장)은 오른쪽, 취소 · 닫기 · 아니요는 왼쪽. 확인 창 · 알림 카드 · 확인 화면 모두 같음','세로 창도 같은 순서'],
  ['아이콘','Lucide 선 아이콘 1종, 이모지 금지. 앱 아이콘은 확정 15번(주황 핀)','design/icons/final/'],
- ['동작 시간','화면 전환 200ms 이내, 토스트 4초, 확인 대기 5초, 리마인드·방문 메모 카드 10초','5장 애니메이션 기준 참고'],
+ ['동작 시간','화면 전환 200ms 이내, 토스트 4초, 확인 대기 5초, 리마인드·방문 메모는 음성 대답 5초 · 버튼 10초. 대기는 모두 TTS가 끝난 뒤부터','5장 애니메이션 기준 참고'],
+ ['주행 제한','정차 전용 화면(S-07 ~ S-11, S-16)은 차량의 주행 제한 상태(CarUxRestrictions)로 막는다. 속도 · 브레이크로 직접 판단하지 않고, 상태를 모르면 막는다','기획서 9장. 지역별 규칙은 플랫폼이 반영'],
+ ['TTS 문장','고정 문구 25자 안, 가게 이름은 12자까지 읽음, 한 번에 6초 안(추천 목록은 10초)','기획서 6장 확인 규칙 5'],
 ]
 COMMON_ROWS = [
  ['상단 바','높이 96dp: 뒤로(80×80) · 제목 36dp · 오른쪽 동작 1개','홈에는 뒤로 없음. 제목은 화면 이름 그대로'],
@@ -1314,10 +1322,10 @@ COMMON_ROWS = [
  ['2순위 버튼','유리 알약형, 높이 88dp',''],
  ['삭제 버튼','테두리 빨강(상세·정리) 또는 채움 빨강(확인 창)','다른 버튼과 떨어뜨림'],
  ['카드','유리, 모서리 36dp, 안쪽 여백 32dp, 1dp 밝은 테두리 + 그림자','알림 카드·창·토스트는 더 진한 유리(다크 14% · 라이트 95%)'],
- ['상태 칩 · 지도 핀','높이 48dp: 미확인(노랑) · 방문(초록) · 선택(주황) · 저장됨(회색) · 후보 찾음(노랑). 지도 핀은 저장 주황 · 방문 초록 · 미확인 노랑 + ?','글자와 색을 같이 써서 색만으로 구분하지 않음'],
+ ['상태 칩 · 지도 핀','높이 48dp(누르는 칩은 누르는 영역 76dp): 미확인(노랑) · 방문(초록) · 선택(주황) · 저장됨(회색) · 후보 찾음(노랑). 지도 핀은 저장 주황 · 방문 초록 · 미확인 노랑 + ?','글자와 색을 같이 써서 색만으로 구분하지 않음. 미확인 가게 이름은 “서울갈비?”처럼 뒤에 ?'],
  ['토스트','아래쪽(위에서 900dp), 좌우 140dp 여백, 높이 120dp, 4초','되돌리기 버튼은 삭제 뒤에만. 한 번에 1개'],
  ['확인 창','가운데, 폭 800dp(S-17은 920dp), 질문 40dp + 설명 28dp + 버튼 2~3개','취소가 왼쪽, 실행이 오른쪽'],
- ['차량 알림 카드','위쪽 48dp, 높이 300dp, 아래 가장자리에 남은 시간 막대. 실행 버튼이 오른쪽','리마인드(S-05) · 방문 메모(S-15). 닫힌 뒤 아무것도 남기지 않음'],
+ ['차량 알림 카드','위쪽 48dp, 높이 300dp, 아래 가장자리에 남은 시간 막대. 실행 버튼이 오른쪽','리마인드(S-05 · S-05b) · 방문 메모(S-15). Android 알림(heads-up)으로 띄우고, 차량에서 안 되면 앱 창 카드 + TTS. 닫힌 뒤 아무것도 남기지 않음'],
  ['음성 겹침 화면','S-02a~c를 어느 화면 위에도 띄움','뒤 화면은 72% 어둡게'],
  ['키보드 자리','아래 320dp (시스템 키보드)','정차 중에만. 입력창은 키보드 위에 남도록 배치'],
 ]
@@ -1333,18 +1341,20 @@ MOTION_RULES = [
  ['정차 중 화면','오른쪽 48dp에서 밀려 들어오며 페이드 (뒤로 가기는 반대)','화면 깊이를 알게'],
  ['겹침 화면 (듣는 중·확인 창)','어두운 배경 160ms 페이드 + 창 96 → 100% 확대 200ms','어느 화면 위에서나 같음'],
  ['토스트','아래에서 24dp 올라오며 페이드 인 200ms, 4초 뒤 페이드 아웃 200ms','한 번에 1개'],
- ['차량 알림 카드','위에서 32dp 내려옴 240ms, 닫힐 때 위로 200ms','리마인드 · 방문 메모'],
+ ['차량 알림 카드','위에서 24dp 내려옴 240ms, 닫힐 때 위로 24dp 200ms','리마인드 · 방문 메모. 주행 중 화면 규칙(24dp 이하)과 같음'],
  ['반복 애니메이션','듣는 중 막대, 처리 링, 말하기 숨쉬기, 카운트다운 네 곳만','그 밖에는 반복 없음'],
- ['동작 줄이기','차량 설정이 동작 줄이기면 전환은 페이드만, 반복은 소리 막대만 남김',''],
+ ['동작 줄이기','시스템 애니메이션 배율이 0(ANIMATOR_DURATION_SCALE)이면 전환은 페이드만, 반복은 소리 막대만 남김','차량에 따로 동작 줄이기 설정이 있으면 그것도 따름'],
  ['소리','애니메이션에 효과음을 붙이지 않음. TTS만','차량 알림음과 겹치지 않게'],
 ]
 MORE_FLOW_ROWS = [
  ['S-01 최근 저장','S-08 (미확인 · 후보 찾음이면 S-09), 주행 중이면 S-12'],
- ['S-01 · S-07 ~ S-11 · S-16을 주행 중에 열 때','S-12, 정차하면 원래 화면으로'],
+ ['S-07 ~ S-11 · S-16을 주행 중에 열 때 (홈의 내 맛집 · 최근 저장 · 설정 포함)','S-12, 주행 제한이 풀리면 원래 화면으로. 홈(S-01)은 주행 중에도 열림'],
+ ['S-02a · S-02b · S-03에서 음성 “취소”','저장 없이 원래 화면'],
  ['S-02c 재시도','1초 뒤 S-02a (1회만)'],
  ['S-03 무응답 · 2순위 없이 아니요','S-04b'],
- ['S-02b 메모 의도','S-15b (오늘 방문한 가게가 없으면 저장으로 S-14)'],
+ ['S-02b 메모 의도','S-15b (최근 3시간 안 방문이 없으면 저장으로 S-14)'],
  ['S-06b 30km까지 넓혀 보기','S-06'],
+ ['S-06에서 2분 동안 선택 없음','홈'],
  ['S-08 안내 시작','Pleos 내비 (S-05b와 같음)'],
  ['S-08 공유에 담기','S-10'],
  ['S-08b 후보 다시 고르기','S-09'],
@@ -1361,15 +1371,23 @@ STATE_ROWS = [
  ['인터넷 없음 · 후보 없음','S-14 → S-04b 위치만 저장'],
  ['추천할 가게 없음','S-06b'],
  ['삭제 뒤','S-08d 되돌리기 토스트'],
+ ['음성 “취소” · “됐어”','저장 없이 닫힘 (S-02a · S-02b · S-03), 리마인드 · 방문 메모는 그냥 닫힘'],
+ ['말한 순간의 위치를 못 잡음','S-04b “말씀은 기억해 둘게요” (원문만 미확인 저장)'],
+ ['이미 저장한 가게를 다시 저장','S-04a “이미 저장한 가게예요” (기존 가게에 합침)'],
+ ['저장 실패 (DB 오류)','토스트 “지금은 저장하지 못했어요” (저장했다고 말하지 않음)'],
+ ['추천에서 2분 동안 선택 없음','홈으로 닫힘'],
+ ['다른 음성 대화 중에 리마인드 · 방문 메모 발생','대화가 끝난 뒤 S-05 · S-15 (리마인드는 30초 지나면 생략)'],
+ ['공유 링크가 깨짐 · 더 새 버전 목록','S-16 “목록을 열 수 없어요” / “앱을 업데이트해 주세요”'],
  ['처음 실행','S-13 처음 실행 안내'],
  ['권한 거부 · 음성 서비스 오류','S-17 권한 없음 (위치만 저장 가능)'],
- ['주행 중 정차 화면 진입','S-12 주행 중 안내'],
+ ['주행 제한 중 정차 화면 진입 (제한 상태를 모를 때 포함)','S-12 주행 중 안내'],
 ]
 OPEN_ROWS = [
  '캔버스 1280×1080은 가정이다. 에뮬레이터 실제 해상도를 확인하면 비율만 다시 맞춘다. 세로 1칸은 640×1080으로 가정해 대표 화면 5장(P-01 ~ P-06)을 그렸다. 실제 창 크기를 확인하면 함께 맞춘다.',
  'S-07·S-14 지도는 카카오맵 SDK가 차량에서 뜨는지에 달려 있다. 안 뜨면 프로토타입은 목록만 쓰고 지도 자리는 비워 둔다.',
- 'S-05 리마인드·S-15 방문 메모를 앱 밖(내비 화면 위)에 띄우려면 차량 알림 권한이 필요하다. 안 되면 앱이 켜져 있을 때만 띄운다.',
- 'S-16 받은 목록 가져오기는 차량에서 링크를 열 수 있을 때만 의미가 있다. 안 되면 폰 웹 목록으로 끝낸다 (기획서 9장).',
+ 'S-05 · S-05b 리마인드와 S-15 방문 메모는 Android 알림(heads-up)으로 내비 화면 위에 띄운다. 알림 권한과 heads-up 표시가 차량에서 되는지는 Emulator에서 확인하고(기획서 10장 20번), 안 되면 앱이 켜져 있을 때만 앱 창 카드 + TTS로 띄운다.',
+ 'S-13의 권한마다 실행 중 요청 창이 필요한지(보호 수준)는 문서에 없어 Emulator에서 확인한다 (기획서 10장 확인 순서 7).',
+ 'S-16 받은 목록 가져오기는 차량에서 앱 링크(easycd.github.io/nextplace/s#…, 주소는 가정)가 열릴 때만 쓴다. 안 되면 폰 웹 목록으로 끝낸다 (기획서 9장).',
  '핸들 음성 버튼은 앱이 직접 받을 수 없어 말하기 버튼은 화면에 둔다. 글레오 연동(기획서 F-19, 확장 · 승인 필요)이 되면 “다음에 가게에 저장해줘”로도 부를 수 있다.',
 ]
 
@@ -1444,7 +1462,7 @@ PORTRAIT_INTRO = ('Pleos 앱 영역은 기본이 세로 1칸이다. 세로 창�
                   '주행 중에 쓰는 대표 화면 ' + str(len(PS)) + '장만 그렸고, 나머지 화면도 같은 규칙으로 옮긴다. 모션은 가로 화면과 같다. 크기 640×1080은 가정이며 에뮬레이터에서 확인한다.')
 parts = []
 parts.append('<h1>다음에 가게 — 화면 설계서</h1>')
-parts.append(f'<p class="meta">작성일 {DATE} · 작성자 재원 (easycd) · 기준 문서: <a href="01_개발기획서.md">01_개발기획서</a>의 기능 ID(F-xx)를 그대로 쓴다. 생성 스크립트 tools/gen_screens.py</p>')
+parts.append(f'<p class="meta">작성일 {DATE} · 개정 {REV} · 작성자 재원 (easycd) · 기준 문서: <a href="01_개발기획서.md">01_개발기획서</a>의 기능 ID(F-xx)를 그대로 쓴다. 생성 스크립트 tools/gen_screens.py</p>')
 parts.append('<div class="themebar">와이어프레임 테마 <button type="button" data-t="dark">다크</button><button type="button" data-t="light">라이트</button></div>')
 parts.append(f'<p>{INTRO} 와이어프레임은 화면에 보일 때 애니메이션이 한 번 재생되고, 아래 “다시 재생”으로 다시 볼 수 있다. 오른쪽 위 단추로 다크·라이트를 바꿔 본다. 보라색 번호는 설명용 표시로, 실제 화면에는 없다.</p>')
 parts.append('<p class="toc">' + ' · '.join(f'<a href="#{s["id"]}">{s["id"]} {s["name"]}</a>' for s in S + PS) + '</p>')
@@ -1561,7 +1579,7 @@ def strip(s):
     return html.unescape(s)
 
 md = ['# 다음에 가게 — 화면 설계서', '',
-      f'작성일 {DATE} · 작성자 재원 (easycd) · 기준 문서: [01_개발기획서](01_개발기획서.md)의 기능 ID(F-xx)를 그대로 쓴다. 생성 스크립트 tools/gen_screens.py', '',
+      f'작성일 {DATE} · 개정 {REV} · 작성자 재원 (easycd) · 기준 문서: [01_개발기획서](01_개발기획서.md)의 기능 ID(F-xx)를 그대로 쓴다. 생성 스크립트 tools/gen_screens.py', '',
       INTRO + ' 와이어프레임이 움직이는 원본은 [02_화면설계서.html](02_화면설계서.html)이고, 움직이는 미리보기는 screens/anim/ 의 GIF다. 화면마다 다크(screens/)와 라이트(screens/light/) 그림이 있다. 보라색 번호는 설명용 표시다.', '']
 md += ['## 1. 설계 기준', '', mdtbl(['항목','기준','근거'], BASE_ROWS), '']
 md += ['## 2. 화면 목록 (기능별)', '']

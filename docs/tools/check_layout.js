@@ -41,7 +41,7 @@ const { chromium } = require('playwright'); const fs = require('fs'); const path
         if (txt && el.classList.contains('btn') && el.scrollHeight > el.clientHeight + 1) out.push(`버튼 글자 줄바꿈/넘침 ${label(el)}`);
       }
       // touch targets >= 76 (buttons, rows, icon buttons, toggles, checks)
-      for (const el of document.querySelectorAll('.btn, .row, .iconbtn, .textbtn, .toggle, .check, .radio, .seg div, .toast .act')) {
+      for (const el of document.querySelectorAll('.btn, .row, .iconbtn, .textbtn, .toggle, .check, .radio, .seg div, .toast .act, .hit')) {
         if (!vis(el)) continue; const r = el.getBoundingClientRect();
         const min = (el.classList.contains('toggle') || el.classList.contains('check') || el.classList.contains('radio')) ? 48 : 76;
         if (Math.min(r.width, r.height) < min - 0.5) out.push(`터치 크기 ${Math.round(r.width)}×${Math.round(r.height)} < ${min} ${label(el)}`);
