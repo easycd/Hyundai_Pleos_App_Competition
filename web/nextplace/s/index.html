@@ -1,0 +1,74 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>받은 맛집 목록 · 다음에 가게</title>
+<meta name="robots" content="noindex">
+<style>
+  :root { --bg:#F6EFEA; --card:rgba(255,255,255,.78); --text:#2A1E19; --muted:#6E5D55; --brand:#E4572E; --line:rgba(0,0,0,.08); }
+  @media (prefers-color-scheme: dark) { :root { --bg:#15100E; --card:rgba(255,255,255,.07); --text:#F4ECE8; --muted:#B8A79F; --line:rgba(255,255,255,.1); } }
+  * { box-sizing:border-box; }
+  body { margin:0; background:var(--bg); color:var(--text); font:16px/1.5 -apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo","Noto Sans KR",sans-serif; }
+  main { max-width:640px; margin:0 auto; padding:24px 16px 48px; }
+  h1 { font-size:24px; margin:8px 0 2px; }
+  .sub { color:var(--muted); font-size:14px; margin-bottom:20px; }
+  .card { background:var(--card); border:1px solid var(--line); border-radius:20px; padding:16px; margin-bottom:12px; }
+  .name { font-weight:700; font-size:18px; }
+  .meta { color:var(--muted); font-size:14px; }
+  .memo { margin-top:6px; }
+  a.map { display:inline-block; margin-top:10px; padding:8px 14px; border-radius:999px; background:var(--brand); color:#fff; text-decoration:none; font-size:14px; font-weight:600; }
+  .note { color:var(--muted); font-size:13px; margin-top:24px; }
+  .brand { color:var(--brand); font-weight:700; font-size:14px; }
+</style>
+</head>
+<body>
+<main>
+  <div class="brand">다음에 가게</div>
+  <h1 id="title">받은 맛집 목록</h1>
+  <div class="sub" id="sub"></div>
+  <div id="list"></div>
+  <p class="note">Pleos 차량의 ‘다음에 가게’ 앱에서 이 링크를 열면 내 지도에 바로 추가할 수 있어요.</p>
+</main>
+<script>
+// 링크 형식: .../s#<base64url(raw deflate(JSON))>. JSON = { v, t 제목, d 만든 시각, f 보낸 사람(선택), p:[{ n 이름, c 업종, a 주소, y 위도, x 경도, m 메모 }] }
+(async () => {
+  const $ = (id) => document.getElementById(id);
+  const fail = (msg) => { $('title').textContent = msg; $('sub').textContent = ''; };
+  try {
+    const data = location.hash.slice(1).trim();
+    if (!data) return fail('목록을 열 수 없어요');
+    const b64 = data.replace(/-/g, '+').replace(/_/g, '/');
+    const bin = Uint8Array.from(atob(b64 + '==='.slice((b64.length + 3) % 4)), (c) => c.charCodeAt(0));
+    const stream = new Blob([bin]).stream().pipeThrough(new DecompressionStream('deflate-raw'));
+    const text = await new Response(stream).text();
+    if (text.length > 8192) return fail('목록을 열 수 없어요');
+    const o = JSON.parse(text);
+    if (o.v > 1) return fail('앱을 업데이트해 주세요');
+    const places = Array.isArray(o.p) ? o.p.slice(0, 30) : [];
+    if (!places.length) return fail('목록을 열 수 없어요');
+    $('title').textContent = `${o.t || '맛집 목록'} ${places.length}곳`;
+    const day = o.d ? new Date(o.d) : null;
+    const dayText = day ? `${day.getMonth() + 1}월 ${day.getDate()}일` : '';
+    $('sub').textContent = [o.f ? `보낸 사람 ${o.f}` : '', dayText].filter(Boolean).join(' · ');
+    document.title = `${$('title').textContent} · 다음에 가게`;
+    const list = $('list');
+    for (const p of places) {
+      const card = document.createElement('div'); card.className = 'card';
+      const name = document.createElement('div'); name.className = 'name'; name.textContent = p.n || '';
+      const meta = document.createElement('div'); meta.className = 'meta'; meta.textContent = [p.c, p.a].filter(Boolean).join(' · ');
+      card.append(name, meta);
+      if (p.m) { const m = document.createElement('div'); m.className = 'memo'; m.textContent = `“${p.m}”`; card.append(m); }
+      if (typeof p.y === 'number' && typeof p.x === 'number') {
+        const a = document.createElement('a'); a.className = 'map';
+        a.href = `https://map.kakao.com/link/map/${encodeURIComponent(p.n || '가게')},${p.y},${p.x}`;
+        a.textContent = '지도에서 보기'; a.target = '_blank'; a.rel = 'noopener';
+        card.append(a);
+      }
+      list.append(card);
+    }
+  } catch (e) { fail('목록을 열 수 없어요'); }
+})();
+</script>
+</body>
+</html>

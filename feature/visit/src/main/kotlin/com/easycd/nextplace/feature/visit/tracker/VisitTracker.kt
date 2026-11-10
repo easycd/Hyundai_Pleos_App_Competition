@@ -4,7 +4,6 @@ import com.easycd.nextplace.core.domain.Tunables
 import com.easycd.nextplace.core.domain.geo.Geo
 import com.easycd.nextplace.core.domain.model.LocationSample
 import com.easycd.nextplace.core.domain.model.Visit
-import com.easycd.nextplace.core.domain.model.VisitSession
 import com.easycd.nextplace.core.domain.model.VisitState
 import com.easycd.nextplace.core.domain.repository.PlaceRepository
 import com.easycd.nextplace.core.domain.repository.VisitRepository
@@ -80,57 +79,18 @@ class VisitTracker @Inject constructor(
         val d = Geo.distanceM(sample.point, target)
         val prevSample = lastSampleAt
         lastSampleAt = now
-        val next = step(s, d, now, prevSample)
-        when {
-            next == null -> sessions.clear()
-            next.state == VisitState.LEFT -> {
+        when (val r = VisitStep.next(s, d, now, prevSample)) {
+            VisitStepResult.Drop -> sessions.clear()
+            is VisitStepResult.Keep -> if (r.session != s) sessions.save(r.session)
+            is VisitStepResult.Record -> sessions.save(r.session.copy(visitId = recordVisit(s.placeId, r.session.arrivedAt ?: r.session.stayStartedAt ?: now)))
+            is VisitStepResult.Left -> {
                 sessions.clear()
-                next.visitId?.let { id ->
+                r.session.visitId?.let { id ->
                     visits.setLeftAt(id, now)
                     ask.ask(id, place.name ?: place.displayName.orEmpty())
                 }
             }
-            next != s -> sessions.save(next)
         }
-    }
-
-    /** 순수 상태 전이. null = 세션 버림. */
-    private suspend fun step(s: VisitSession, d: Double, now: Long, prev: Long?): VisitSession? {
-        val inside = d <= Tunables.VISIT_STAY_RADIUS_M
-        return when (s.state) {
-            VisitState.ROUTING -> when {
-                now - s.startedAt > Tunables.VISIT_ROUTING_EXPIRE_MS -> null
-                d <= Tunables.VISIT_ARRIVE_RADIUS_M -> s.copy(state = VisitState.ARRIVED, arrivedAt = now, stayStartedAt = now, lastInsideAt = now, updatedAt = now)
-                else -> s
-            }
-            VisitState.ARRIVED, VisitState.STAYING -> stay(s, inside, now, prev)
-            VisitState.VISITED -> {
-                val out = s.outsideSince
-                when {
-                    inside -> s.copy(outsideSince = null, lastInsideAt = now, updatedAt = now)
-                    out == null -> s.copy(outsideSince = now, updatedAt = now)
-                    now - out >= Tunables.VISIT_LEFT_MS -> s.copy(state = VisitState.LEFT, updatedAt = now)
-                    else -> s
-                }
-            }
-            VisitState.LEFT -> null
-        }
-    }
-
-    private suspend fun stay(s: VisitSession, inside: Boolean, now: Long, prev: Long?): VisitSession {
-        val gapOk = prev == null || now - prev <= Tunables.VISIT_GAP_TOLERANCE_MS
-        if (!inside) {
-            val since = s.outsideSince ?: now
-            return if (now - since > Tunables.VISIT_OUT_RESET_MS) {
-                s.copy(state = VisitState.ARRIVED, stayStartedAt = null, outsideSince = since, updatedAt = now)
-            } else {
-                s.copy(outsideSince = since, updatedAt = now)
-            }
-        }
-        val start = s.stayStartedAt?.takeIf { gapOk } ?: now
-        val staying = s.copy(state = VisitState.STAYING, stayStartedAt = start, lastInsideAt = now, outsideSince = null, updatedAt = now)
-        if (now - start < Tunables.VISIT_STAY_MS) return staying
-        return staying.copy(state = VisitState.VISITED, visitId = recordVisit(s.placeId, s.arrivedAt ?: start))
     }
 
     /** 같은 가게에 2시간 안에 다시 도착하면 새 Visit 을 만들지 않는다. */
