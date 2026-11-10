@@ -28,5 +28,4 @@
     <string name="perm_close">닫기</string>
     <string name="perm_location_only">위치만 저장</string>
     <string name="perm_stop_first">멈춘 뒤 설정에서 허용해 주세요</string>
-    <string name="sim_location">가짜 위치 재생 중</string>
 </resources>

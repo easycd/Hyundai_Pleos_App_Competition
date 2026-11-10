@@ -102,7 +102,7 @@ private fun CandidateCard(s: ConfirmUiState) {
     // 설계서 S-03 ②: 폭 1000 · 높이 400dp 카드, 이름 64dp 가 세로 가운데
     GlassCard(Modifier.widthIn(max = 1000.dp).fillMaxWidth().heightIn(min = 400.dp), padding = 56.dp) {
         Column(Modifier.align(Alignment.CenterStart)) {
-            Text(s.name, style = NpType.placeName, color = Np.colors.text, maxLines = 1, overflow = TextOverflow.Ellipsis)
+            Text(s.name, style = NpType.placeName, color = Np.colors.text, maxLines = 2, overflow = TextOverflow.Ellipsis)
             Spacer(Modifier.height(16.dp))
             Text(meta, style = NpType.body, color = Np.colors.text)
             s.address?.let {

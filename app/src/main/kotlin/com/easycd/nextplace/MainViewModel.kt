@@ -7,7 +7,6 @@ import com.easycd.nextplace.core.domain.contract.Navigator
 import com.easycd.nextplace.core.domain.contract.PermissionKind
 import com.easycd.nextplace.core.domain.contract.SaveRunner
 import com.easycd.nextplace.core.domain.repository.SettingsRepository
-import com.easycd.nextplace.core.domain.sdk.LocationSource
 import com.easycd.nextplace.core.domain.sdk.PermissionChecker
 import com.easycd.nextplace.core.domain.sdk.UxRestrictionSource
 import com.easycd.nextplace.core.pleos.location.LocationTracker
@@ -43,15 +42,12 @@ class MainViewModel @Inject constructor(
     val ux: UxRestrictionSource,
     private val settings: SettingsRepository,
     private val permissions: PermissionChecker,
-    private val location: LocationSource,
     private val tracker: LocationTracker,
     private val saveRunner: SaveRunner,
 ) : ViewModel() {
     private val _state = MutableStateFlow(ShellState())
     val state: StateFlow<ShellState> = _state.asStateFlow()
     private val onboardingDone = viewModelScope.async { runCatching { settings.settings.first().onboardingDone }.getOrDefault(true) }
-
-    fun simulatedLocation(): Boolean = location.isSimulated
 
     fun onSplashDone() {
         viewModelScope.launch {

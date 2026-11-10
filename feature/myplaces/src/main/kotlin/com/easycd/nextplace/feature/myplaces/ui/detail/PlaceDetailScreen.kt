@@ -70,7 +70,7 @@ fun PlaceDetailScreen(state: PlaceDetailUiState, onAction: (PlaceDetailAction) -
                     Column(Modifier.weight(1f).verticalScroll(rememberScrollState())) { Info(state, onAction) }
                     if (!portrait) {
                         Spacer(Modifier.width(40.dp))
-                        Box(Modifier.width(MAP_W.dp).fillMaxHeight().padding(bottom = 24.dp)) {
+                        Box(Modifier.weight(MAP_WEIGHT).fillMaxHeight().padding(bottom = 24.dp)) {
                             PinMap(listOfNotNull(state.point?.let { MapPin(state.id, it, if (state.visits > 0) PinTone.VISITED else PinTone.SAVED, true) }), null, Modifier.fillMaxSize())
                         }
                     }
@@ -139,27 +139,28 @@ private fun Actions(s: PlaceDetailUiState, onAction: (PlaceDetailAction) -> Unit
         PillButton(
             stringResource(R.string.detail_route),
             { onAction(PlaceDetailAction.Route) },
-            Modifier.widthIn(min = 400.dp),
+            Modifier.weight(1f),
             kind = PillKind.PRIMARY,
             icon = NpIcons.Navigation,
             enabled = s.point != null,
             height = 112.dp,
         )
         Spacer(Modifier.width(24.dp))
-        AnimatedContent(s.inShareCart, transitionSpec = { fadeIn(tween(Motion.SCRIM_MS)).togetherWith(fadeOut(tween(Motion.SCRIM_MS))) }, label = "cart") { added ->
+        AnimatedContent(s.inShareCart, Modifier.weight(1f), transitionSpec = { fadeIn(tween(Motion.SCRIM_MS)).togetherWith(fadeOut(tween(Motion.SCRIM_MS))) }, label = "cart") { added ->
             PillButton(
                 stringResource(if (added) R.string.detail_added_share else R.string.detail_add_share),
                 { onAction(PlaceDetailAction.AddToShare) },
-                Modifier.widthIn(min = 380.dp),
+                Modifier.fillMaxWidth(),
                 icon = if (added) NpIcons.Check else NpIcons.Share,
                 height = 112.dp,
             )
         }
-        Spacer(Modifier.weight(1f))
+        Spacer(Modifier.width(24.dp))
         PillButton(stringResource(R.string.detail_delete), { onAction(PlaceDetailAction.Delete) }, kind = PillKind.DANGER_OUTLINE, icon = NpIcons.Trash, height = 112.dp)
     }
 }
 
 private const val DIM = 0.4f
-private const val MAP_W = 480
+/** 지도는 정보 칸의 0.6배 (1280dp 창에서 약 440dp). 고정 폭이면 좁은 창에서 정보 칸이 눌린다. */
+private const val MAP_WEIGHT = 0.6f
 private const val SWITCH_SCALE = 1.5f

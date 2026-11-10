@@ -12,4 +12,5 @@ data class ListenUiState(
     val target: GeoPoint? = null,
     val current: GeoPoint? = null,
     val devInput: Boolean = false,
+    val devDraft: String = "",
 )

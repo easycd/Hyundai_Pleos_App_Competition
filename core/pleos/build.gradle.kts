@@ -34,4 +34,7 @@ dependencies {
     implementation(libs.pleos.location)
     implementation(libs.pleos.navi)
     implementation(libs.kotlinx.serialization.json)
+    constraints {
+        implementation(libs.jna) { because("16KB 페이지 정렬된 libjnidispatch (5.17.0부터)") }
+    }
 }

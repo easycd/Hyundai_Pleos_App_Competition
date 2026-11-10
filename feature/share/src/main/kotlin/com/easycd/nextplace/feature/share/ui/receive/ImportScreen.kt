@@ -61,7 +61,7 @@ fun ImportScreen(state: ImportUiState, onAction: (ImportAction) -> Unit) {
             return@ScreenFrame
         }
         Column(Modifier.fillMaxSize().padding(horizontal = 48.dp, vertical = 8.dp)) {
-            Text(stringResource(R.string.import_heading, state.title, state.rows.size), style = NpType.cardTitle, color = Np.colors.text, maxLines = 1, overflow = TextOverflow.Ellipsis)
+            Text(if (COUNTED.containsMatchIn(state.title)) state.title else stringResource(R.string.import_heading, state.title, state.rows.size), style = NpType.cardTitle, color = Np.colors.text, maxLines = 1, overflow = TextOverflow.Ellipsis)
             val day = TimeText.monthDay(state.createdAt)
             Text(state.from?.let { stringResource(R.string.import_from, it, day) } ?: day, style = NpType.body, color = Np.colors.muted)
             Spacer(Modifier.height(16.dp))
@@ -89,7 +89,7 @@ fun ImportScreen(state: ImportUiState, onAction: (ImportAction) -> Unit) {
                 }
                 if (!portrait) {
                     Spacer(Modifier.width(40.dp))
-                    Box(Modifier.width(MAP_W.dp).fillMaxHeight()) {
+                    Box(Modifier.weight(MAP_WEIGHT).fillMaxHeight()) {
                         PinMap(state.rows.mapIndexed { i, r -> MapPin("$i", GeoPoint(r.place.lat, r.place.lon), PinTone.SAVED, r.checked) }, null, Modifier.fillMaxSize())
                         Text(stringResource(R.string.import_map), style = NpType.small, color = Np.colors.muted, modifier = Modifier.padding(20.dp))
                     }
@@ -113,5 +113,8 @@ fun ImportScreen(state: ImportUiState, onAction: (ImportAction) -> Unit) {
     }
 }
 
-private const val MAP_W = 480
+private const val MAP_WEIGHT = 0.6f
+
+/** 제목에 이미 "N곳"이 있으면 개수를 다시 붙이지 않는다 ("내 맛집 3곳 3곳" 방지). */
+private val COUNTED = Regex("""\d+\s*곳\s*$""")
 private const val DIM = 0.45f

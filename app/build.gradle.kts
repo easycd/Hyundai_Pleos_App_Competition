@@ -29,7 +29,11 @@ android {
         }
     }
     testOptions.unitTests.isReturnDefaultValues = true
-    packaging { resources.excludes += "/META-INF/{AL2.0,LGPL2.1}" }
+    packaging {
+        resources.excludes += "/META-INF/{AL2.0,LGPL2.1}"
+        // 차량·에뮬레이터에 없는 옛 CPU(mips·armeabi)용 JNA 라이브러리는 뺀다
+        jniLibs.excludes += listOf("lib/mips/**", "lib/mips64/**", "lib/armeabi/**")
+    }
 }
 
 kotlin { compilerOptions { jvmTarget.set(org.jetbrains.kotlin.gradle.dsl.JvmTarget.JVM_17) } }

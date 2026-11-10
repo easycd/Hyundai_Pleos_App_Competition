@@ -44,10 +44,23 @@ class LocatorTest {
         val buf = LocationBuffer().apply {
             add(LocationSample(t0, 37.5, 127.0, 0f, 1f))
             add(LocationSample(t0 + 4_000, 37.5004, 127.0, 0f, 1f))
-            add(LocationSample(t0 + 30_000, 37.6, 127.0, 0f, 1f))
+            add(LocationSample(t0 + 30_000, 37.503, 127.0, 0f, 1f))
         }
         val p = Locator.locate(LocationSnapshot(1, t0 + 22_000, buf.latest(), buf.snapshot(t0 + 22_000)), TimeCue.JUST, 20)!!
         assertEquals(37.5002, p.point.lat, 1e-7)
+    }
+
+    /** 가짜 경로가 처음으로 돌아가는 것처럼 위치가 1km 순간이동하면 그 앞의 표본은 쓰지 않는다 (실행 점검 8번: '방금 지난' 후보가 747m 앞). */
+    @Test
+    fun ignoresSamplesBeforeJump() {
+        val buf = LocationBuffer().apply {
+            repeat(40) { i -> add(LocationSample(t0 + i * 1_000L, 37.5 + i * 0.0001, 127.0, 0f, 1f)) }
+            repeat(20) { i -> add(LocationSample(t0 + (40 + i) * 1_000L, 37.491 + i * 0.0001, 127.0, 0f, 1f)) }
+        }
+        val pressed = t0 + 59_000
+        val p = Locator.locate(LocationSnapshot(1, pressed, buf.latest(), buf.snapshot(pressed)), TimeCue.JUST, 20)!!
+        assertEquals(37.491, p.point.lat, 1e-7) // 순간이동 뒤 첫 표본 (말한 곳 뒤쪽), 앞쪽 1km 지점이 아님
+        assertEquals(20, Locator.continuousTail(buf.snapshot(pressed)).size)
     }
 
     @Test

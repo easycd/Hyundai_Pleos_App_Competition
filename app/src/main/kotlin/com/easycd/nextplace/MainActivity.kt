@@ -119,7 +119,8 @@ class MainActivity : ComponentActivity() {
         val restricted by vm.ux.restricted.collectAsStateWithLifecycle()
         val nav = rememberNavController()
         BoxWithConstraints(Modifier.fillMaxSize().background(Np.colors.background)) {
-            val portrait = maxHeight > maxWidth
+            // 세로 창(640×1080 등)만 세로 배치. 정사각형에 가까운 창은 가로 배치가 더 잘 맞는다.
+            val portrait = maxHeight > maxWidth * PORTRAIT_RATIO
             CompositionLocalProvider(
                 LocalDriveRestricted provides restricted,
                 LocalPortrait provides portrait,
@@ -148,14 +149,6 @@ class MainActivity : ComponentActivity() {
                         bottomPadding = if (portrait) PORTRAIT_TOAST_BOTTOM else TOAST_BOTTOM,
                         sidePadding = if (portrait) PORTRAIT_TOAST_SIDE else TOAST_SIDE,
                     )
-                    if (vm.simulatedLocation()) {
-                        Text(
-                            stringResource(R.string.sim_location),
-                            style = NpType.small,
-                            color = Np.colors.muted,
-                            modifier = Modifier.align(Alignment.TopCenter).padding(top = 8.dp),
-                        )
-                    }
                 }
                 AnimatedVisibility(
                     state.phase == ShellPhase.SPLASH,
@@ -172,5 +165,6 @@ class MainActivity : ComponentActivity() {
         val TOAST_SIDE = 140.dp
         val PORTRAIT_TOAST_BOTTOM = 320.dp
         val PORTRAIT_TOAST_SIDE = 32.dp
+        const val PORTRAIT_RATIO = 1.2f
     }
 }

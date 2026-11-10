@@ -31,7 +31,7 @@ object Locator {
         val current = snapshot.current ?: return null
         val t = targetTime(snapshot.pressedAtMs, cue, lookbackSec, extraWindowMs)
         if (cue == TimeCue.HERE) return LocatedPoint(current.point, current.heading.toDouble(), t, false)
-        val samples = snapshot.history
+        val samples = continuousTail(snapshot.history)
         val after = samples.firstOrNull { it.timeMs >= t }
         val before = samples.lastOrNull { it.timeMs <= t }
         val tol = Tunables.LOCATE_TOLERANCE_MS
@@ -40,8 +40,28 @@ object Locator {
                 interpolate(before, after, t)
             before != null && t - before.timeMs <= tol -> LocatedPoint(before.point, before.heading.toDouble(), t, false)
             after != null && after.timeMs - t <= tol -> LocatedPoint(after.point, after.heading.toDouble(), t, false)
-            else -> LocatedPoint(current.point, current.heading.toDouble(), t, true)
+            // 버퍼가 t* 까지 닿지 않음 (막 켰거나 위치가 순간이동함): t* 에 가장 가까운 가장 오래된 표본, 없으면 말한 곳
+            else -> samples.firstOrNull()?.takeIf { it.timeMs > t }?.let { LocatedPoint(it.point, it.heading.toDouble(), t, true) }
+                ?: LocatedPoint(current.point, current.heading.toDouble(), t, true)
         }
+    }
+
+    /**
+     * 가장 최근 표본부터 거꾸로 이어진 구간만 쓴다. 두 표본 사이가 차로 갈 수 없는 속도([MAX_SPEED_MPS] 초과)면
+     * 위치가 튄 것(GPS 오류 · 가짜 경로가 처음으로 돌아감)이라 그 앞은 버린다. 안 그러면 '방금 지난' 가게를 1km 앞에서 찾는다.
+     */
+    fun continuousTail(samples: List<LocationSample>): List<LocationSample> {
+        if (samples.size < 2) return samples
+        var from = samples.size - 1
+        while (from > 0) {
+            val a = samples[from - 1]
+            val b = samples[from]
+            val dt = (b.timeMs - a.timeMs).coerceAtLeast(1L) / MS.toDouble()
+            val d = Geo.distanceM(a.point, b.point)
+            if (d > JUMP_MIN_M && d / dt > MAX_SPEED_MPS) break
+            from--
+        }
+        return samples.subList(from, samples.size)
     }
 
     private fun interpolate(a: LocationSample, b: LocationSample, t: Long): LocatedPoint {
@@ -54,4 +74,7 @@ object Locator {
 
     private const val MS = 1_000L
     private const val MIN_MOVE_M = 2.0
+    private const val JUMP_MIN_M = 50.0
+    /** 250km/h. 이보다 빠르게 움직인 두 표본 사이는 이어진 길이 아니다. */
+    private const val MAX_SPEED_MPS = 70.0
 }

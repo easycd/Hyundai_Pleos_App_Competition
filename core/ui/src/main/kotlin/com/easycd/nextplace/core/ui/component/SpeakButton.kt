@@ -10,6 +10,7 @@ import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -29,13 +30,25 @@ import androidx.compose.ui.unit.dp
 import com.easycd.nextplace.core.ui.icon.NpIcons
 import com.easycd.nextplace.core.ui.theme.Np
 
-/** 말하기 버튼: 주황 유리 원형 (색이 있는 유리는 이것 하나). 바깥 빛이 2초 주기로 숨 쉰다. */
+/**
+ * 말하기 버튼: 주황 유리 원형 (색이 있는 유리는 이것 하나). 바깥 빛이 2초 주기로 숨 쉰다.
+ * 자리가 [maxSize] 보다 좁으면 원 모양을 유지한 채 줄어든다 (찌그러진 막대가 되지 않게, 최소 [MIN_DP]).
+ */
 @Composable
 fun SpeakButton(onClick: () -> Unit, modifier: Modifier = Modifier, size: Dp = 360.dp, label: String) {
+    BoxWithConstraints(modifier, contentAlignment = Alignment.Center) {
+        val room = minOf(maxWidth, maxHeight) - GLOW_ROOM
+        val fit = if (room.value.isFinite()) minOf(size, room).coerceAtLeast(MIN_DP.dp) else size
+        SpeakCircle(onClick, fit, label)
+    }
+}
+
+@Composable
+private fun SpeakCircle(onClick: () -> Unit, size: Dp, label: String) {
     val c = Np.colors
     val t = rememberInfiniteTransition(label = "breath")
     val glow by t.animateFloat(GLOW_MIN, GLOW_MAX, infiniteRepeatable(tween(BREATH_MS / 2, easing = FastOutSlowInEasing), RepeatMode.Reverse), label = "glow")
-    Box(modifier.size(size + 80.dp).semantics { contentDescription = label }, contentAlignment = Alignment.Center) {
+    Box(Modifier.size(size + GLOW_ROOM).semantics { contentDescription = label }, contentAlignment = Alignment.Center) {
         Canvas(Modifier.fillMaxSize()) {
             val r = size.toPx() / 2
             val g = glow.dp.toPx()
@@ -70,3 +83,5 @@ private const val BREATH_MS = 2_000
 private const val GLOW_MIN = 24f
 private const val GLOW_MAX = 40f
 private const val ICON = 0.36f
+private const val MIN_DP = 120
+private val GLOW_ROOM = 80.dp

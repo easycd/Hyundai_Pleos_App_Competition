@@ -74,7 +74,7 @@ private fun LandscapeHome(state: HomeUiState, onAction: (HomeAction) -> Unit) {
         }
         Row(Modifier.weight(1f).fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
             Column(Modifier.weight(1f), horizontalAlignment = Alignment.CenterHorizontally) {
-                SpeakButton({ onAction(HomeAction.Speak) }, size = 360.dp, label = stringResource(R.string.home_speak))
+                SpeakButton({ onAction(HomeAction.Speak) }, Modifier.weight(1f, fill = false), size = 360.dp, label = stringResource(R.string.home_speak))
                 Text(stringResource(R.string.home_speak), style = NpType.cardTitle, color = Np.colors.text)
                 Spacer(Modifier.height(12.dp))
                 Text(stringResource(R.string.home_example), style = NpType.body, color = Np.colors.muted, textAlign = TextAlign.Center)
@@ -107,8 +107,8 @@ private fun PortraitHome(state: HomeUiState, onAction: (HomeAction) -> Unit) {
             RecommendCard(state, onAction)
             MyPlacesCard(state, onAction)
         }
-        Spacer(Modifier.weight(1f))
-        Box(Modifier.fillMaxWidth(), contentAlignment = Alignment.Center) {
+        // 남는 자리만큼 말하기 버튼 (좁으면 원 모양 그대로 줄어듦)
+        Box(Modifier.fillMaxWidth().weight(1f), contentAlignment = Alignment.BottomCenter) {
             SpeakButton({ onAction(HomeAction.Speak) }, size = 240.dp, label = stringResource(R.string.home_speak))
         }
     }

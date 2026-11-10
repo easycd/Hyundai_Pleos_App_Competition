@@ -12,6 +12,8 @@ hilt = "2.52"
 hiltAndroidx = "1.2.0"
 room = "2.6.1"
 datastore = "1.1.1"
+# Pleos SDK가 끌어오는 JNA. 5.13은 x86_64 라이브러리가 4KB 정렬이라 16KB 페이지 기기에서 경고가 뜬다.
+jna = "5.17.0"
 work = "2.10.0"
 coreKtx = "1.15.0"
 splash = "1.0.1"
@@ -57,6 +59,7 @@ javax-inject = { module = "javax.inject:javax.inject", version = "1" }
 room-runtime = { module = "androidx.room:room-runtime", version.ref = "room" }
 room-ktx = { module = "androidx.room:room-ktx", version.ref = "room" }
 room-compiler = { module = "androidx.room:room-compiler", version.ref = "room" }
+jna = { module = "net.java.dev.jna:jna", version.ref = "jna" }
 datastore-preferences = { module = "androidx.datastore:datastore-preferences", version.ref = "datastore" }
 work-runtime = { module = "androidx.work:work-runtime-ktx", version.ref = "work" }
 retrofit = { module = "com.squareup.retrofit2:retrofit", version.ref = "retrofit" }

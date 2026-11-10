@@ -10,6 +10,7 @@ import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -27,11 +28,7 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.saveable.rememberSaveable
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
@@ -56,7 +53,7 @@ import com.easycd.nextplace.feature.voicesave.R
 
 /**
  * 어느 화면 위에도 겹쳐 뜨는 음성 레이어 (S-02a/b/c). 뒤 화면은 흐리게만 하고 바꾸지 않는다.
- * 카드 960×640dp (세로 창은 폭 가득) 안에 상태 문구 · 가운데 표시 · 문장 · 취소가 위에서 아래로 놓인다.
+ * 카드 최대 960×640dp, 좁은 창에서는 가장자리 24dp까지 (세로 창은 폭 가득) 안에 상태 문구 · 가운데 표시 · 문장 · 취소가 위에서 아래로 놓인다.
  * S-14 가게 찾는 중은 겹침이 아니라 화면 전체(문구 + 추정 위치 지도 + 말한 문장).
  */
 @Composable
@@ -64,7 +61,7 @@ fun ListenOverlay(state: ListenUiState, onAction: (ListenAction) -> Unit) {
     val portrait = LocalPortrait.current
     val talking = state.phase == ListenPhase.LISTENING || state.phase == ListenPhase.UNDERSTANDING || state.phase == ListenPhase.RETRY
     ScrimOverlay(talking) {
-        val size = if (portrait) Modifier.fillMaxWidth().padding(horizontal = 24.dp).heightIn(min = 640.dp) else Modifier.width(CARD_W.dp).height(CARD_H.dp)
+        val size = if (portrait) Modifier.fillMaxWidth().padding(horizontal = 24.dp).heightIn(min = 640.dp) else Modifier.padding(24.dp).widthIn(max = CARD_W.dp).fillMaxWidth().heightIn(max = CARD_H.dp).fillMaxHeight()
         GlassCard(size, strong = true, padding = 48.dp) {
             Column(Modifier.fillMaxSize(), horizontalAlignment = Alignment.CenterHorizontally) {
                 AnimatedContent(
@@ -110,28 +107,27 @@ private fun Listening(state: ListenUiState, onAction: (ListenAction) -> Unit) {
             maxLines = 2,
             overflow = TextOverflow.Ellipsis,
         )
-        if (state.devInput) DevInput(onAction)
+        if (state.devInput) DevInput(state.devDraft, onAction)
     }
 }
 
 /** 개발 빌드(가짜 SDK)에서만: 말할 문장을 글자로 넣는다. */
 @Composable
-private fun DevInput(onAction: (ListenAction) -> Unit) {
-    var text by rememberSaveable { mutableStateOf("") }
+private fun DevInput(text: String, onAction: (ListenAction) -> Unit) {
     Spacer(Modifier.height(24.dp))
     Row(verticalAlignment = Alignment.CenterVertically) {
         OutlinedTextField(
             value = text,
-            onValueChange = { text = it },
+            onValueChange = { onAction(ListenAction.DevDraft(it)) },
             placeholder = { Text(stringResource(R.string.dev_input_hint), style = NpType.small) },
             textStyle = NpType.body,
             singleLine = true,
             keyboardOptions = KeyboardOptions(imeAction = ImeAction.Send),
-            keyboardActions = KeyboardActions(onSend = { onAction(ListenAction.DevSubmit(text)); text = "" }),
+            keyboardActions = KeyboardActions(onSend = { onAction(ListenAction.DevSubmit(text)) }),
             modifier = Modifier.weight(1f).heightIn(min = 76.dp),
         )
         Spacer(Modifier.width(16.dp))
-        PillButton(stringResource(R.string.dev_input_send), { onAction(ListenAction.DevSubmit(text)); text = "" }, height = 76.dp)
+        PillButton(stringResource(R.string.dev_input_send), { onAction(ListenAction.DevSubmit(text)) }, height = 76.dp)
     }
 }
 
