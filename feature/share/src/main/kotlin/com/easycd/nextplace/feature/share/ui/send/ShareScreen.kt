@@ -60,7 +60,7 @@ fun ShareScreen(state: ShareUiState, onAction: (ShareAction) -> Unit) {
         Row(Modifier.fillMaxSize().imePadding().padding(horizontal = 40.dp, vertical = 8.dp)) {
             Column(Modifier.weight(1f)) {
                 Row(verticalAlignment = Alignment.CenterVertically) {
-                    FilterChip(stringResource(R.string.share_select_all), state.allSelected, { onAction(ShareAction.ToggleAll) })
+                    FilterChip(stringResource(if (state.allSelected) R.string.share_clear_all else R.string.share_select_all), state.allSelected, { onAction(ShareAction.ToggleAll) })
                     Spacer(Modifier.width(16.dp))
                     Text(stringResource(R.string.share_count, state.selectedCount), style = NpType.small, color = Np.colors.muted)
                 }
@@ -103,10 +103,15 @@ fun ShareScreen(state: ShareUiState, onAction: (ShareAction) -> Unit) {
                     }
                     Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(16.dp)) {
                         val link = state.link
-                        Text(
-                            link?.removePrefix("https://") ?: stringResource(if (state.tooBig) R.string.share_too_big else R.string.share_pick_first),
-                            style = NpType.small, color = Np.colors.muted, maxLines = 2, overflow = TextOverflow.Ellipsis,
-                        )
+                        // 링크는 띄어쓰기가 없어 줄바꿈이 이상한 곳에서 일어난다: 한 줄로 앞부분만 보이고 나머지는 … 로 줄인다
+                        if (link != null) {
+                            Text(link.removePrefix("https://"), style = NpType.small, color = Np.colors.muted, maxLines = 1, softWrap = false, overflow = TextOverflow.Ellipsis)
+                        } else {
+                            Text(
+                                stringResource(if (state.tooBig) R.string.share_too_big else R.string.share_pick_first),
+                                style = NpType.small, color = Np.colors.muted, maxLines = 2, overflow = TextOverflow.Ellipsis,
+                            )
+                        }
                         if (link != null && state.qr == null) Text(stringResource(R.string.share_qr_too_long), style = NpType.small, color = Np.colors.muted)
                         Crossfade(state.copied, animationSpec = tween(Motion.SCRIM_MS), label = "copy") { copied ->
                             PillButton(

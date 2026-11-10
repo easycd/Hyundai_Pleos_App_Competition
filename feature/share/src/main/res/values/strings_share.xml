@@ -2,6 +2,7 @@
 <resources>
     <string name="share_title">맛집 지도 공유</string>
     <string name="share_select_all">전체 선택</string>
+    <string name="share_clear_all">전체 해제</string>
     <string name="share_count">%1$d곳 선택됨 · 미확인 가게는 뺌</string>
     <string name="share_visits">방문 %1$d회</string>
     <string name="share_pick_first">보낼 가게를 골라 주세요</string>
