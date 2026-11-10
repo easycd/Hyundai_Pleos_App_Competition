@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="share_title">맛집 지도 공유</string>
+    <string name="share_select_all">전체 선택</string>
+    <string name="share_count">%1$d곳 선택 · 최대 30곳</string>
+    <string name="share_list_title">제목</string>
+    <string name="share_default_title">내 맛집 %1$d곳</string>
+    <string name="share_copy">링크 복사</string>
+    <string name="share_copied">복사했어요</string>
+    <string name="share_send">보내기</string>
+    <string name="share_qr_too_long">가게가 많아 QR 대신 링크로 보내 주세요</string>
+    <string name="share_receivers">받는 사람: 폰은 웹 목록 · 지도로 보고, Pleos 차량은 앱에서 바로 가져와요</string>
+    <string name="share_notice">이름 · 업종 · 주소 · 좌표 · 메모만 링크에 담겨요. 보낸 링크는 회수할 수 없어요</string>
+    <string name="share_none">공유할 확인된 가게가 없어요</string>
+    <string name="share_chooser">맛집 목록 보내기</string>
+
+    <string name="import_title">받은 목록 가져오기</string>
+    <string name="import_from">%1$s · %2$s</string>
+    <string name="import_exists">이미 있음</string>
+    <string name="import_add">내 지도에 추가</string>
+    <string name="import_close">닫기</string>
+    <string name="import_broken">목록을 열 수 없어요</string>
+    <string name="import_too_new">앱을 업데이트해 주세요</string>
+    <string name="cancel">취소</string>
+</resources>

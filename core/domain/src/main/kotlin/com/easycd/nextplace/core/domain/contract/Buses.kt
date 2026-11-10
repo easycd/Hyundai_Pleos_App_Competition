@@ -37,3 +37,26 @@ class AppForeground @Inject constructor() {
         _visible.value = visible
     }
 }
+
+/** S-08 "공유에 담기"로 고른 가게 (S-10 에서 미리 체크). 메모리에만 둔다. */
+@Singleton
+class ShareCart @Inject constructor() {
+    private val _ids = kotlinx.coroutines.flow.MutableStateFlow<Set<String>>(emptySet())
+    val ids: kotlinx.coroutines.flow.StateFlow<Set<String>> = _ids
+    fun add(id: String) {
+        _ids.value = _ids.value + id
+    }
+    fun clear() {
+        _ids.value = emptySet()
+    }
+}
+
+/** 방금 가져온 가게 (S-16b: 내 맛집 목록에서 새 줄을 주황 톤으로 잠깐 강조). */
+@Singleton
+class RecentImport @Inject constructor() {
+    private val _ids = kotlinx.coroutines.flow.MutableStateFlow<Set<String>>(emptySet())
+    val ids: kotlinx.coroutines.flow.StateFlow<Set<String>> = _ids
+    fun set(ids: Set<String>) {
+        _ids.value = ids
+    }
+}
