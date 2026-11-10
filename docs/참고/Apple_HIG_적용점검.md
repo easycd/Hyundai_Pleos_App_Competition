@@ -1,6 +1,6 @@
 # Apple 디자인 가이드(HIG) 확인 결과 — 다음에 가게 적용 점검
 
-확인일 2026-11-09 · 확인 범위: https://developer.apple.com/kr/design/ 의 Human Interface Guidelines 전체(아래 1장) · 비교 대상: [02_화면설계서](../02_화면설계서.md) 커밋 3055f58, [앱 아이콘 최종](../design/icons/final/)
+확인일 2026-11-09 · 확인 범위: https://developer.apple.com/kr/design/ 의 Human Interface Guidelines 전체(아래 1장) · 비교 대상: [02_화면설계서](../02_화면설계서.md) 커밋 e249833, [앱 아이콘 최종](../design/icons/final/)
 
 ## 0. 요약
 
