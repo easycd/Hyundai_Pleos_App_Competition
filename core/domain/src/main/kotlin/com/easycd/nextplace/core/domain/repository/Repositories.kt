@@ -49,6 +49,7 @@ interface VisitRepository {
     /** [since] 이후에 도착했거나 아직 머무는 중인 가장 최근 방문. */
     suspend fun latestSince(since: Long): Visit?
     suspend fun lastFor(placeId: String): Visit?
+    suspend fun countFor(placeId: String): Int
 }
 
 interface VisitSessionRepository {

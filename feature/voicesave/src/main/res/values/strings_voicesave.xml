@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="home_app_name">다음에 가게</string>
+    <string name="home_speak">눌러서 말하기</string>
+    <string name="home_example">“방금 지난 가게 저장해줘”\n“뭐 먹을까”</string>
+    <string name="home_recommend">뭐 먹을까</string>
+    <string name="home_recommend_sub">근처 저장 가게 중 %1$d곳 추천</string>
+    <string name="home_recommend_sub_far">저장한 가게 중에서 추천</string>
+    <string name="home_recommend_empty">아직 저장한 가게가 없어요</string>
+    <string name="home_myplaces">내 맛집</string>
+    <string name="home_myplaces_sub">%1$d곳 · 미확인 %2$d곳</string>
+    <string name="home_myplaces_sub_all">%1$d곳</string>
+    <string name="home_latest_label">최근 저장 · %1$s</string>
+    <string name="home_unknown_name">이름 모름</string>
+    <string name="home_no_location">위치 없음</string>
+    <string name="home_empty_title">지나친 가게를 말로 저장해 보세요</string>
+    <string name="home_empty_sub">말하기를 누르고 “방금 지난 고깃집 저장해줘”</string>
+    <string name="home_current_location">현재 위치</string>
+    <string name="home_settings">설정</string>
+    <string name="home_simulated">가짜 위치 재생 중</string>
+    <string name="chip_unconfirmed">미확인</string>
+    <string name="chip_saved">저장됨</string>
+    <string name="chip_found">후보 찾음</string>
+    <string name="chip_visits">방문 %1$d회</string>
+
+    <string name="listen_title">듣고 있어요</string>
+    <string name="listen_hint">“방금 지난 고깃집 저장해줘”</string>
+    <string name="understand_title">알아듣는 중</string>
+    <string name="retry_title">잘 못 들었어요</string>
+    <string name="retry_sub">다시 한 번 말해 주세요</string>
+    <string name="retry_example">예: “오른쪽 빨간 간판 갈비집 저장해줘”</string>
+    <string name="search_title">주변 가게 찾는 중</string>
+    <string name="cancel">취소</string>
+    <string name="dev_input_hint">말할 문장을 입력 (가짜 음성)</string>
+    <string name="dev_input_send">말하기</string>
+
+    <string name="confirm_q">이 가게 맞나요?</string>
+    <string name="confirm_q_second">그럼 이 가게인가요?</string>
+    <string name="confirm_yes">예</string>
+    <string name="confirm_no">아니요</string>
+    <string name="confirm_wait">5초 안에 대답이 없으면 위치만 저장해요</string>
+    <string name="confirm_meta">%1$s · %2$s %3$s</string>
+    <string name="confirm_meta_side">%1$s · %2$s %3$s · %4$s</string>
+    <string name="dir_ahead">앞</string>
+    <string name="dir_behind">뒤</string>
+    <string name="side_left">왼쪽</string>
+    <string name="side_right">오른쪽</string>
+</resources>

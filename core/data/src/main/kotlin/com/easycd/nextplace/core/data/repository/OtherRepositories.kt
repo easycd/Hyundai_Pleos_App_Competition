@@ -26,6 +26,7 @@ internal class RoomVisitRepository @Inject constructor(db: NextPlaceDb) : VisitR
     override suspend fun setNote(id: String, note: String) = dao.setNote(id, note)
     override suspend fun latestSince(since: Long): Visit? = dao.latestSince(since)?.toModel()
     override suspend fun lastFor(placeId: String): Visit? = dao.lastFor(placeId)?.toModel()
+    override suspend fun countFor(placeId: String): Int = dao.countFor(placeId)
 }
 
 internal class RoomVisitSessionRepository @Inject constructor(db: NextPlaceDb) : VisitSessionRepository {

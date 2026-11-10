@@ -1,0 +1,76 @@
+package com.easycd.nextplace.core.ui.component
+
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.scaleIn
+import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxScope
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.widthIn
+import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.dp
+import com.easycd.nextplace.core.ui.theme.Motion
+import com.easycd.nextplace.core.ui.theme.Np
+import com.easycd.nextplace.core.ui.theme.NpType
+
+/** 겹침 화면 공통: 뒤 화면 72% 어둡게 (160ms) + 창 96→100% (200ms). 배경을 눌러도 아무 일 없음. */
+@Composable
+fun ScrimOverlay(visible: Boolean, modifier: Modifier = Modifier, content: @Composable BoxScope.() -> Unit) {
+    AnimatedVisibility(visible, enter = fadeIn(tween(Motion.SCRIM_MS)), exit = fadeOut(tween(Motion.SCRIM_MS))) {
+        Box(
+            modifier.fillMaxSize().background(Np.colors.scrim)
+                .clickable(remember { MutableInteractionSource() }, indication = null) { },
+            contentAlignment = Alignment.Center,
+        ) {
+            Box(Modifier.animateEnterExit(enter = scaleIn(tween(Motion.BASE_MS, easing = Motion.standard), initialScale = 0.96f)), content = content)
+        }
+    }
+}
+
+/** 확인 창 (S-08c, S-11b 등): 가운데 폭 800dp, 질문 40 + 설명 28 + 버튼. 취소 왼쪽, 실행 오른쪽. */
+@Composable
+fun ConfirmDialog(
+    visible: Boolean,
+    question: String,
+    description: String?,
+    confirmText: String,
+    cancelText: String,
+    onConfirm: () -> Unit,
+    onCancel: () -> Unit,
+    danger: Boolean = false,
+    width: Dp = 800.dp,
+) {
+    ScrimOverlay(visible) {
+        GlassCard(Modifier.widthIn(max = width).padding(horizontal = 24.dp), strong = true, padding = 48.dp) {
+            Column {
+                Text(question, style = NpType.cardTitle, color = Np.colors.text)
+                if (description != null) {
+                    Spacer(Modifier.height(16.dp))
+                    Text(description, style = NpType.body, color = Np.colors.muted)
+                }
+                Spacer(Modifier.height(40.dp))
+                Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(24.dp)) {
+                    PillButton(cancelText, onCancel, Modifier.weight(1f))
+                    PillButton(confirmText, onConfirm, Modifier.weight(1f), kind = if (danger) PillKind.DANGER else PillKind.PRIMARY)
+                }
+            }
+        }
+    }
+}

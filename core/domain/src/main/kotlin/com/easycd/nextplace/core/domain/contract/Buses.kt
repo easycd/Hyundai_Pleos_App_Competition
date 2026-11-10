@@ -27,3 +27,13 @@ class Messages @Inject constructor() {
         _messages.tryEmit(message)
     }
 }
+
+/** 앱 창이 보이는가 (app 이 ProcessLifecycleOwner 로 갱신). 리마인드·방문 메모 카드를 앱 창에 띄울지 고를 때 쓴다. */
+@Singleton
+class AppForeground @Inject constructor() {
+    private val _visible = kotlinx.coroutines.flow.MutableStateFlow(false)
+    val visible: kotlinx.coroutines.flow.StateFlow<Boolean> = _visible
+    fun set(visible: Boolean) {
+        _visible.value = visible
+    }
+}

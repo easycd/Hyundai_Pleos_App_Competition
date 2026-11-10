@@ -8,6 +8,7 @@ sealed interface Destination {
     data class PlaceDetail(val id: String) : Destination
     data class Resolve(val id: String) : Destination
     data class Edit(val id: String) : Destination
+    data class Search(val id: String) : Destination
     data object Settings : Destination
     data class Share(val preselectId: String? = null) : Destination
     data class Import(val payload: String) : Destination

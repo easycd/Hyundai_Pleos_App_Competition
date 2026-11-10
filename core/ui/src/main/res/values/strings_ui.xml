@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name_ui">다음에 가게</string>
+    <string name="ui_back">뒤로</string>
+    <string name="ui_close">닫기</string>
+    <string name="ui_cancel">취소</string>
+    <string name="ui_undo">되돌리기</string>
+    <string name="ui_speak">말하기</string>
+
+    <!-- 토스트 (화면 설계서 4장, 4초) -->
+    <string name="toast_saved">%1$s 저장했어요</string>
+    <string name="toast_already">이미 저장한 가게예요 · %1$s</string>
+    <string name="toast_location_only">위치를 기억해 둘게요\n이름 모름 · %1$s · 멈춘 뒤 정리해요</string>
+    <string name="toast_location_only_no_road">위치를 기억해 둘게요\n이름 모름 · 멈춘 뒤 정리해요</string>
+    <string name="toast_text_only">말씀은 기억해 둘게요\n이름 모름 · 위치 없음</string>
+    <string name="toast_save_failed">지금은 저장하지 못했어요</string>
+    <string name="toast_cancelled">취소했어요</string>
+    <string name="toast_say_again_later">다음에 다시 말해 주세요</string>
+    <string name="toast_route">%1$s 안내할게요</string>
+    <string name="toast_route_change">목적지를 %1$s 바꿀게요</string>
+    <string name="toast_route_failed">안내를 시작하지 못했어요</string>
+    <string name="toast_deleted">%1$s 지웠어요</string>
+    <string name="toast_edited">수정했어요</string>
+    <string name="toast_resolved">저장했어요</string>
+    <string name="toast_merged">이미 저장한 가게라 합쳤어요</string>
+    <string name="toast_note">%1$s에 남겼어요 · “%2$s”</string>
+    <string name="toast_imported">%1$d곳을 내 지도에 추가했어요</string>
+    <string name="toast_import_failed">다시 해 보세요</string>
+    <string name="toast_link_copied">링크를 복사했어요</string>
+    <string name="toast_drive_locked">멈춘 뒤에 열 수 있어요</string>
+    <string name="toast_no_more">더 없어요</string>
+
+    <!-- S-12 주행 중 안내 -->
+    <string name="drive_title_fallback">주행 중</string>
+    <string name="drive_line1">멈춘 뒤에 볼 수 있어요</string>
+    <string name="drive_line2">주행 중에는 말로 저장하고 추천받을 수 있어요</string>
+</resources>

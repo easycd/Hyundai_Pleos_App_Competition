@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="remind_saved_when">%1$s 저장</string>
+    <string name="remind_ahead">%1$s 앞</string>
+    <string name="remind_near">근처</string>
+    <string name="remind_question">갈까요?</string>
+    <string name="remind_start">안내 시작</string>
+    <string name="remind_close">닫기</string>
+    <string name="remind_route">%1$s 안내할게요</string>
+    <string name="remind_route_change">목적지를 %1$s 바꿀게요</string>
+    <string name="when_today">오늘</string>
+    <string name="when_yesterday">어제</string>
+    <string name="when_this_week">이번 주에</string>
+    <string name="when_last_week">지난주에</string>
+    <string name="when_this_month">이번 달에</string>
+    <string name="when_long_ago">전에</string>
+    <string name="when_shared">받은 목록에서</string>
+    <string name="remind_notify_text">%1$s · 갈까요? “응”이라고 말하면 안내해요</string>
+</resources>

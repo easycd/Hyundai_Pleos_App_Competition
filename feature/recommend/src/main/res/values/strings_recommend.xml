@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="rec_title">추천</string>
+    <string name="rec_title_category">%1$s 추천</string>
+    <string name="rec_start">안내 시작</string>
+    <string name="rec_more">다른 곳 추천</string>
+    <string name="rec_widen">30km까지 넓혀 보기</string>
+    <string name="rec_none_saved">아직 저장한 가게가 없어요</string>
+    <string name="rec_none_10km">10km 안에 저장한 가게가 없어요</string>
+    <string name="rec_none_10km_category">근처에 저장한 %1$s 없어요</string>
+    <string name="rec_none_30km">30km 안에 저장한 가게가 없어요</string>
+    <string name="rec_none_30km_category">30km 안에 저장한 %1$s 없어요</string>
+    <string name="rec_hint">“2번” 또는 가게 이름을 말해도 돼요</string>
+</resources>
