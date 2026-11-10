@@ -8,6 +8,7 @@ import com.easycd.nextplace.core.domain.model.PoiCandidate
 import com.easycd.nextplace.core.domain.pipeline.Stage
 import com.easycd.nextplace.core.domain.repository.PlaceRepository
 import com.easycd.nextplace.core.domain.usecase.withDbRetry
+import com.easycd.nextplace.feature.voicesave.recovery.ResearchScheduler
 import javax.inject.Inject
 
 sealed interface PersistKind {
@@ -33,7 +34,10 @@ sealed interface PersistResult {
  * 같은 가게(provider·providerId)가 이미 있으면 초안을 지우고 기존 행에 단서만 덧붙인다 (기술서 8장 합치기).
  * DB 오류는 3회 재시도, 끝내 실패면 Failed (저장했다고 말하지 않음).
  */
-class PersistStage @Inject constructor(private val places: PlaceRepository) : Stage<PersistInput, PersistResult> {
+class PersistStage @Inject constructor(
+    private val places: PlaceRepository,
+    private val research: ResearchScheduler,
+) : Stage<PersistInput, PersistResult> {
     override val name = "8 Persist"
 
     override suspend fun run(input: PersistInput): PersistResult {
@@ -84,6 +88,8 @@ class PersistStage @Inject constructor(private val places: PlaceRepository) : St
                 candidates = k.candidates,
             ),
         )
+        // 오프라인·시간 초과로 후보 없이 저장했으면 네트워크 복구 뒤 재검색 (홈 '후보 찾음' 칩)
+        if (k.point != null && k.candidates.isEmpty()) research.schedule()
         return if (k.point != null) PersistResult.LocationOnly else PersistResult.TextOnly
     }
 }

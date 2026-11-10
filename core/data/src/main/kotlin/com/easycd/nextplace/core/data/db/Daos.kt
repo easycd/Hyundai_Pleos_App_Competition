@@ -127,9 +127,6 @@ interface VisitDao {
     @Query("SELECT note FROM visit WHERE placeId = :placeId AND note IS NOT NULL ORDER BY arrivedAt DESC")
     suspend fun notesFor(placeId: String): List<String>
 
-    @Query("SELECT COUNT(*) FROM visit WHERE placeId = :placeId")
-    suspend fun countFor(placeId: String): Int
-
     @Query("SELECT note FROM visit WHERE placeId = :placeId AND note IS NOT NULL ORDER BY arrivedAt DESC")
     fun observeNotesFor(placeId: String): Flow<List<String>>
 

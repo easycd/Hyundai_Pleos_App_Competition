@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">다음에 가게</string>
+    <string name="splash_tagline">지나친 가게, 말로 저장하세요</string>
+
+    <!-- S-13 처음 실행 안내 -->
+    <string name="onb_title">기록은 차 안에만 남아요</string>
+    <string name="onb_desc">저장한 가게·위치·방문 기록은 이 차에만 보관해요. 말소리 인식과 가게 찾기에는 인터넷을 써요.</string>
+    <string name="onb_mic">마이크</string>
+    <string name="onb_mic_why">말한 내용으로 가게를 찾아요</string>
+    <string name="onb_location">위치</string>
+    <string name="onb_location_why">지나친 가게를 추정하고 근처에서 알려요</string>
+    <string name="onb_navi">내비</string>
+    <string name="onb_navi_why">고른 가게로 안내를 시작해요</string>
+    <string name="onb_later">나중에</string>
+    <string name="onb_start">시작하기</string>
+
+    <!-- S-17 권한 없음 -->
+    <string name="perm_mic_title">마이크를 쓸 수 없어요</string>
+    <string name="perm_mic_desc">말한 내용으로 가게를 찾으려면 마이크 허용이 필요해요. 차량 설정에서 켤 수 있어요.</string>
+    <string name="perm_voice_title">음성 서비스를 쓸 수 없어요</string>
+    <string name="perm_voice_desc">잠시 뒤 다시 해 보세요. 지금은 위치만 저장할 수 있어요.</string>
+    <string name="perm_location_title">위치를 쓸 수 없어요</string>
+    <string name="perm_location_desc">지나친 가게를 찾으려면 필요해요. 차량 설정에서 켤 수 있어요.</string>
+    <string name="perm_navi_title">내비를 쓸 수 없어요</string>
+    <string name="perm_navi_desc">고른 가게로 안내를 시작하려면 내비 허용이 필요해요. 차량 설정에서 켤 수 있어요.</string>
+    <string name="perm_open_settings">설정에서 허용</string>
+    <string name="perm_close">닫기</string>
+    <string name="perm_location_only">위치만 저장</string>
+    <string name="perm_stop_first">멈춘 뒤 설정에서 허용해 주세요</string>
+    <string name="sim_location">가짜 위치 재생 중</string>
+</resources>

@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- 시스템 시작 화면은 배경만 (아이콘은 투명): S-00 애니메이션은 Compose 가 바로 이어서 그린다. -->
+    <style name="Theme.NextPlace.Starting" parent="Theme.SplashScreen">
+        <item name="windowSplashScreenBackground">@color/np_background</item>
+        <item name="windowSplashScreenAnimatedIcon">@drawable/splash_blank</item>
+        <item name="postSplashScreenTheme">@style/Theme.NextPlace</item>
+    </style>
+
+    <style name="Theme.NextPlace" parent="android:Theme.Material.NoActionBar">
+        <item name="android:windowBackground">@color/np_background</item>
+        <item name="android:statusBarColor">@android:color/transparent</item>
+        <item name="android:navigationBarColor">@android:color/transparent</item>
+    </style>
+</resources>
