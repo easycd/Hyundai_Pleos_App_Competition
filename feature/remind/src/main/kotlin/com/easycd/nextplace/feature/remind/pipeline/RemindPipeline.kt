@@ -2,7 +2,10 @@ package com.easycd.nextplace.feature.remind.pipeline
 
 import android.content.Context
 import com.easycd.nextplace.core.domain.Tunables
+import com.easycd.nextplace.core.domain.contract.Destination
 import com.easycd.nextplace.core.domain.contract.Messages
+import com.easycd.nextplace.core.domain.contract.Navigator
+import com.easycd.nextplace.core.domain.contract.PermissionKind
 import com.easycd.nextplace.core.domain.model.Place
 import com.easycd.nextplace.core.domain.model.PlaceSource
 import com.easycd.nextplace.core.domain.model.UserMessage
@@ -68,6 +71,7 @@ class RemindPipeline @Inject constructor(
     private val permissions: PermissionChecker,
     private val headsUp: HeadsUp,
     private val messages: Messages,
+    private val navigator: Navigator,
     private val clock: Clock,
     private val trace: TraceLog,
 ) {
@@ -145,7 +149,8 @@ class RemindPipeline @Inject constructor(
     }
 
     private suspend fun route(p: Place, name: String) {
-        if (!permissions.hasNavi()) return
+        // 내비 권한이 없으면 S-17 '내비를 쓸 수 없어요' (화면 설계서 S-17 들어오는 길: 안내 시작)
+        if (!permissions.hasNavi()) return navigator.go(Destination.PermissionNeeded(PermissionKind.NAVI))
         val changing = routes.hasDestination()
         _state.value = RemindState.Routing(name, changing)
         tts.speak(if (changing) VoicePrompt.RouteChange(name) else VoicePrompt.RouteStart(name))

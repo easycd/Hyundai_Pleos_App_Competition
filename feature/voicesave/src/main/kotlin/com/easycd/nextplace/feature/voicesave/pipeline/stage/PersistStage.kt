@@ -12,8 +12,13 @@ import com.easycd.nextplace.feature.voicesave.recovery.ResearchScheduler
 import javax.inject.Inject
 
 sealed interface PersistKind {
-    /** 확정: 고른 후보로 저장. */
-    data class Confirmed(val candidate: PoiCandidate, val category: String?, val candidates: List<PoiCandidate>) : PersistKind
+    /** 확정: 고른 후보로 저장. [certain] = 되묻지 않고 바로 저장 (TTS 에 가게 이름을 넣는다, 기획서 6장). */
+    data class Confirmed(
+        val candidate: PoiCandidate,
+        val category: String?,
+        val candidates: List<PoiCandidate>,
+        val certain: Boolean = false,
+    ) : PersistKind
 
     /** 미확인: 추정 지점(없으면 위치 없음)과 후보만. */
     data class Unconfirmed(val point: GeoPoint?, val candidates: List<PoiCandidate>, val roadName: String? = null) : PersistKind
@@ -22,7 +27,7 @@ sealed interface PersistKind {
 data class PersistInput(val draft: Place, val kind: PersistKind)
 
 sealed interface PersistResult {
-    data class Saved(val name: String, val id: String) : PersistResult
+    data class Saved(val name: String, val id: String, val certain: Boolean = false) : PersistResult
     data class Merged(val name: String, val id: String) : PersistResult
     data object LocationOnly : PersistResult
     data object TextOnly : PersistResult
@@ -73,7 +78,7 @@ class PersistStage @Inject constructor(
                 candidates = k.candidates,
             ),
         )
-        return PersistResult.Saved(c.name, draft.id)
+        return PersistResult.Saved(c.name, draft.id, k.certain)
     }
 
     private suspend fun unconfirmed(draft: Place, k: PersistKind.Unconfirmed): PersistResult {

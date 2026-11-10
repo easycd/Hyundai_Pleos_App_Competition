@@ -101,7 +101,7 @@ class FindAndConfirm @Inject constructor(
         val ranked = (runner.run(PIPE, rank, RankInput(found, located, cues)) as? StageOutcome.Ok)?.value.orEmpty()
         val top = ranked.firstOrNull() ?: return PersistKind.Unconfirmed(located.point, emptyList())
         if (top.score < Tunables.SCORE_MIN_TOP) return PersistKind.Unconfirmed(located.point, ranked)
-        if (scorer.isCertain(ranked, cues)) return confirmed(top, cues, ranked)
+        if (scorer.isCertain(ranked, cues)) return confirmed(top, cues, ranked).copy(certain = true)
         val asked = runner.run(PIPE, confirm, ConfirmInput(ranked, cues, snap, io))
         return when (val r = (asked as? StageOutcome.Ok)?.value ?: ConfirmResult.Unconfirmed) {
             is ConfirmResult.Chosen -> confirmed(r.candidate, cues, ranked)

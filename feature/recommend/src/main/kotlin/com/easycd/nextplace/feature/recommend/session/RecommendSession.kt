@@ -61,6 +61,8 @@ class RecommendSession @Inject constructor(
     private var idle: Job? = null
     private var sending: Job? = null
     private val gate = AtomicBoolean(false)
+    /** 1.5초가 지나 목적지를 보내기 시작함: 이 뒤로는 앱에서 취소하지 않는다 (안내 취소는 Pleos 내비에서). */
+    @Volatile private var committed = false
 
     override fun open(category: String?, snapshot: LocationSnapshot) {
         this.snapshot = snapshot
@@ -98,12 +100,14 @@ class RecommendSession @Inject constructor(
         talk?.cancel()
         idle?.cancel()
         _state.value = s.copy(selectedIndex = index, readingIndex = null)
+        committed = false
         sending = scope.launch {
             val place = places.get(card.id) ?: return@launch
             val changing = routes.hasDestination()
             messages.show(UserMessage.Routing(card.name, changing))
             launch { tts.speak(if (changing) VoicePrompt.RouteChange(card.name) else VoicePrompt.RouteStart(card.name)) }
             delay(Tunables.RECOMMEND_SEND_DELAY_MS)
+            committed = true
             if (!routes.send(place)) {
                 messages.show(UserMessage.RouteFailed)
                 tts.speak(VoicePrompt.RouteFailed)
@@ -115,7 +119,7 @@ class RecommendSession @Inject constructor(
     /** 뒤로: 1.5초 안이면 선택을 취소하고 S-06 으로, 아니면 홈. */
     fun back() {
         val s = _state.value as? RecommendState.Showing
-        if (s?.selectedIndex != null && sending?.isActive == true) {
+        if (s?.selectedIndex != null && sending?.isActive == true && !committed) {
             sending?.cancel()
             tts.stop()
             gate.set(false)

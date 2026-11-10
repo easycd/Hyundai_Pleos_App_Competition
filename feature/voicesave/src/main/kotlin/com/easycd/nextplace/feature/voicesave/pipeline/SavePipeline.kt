@@ -220,7 +220,7 @@ class SavePipeline @Inject constructor(
     private suspend fun report(r: PersistResult) {
         val road = navi.roadName.value
         val (msg, prompt) = when (r) {
-            is PersistResult.Saved -> UserMessage.Saved(r.name) to VoicePrompt.Saved
+            is PersistResult.Saved -> UserMessage.Saved(r.name) to if (r.certain) VoicePrompt.SavedNamed(r.name) else VoicePrompt.Saved
             is PersistResult.Merged -> UserMessage.AlreadySaved(r.name) to VoicePrompt.AlreadySaved
             PersistResult.LocationOnly -> UserMessage.SavedLocationOnly(road) to VoicePrompt.SavedLocationOnly
             PersistResult.TextOnly -> UserMessage.SavedTextOnly to VoicePrompt.SavedTextOnly
