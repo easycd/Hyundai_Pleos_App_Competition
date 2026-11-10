@@ -6,6 +6,8 @@ import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.background
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -37,6 +39,7 @@ import com.easycd.nextplace.core.ui.component.RoundIconButton
 import com.easycd.nextplace.core.ui.component.SpeakButton
 import com.easycd.nextplace.core.ui.component.StatusChip
 import com.easycd.nextplace.core.ui.component.glass
+import com.easycd.nextplace.core.ui.drive.LocalCompact
 import com.easycd.nextplace.core.ui.drive.LocalPortrait
 import com.easycd.nextplace.core.ui.icon.NpIcons
 import com.easycd.nextplace.core.ui.text.TimeText
@@ -51,15 +54,15 @@ fun HomeScreen(state: HomeUiState, onAction: (HomeAction) -> Unit) {
     val portrait = LocalPortrait.current
     Box(Modifier.fillMaxSize().background(Np.colors.background)) {
         if (portrait) PortraitHome(state, onAction) else LandscapeHome(state, onAction)
-        if (state.simulated) {
-            Text(
-                stringResource(R.string.home_simulated),
-                style = NpType.small,
-                color = Np.colors.muted,
-                modifier = Modifier.align(Alignment.BottomEnd).padding(24.dp),
-            )
-        }
+        // 세로 창은 말하기 버튼 옆 오른쪽 아래 빈 곳. 가로 창은 말하기 칸 아래에 둔다 (카드와 겹치지 않게).
+        if (state.simulated && portrait) SimulatedLabel(Modifier.align(Alignment.BottomEnd).padding(24.dp))
     }
+}
+
+/** 개발 빌드에서 가짜 위치를 재생 중일 때만. */
+@Composable
+private fun SimulatedLabel(modifier: Modifier = Modifier) {
+    Text(stringResource(R.string.home_simulated), style = NpType.small, color = Np.colors.muted, modifier = modifier)
 }
 
 @Composable
@@ -68,19 +71,28 @@ private fun LandscapeHome(state: HomeUiState, onAction: (HomeAction) -> Unit) {
         Row(verticalAlignment = Alignment.CenterVertically) {
             AppNamePill()
             Spacer(Modifier.width(16.dp))
-            state.locationLabel?.let { LocationPill(it) }
-            Spacer(Modifier.weight(1f))
+            // 남는 폭 안에서만 위치 칩을 그린다: 좁은 창에서는 위치 글자가 줄어들고(…) 설정 버튼은 제 크기를 지킨다
+            Box(Modifier.weight(1f)) { state.locationLabel?.let { LocationPill(it) } }
+            Spacer(Modifier.width(16.dp))
             RoundIconButton(NpIcons.Settings, stringResource(R.string.home_settings), { onAction(HomeAction.Settings) })
         }
+        // 좁은 가로 창은 카드 칸을 넓혀 카드 글자가 잘리지 않게 하고, 말하기 원은 남는 자리만큼 줄어든다
+        val compact = LocalCompact.current
         Row(Modifier.weight(1f).fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
-            Column(Modifier.weight(1f), horizontalAlignment = Alignment.CenterHorizontally) {
+            Column(Modifier.weight(if (compact) COMPACT_SPEAK_WEIGHT else 1f), horizontalAlignment = Alignment.CenterHorizontally) {
                 SpeakButton({ onAction(HomeAction.Speak) }, Modifier.weight(1f, fill = false), size = 360.dp, label = stringResource(R.string.home_speak))
                 Text(stringResource(R.string.home_speak), style = NpType.cardTitle, color = Np.colors.text)
                 Spacer(Modifier.height(12.dp))
                 Text(stringResource(R.string.home_example), style = NpType.body, color = Np.colors.muted, textAlign = TextAlign.Center)
+                if (state.simulated) {
+                    Spacer(Modifier.height(16.dp))
+                    SimulatedLabel()
+                }
             }
-            Spacer(Modifier.width(40.dp))
-            Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(24.dp)) {
+            Spacer(Modifier.width(if (compact) 24.dp else 40.dp))
+            // 좁은 창에서 카드가 세로로 넘치면 잘리지 않고 밀어 볼 수 있게
+            val cards = if (compact) Modifier.weight(1f).verticalScroll(rememberScrollState()) else Modifier.weight(1f)
+            Column(cards, verticalArrangement = Arrangement.spacedBy(if (compact) 16.dp else 24.dp)) {
                 RecommendCard(state, onAction)
                 MyPlacesCard(state, onAction)
                 LatestOrEmpty(state, onAction)
@@ -127,11 +139,11 @@ private fun AppNamePill() {
 }
 
 @Composable
-private fun LocationPill(label: LocationLabel) {
+private fun LocationPill(label: LocationLabel, modifier: Modifier = Modifier) {
     val road = label.road ?: stringResource(R.string.home_current_location)
     val text = listOfNotNull(road, label.heading.takeIf { label.road != null }).joinToString(" · ")
     Row(
-        Modifier.glass(CircleShape).heightIn(min = 88.dp).padding(horizontal = 32.dp),
+        modifier.glass(CircleShape).heightIn(min = 88.dp).padding(horizontal = 32.dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {
         Icon(NpIcons.Navigation, null, tint = Np.colors.brandText, modifier = Modifier.size(32.dp))
@@ -170,7 +182,7 @@ private fun NavCard(icon: ImageVector, title: String, sub: String, onClick: () -
             Spacer(Modifier.width(28.dp))
             Column(Modifier.weight(1f)) {
                 Text(title, style = NpType.cardTitle, color = Np.colors.text)
-                Text(sub, style = NpType.body, color = Np.colors.muted, maxLines = 1, overflow = TextOverflow.Ellipsis)
+                Text(sub, style = NpType.body, color = Np.colors.muted, maxLines = 2, overflow = TextOverflow.Ellipsis)
             }
             Icon(NpIcons.ChevronRight, null, tint = Np.colors.muted, modifier = Modifier.size(40.dp))
         }
@@ -227,8 +239,11 @@ private fun LatestCardView(card: LatestCard, onClick: () -> Unit) {
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Icon(NpIcons.MapPin, null, tint = Np.colors.brandText, modifier = Modifier.size(44.dp))
                 Spacer(Modifier.width(20.dp))
-                Text(title, style = NpType.cardTitle, color = Np.colors.text, maxLines = 1, overflow = TextOverflow.Ellipsis)
+                Text(title, style = NpType.cardTitle, color = Np.colors.text, maxLines = 2, overflow = TextOverflow.Ellipsis)
             }
         }
     }
 }
+
+/** 좁은 가로 창에서 말하기 칸 : 카드 칸 = 0.7 : 1. */
+private const val COMPACT_SPEAK_WEIGHT = 0.7f

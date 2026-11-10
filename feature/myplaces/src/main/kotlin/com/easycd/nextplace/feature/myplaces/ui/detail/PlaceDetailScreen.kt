@@ -43,6 +43,7 @@ import com.easycd.nextplace.core.ui.component.PillKind
 import com.easycd.nextplace.core.ui.component.PinMap
 import com.easycd.nextplace.core.ui.component.PinTone
 import com.easycd.nextplace.core.ui.component.ScreenFrame
+import com.easycd.nextplace.core.ui.drive.LocalCompact
 import com.easycd.nextplace.core.ui.drive.LocalPortrait
 import com.easycd.nextplace.core.ui.icon.NpIcons
 import com.easycd.nextplace.core.ui.text.DistanceText
@@ -67,7 +68,15 @@ fun PlaceDetailScreen(state: PlaceDetailUiState, onAction: (PlaceDetailAction) -
         ) {
             Column(Modifier.fillMaxSize().padding(horizontal = 40.dp)) {
                 Row(Modifier.weight(1f).fillMaxWidth()) {
-                    Column(Modifier.weight(1f).verticalScroll(rememberScrollState())) { Info(state, onAction) }
+                    Column(Modifier.weight(1f).verticalScroll(rememberScrollState())) {
+                        Info(state, onAction)
+                        // 좁은 가로 창: 아래 줄에 세 버튼이 다 들어가지 않아 삭제는 정보 맨 아래로 (실수로 누르지 않게 떨어뜨림은 그대로)
+                        if (LocalCompact.current) {
+                            Spacer(Modifier.height(32.dp))
+                            DeleteButton(onAction)
+                            Spacer(Modifier.height(24.dp))
+                        }
+                    }
                     if (!portrait) {
                         Spacer(Modifier.width(40.dp))
                         Box(Modifier.weight(MAP_WEIGHT).fillMaxHeight().padding(bottom = 24.dp)) {
@@ -155,9 +164,16 @@ private fun Actions(s: PlaceDetailUiState, onAction: (PlaceDetailAction) -> Unit
                 height = 112.dp,
             )
         }
-        Spacer(Modifier.width(24.dp))
-        PillButton(stringResource(R.string.detail_delete), { onAction(PlaceDetailAction.Delete) }, kind = PillKind.DANGER_OUTLINE, icon = NpIcons.Trash, height = 112.dp)
+        if (!LocalCompact.current) {
+            Spacer(Modifier.width(24.dp))
+            DeleteButton(onAction)
+        }
     }
+}
+
+@Composable
+private fun DeleteButton(onAction: (PlaceDetailAction) -> Unit) {
+    PillButton(stringResource(R.string.detail_delete), { onAction(PlaceDetailAction.Delete) }, kind = PillKind.DANGER_OUTLINE, icon = NpIcons.Trash, height = 112.dp)
 }
 
 private const val DIM = 0.4f

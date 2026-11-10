@@ -96,8 +96,7 @@ class ConfirmStage @Inject constructor(
         val point = GeoPoint(c.lat, c.lon)
         val distance = spoken?.let { Geo.distanceM(it.point, point).toInt() } ?: c.distanceM.toInt()
         val ahead = spoken?.let { Geo.isAhead(it.point, it.heading.toDouble(), point) } ?: false
-        val label = Categories.all.firstOrNull { Categories.matches(it, c.category) }?.name
-            ?: c.category?.substringAfterLast(" > ")
+        val label = Categories.label(c.category, input.cues.category)
         return SaveFlowState.Confirming(c, second, label, distance, ahead, null)
     }
 

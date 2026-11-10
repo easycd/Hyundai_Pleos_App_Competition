@@ -111,9 +111,7 @@ class FindAndConfirm @Inject constructor(
     }
 
     private fun confirmed(c: PoiCandidate, cues: Cues, ranked: List<PoiCandidate>): PersistKind.Confirmed {
-        val category = Categories.all.firstOrNull { Categories.matches(it, c.category) }?.name
-            ?: cues.category
-            ?: c.category?.substringAfterLast(" > ")
+        val category = Categories.label(c.category, cues.category)
         return PersistKind.Confirmed(c, category, ranked)
     }
 

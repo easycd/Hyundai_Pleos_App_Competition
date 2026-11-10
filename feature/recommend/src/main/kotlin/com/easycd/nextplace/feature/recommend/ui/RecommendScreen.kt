@@ -46,6 +46,7 @@ import com.easycd.nextplace.core.ui.component.PillKind
 import com.easycd.nextplace.core.ui.component.RoundIconButton
 import com.easycd.nextplace.core.ui.component.ScreenFrame
 import com.easycd.nextplace.core.ui.component.SpinnerRing
+import com.easycd.nextplace.core.ui.drive.LocalCompact
 import com.easycd.nextplace.core.ui.drive.LocalPortrait
 import com.easycd.nextplace.core.ui.icon.NpIcons
 import com.easycd.nextplace.core.ui.text.DistanceText
@@ -73,7 +74,8 @@ fun RecommendScreen(state: RecommendUiState, onAction: (RecommendAction) -> Unit
 
 @Composable
 private fun Showing(s: RecommendState.Showing, onAction: (RecommendAction) -> Unit) {
-    val portrait = LocalPortrait.current
+    // 세 카드를 나란히 놓으면 카드 하나가 너무 좁아지는 창(좁은 가로 창)도 세로 창처럼 한 줄에 한 곳씩
+    val stacked = LocalPortrait.current || LocalCompact.current
     val shift = with(LocalDensity.current) { Motion.driveShift.roundToPx() }
     Column(Modifier.fillMaxSize().padding(horizontal = 40.dp, vertical = 16.dp)) {
         AnimatedContent(
@@ -85,7 +87,7 @@ private fun Showing(s: RecommendState.Showing, onAction: (RecommendAction) -> Un
             modifier = Modifier.weight(1f),
             label = "page",
         ) { _ ->
-            if (portrait) {
+            if (stacked) {
                 Column(verticalArrangement = Arrangement.spacedBy(20.dp)) {
                     s.cards.forEachIndexed { i, c -> PortraitCard(c, s, i, onAction) }
                 }

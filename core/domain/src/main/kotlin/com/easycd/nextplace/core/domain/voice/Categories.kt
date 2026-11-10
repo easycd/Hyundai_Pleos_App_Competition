@@ -18,6 +18,8 @@ data class Category(
 
 object Categories {
     val all: List<Category> = listOf(
+        // 삼계탕·백숙은 카카오 분류가 '육류,고기 > 닭요리 > 삼계탕'이라 고깃집·치킨보다 먼저 둔다
+        Category("삼계탕", listOf("삼계탕", "백숙", "닭백숙", "닭한마리", "닭볶음탕"), listOf("삼계탕", "백숙", "닭요리")),
         Category("고깃집", listOf("고깃집", "고기집", "고기", "갈비", "삼겹살", "정육식당", "숯불", "곱창", "막창"), listOf("육류", "고기", "갈비", "삼겹살", "곱창")),
         Category("카페", listOf("카페", "커피", "까페", "커피숍", "디저트"), listOf("카페", "커피", "디저트"), Category.CAFE),
         Category("빵집", listOf("빵집", "베이커리", "빵"), listOf("제과", "베이커리", "빵")),
@@ -48,6 +50,19 @@ object Categories {
     }
 
     fun byName(name: String?): Category? = all.firstOrNull { it.name == name }
+
+    /**
+     * 저장·확인 화면에 쓸 업종 이름. 카카오 분류("음식점 > 한식 > 육류,고기 > 닭요리 > 삼계탕")를 가장 구체적인 칸부터 보고
+     * 처음 맞는 업종을 쓴다 (같은 칸에 여럿 맞으면 사용자가 말한 업종 우선). 아무것도 안 맞으면 말한 업종, 그것도 없으면 마지막 칸.
+     */
+    fun label(poiCategory: String?, said: String? = null): String? {
+        val parts = poiCategory?.split('>')?.map { it.trim() }?.filter { it.isNotEmpty() }.orEmpty()
+        for (part in parts.asReversed()) {
+            val hits = all.filter { matches(it, part) }
+            if (hits.isNotEmpty()) return (hits.firstOrNull { it.name == said } ?: hits.first()).name
+        }
+        return said ?: parts.lastOrNull()
+    }
 
     /** POI 분류 문자열이 업종과 맞는가. */
     fun matches(category: Category, poiCategory: String?): Boolean {

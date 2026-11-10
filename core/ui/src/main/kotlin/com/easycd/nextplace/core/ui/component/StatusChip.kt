@@ -27,7 +27,7 @@ fun StatusChip(text: String, tone: ChipTone, modifier: Modifier = Modifier) {
     Box(
         modifier.height(48.dp).clip(CircleShape).background(color.copy(alpha = 0.16f)).padding(horizontal = 20.dp),
         contentAlignment = Alignment.Center,
-    ) { Text(text, style = NpType.small.copy(fontWeight = FontWeight.Bold), color = color) }
+    ) { Text(text, style = NpType.small.copy(fontWeight = FontWeight.Bold), color = color, maxLines = 1, softWrap = false) }
 }
 
 @Composable
@@ -49,7 +49,7 @@ fun FilterChip(text: String, selected: Boolean, onClick: () -> Unit, modifier: M
         val shape = CircleShape
         val chip = if (selected) Modifier.clip(shape).background(c.brand) else Modifier.glass(shape, elevation = 0.dp).border(1.dp, c.glassBorder, shape)
         Box(chip.height(48.dp).padding(horizontal = 24.dp), contentAlignment = Alignment.Center) {
-            Text(text, style = NpType.small.copy(fontWeight = FontWeight.Bold), color = if (selected) Color.White else c.text)
+            Text(text, style = NpType.small.copy(fontWeight = FontWeight.Bold), color = if (selected) Color.White else c.text, maxLines = 1, softWrap = false)
         }
     }
 }

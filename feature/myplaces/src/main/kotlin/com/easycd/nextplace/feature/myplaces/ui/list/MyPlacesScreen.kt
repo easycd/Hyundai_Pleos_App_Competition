@@ -30,7 +30,10 @@ import com.easycd.nextplace.core.ui.component.FilterChip
 import com.easycd.nextplace.core.ui.component.PillButton
 import com.easycd.nextplace.core.ui.component.PinMap
 import com.easycd.nextplace.core.ui.component.ScreenFrame
+import com.easycd.nextplace.core.ui.drive.LocalCompact
 import com.easycd.nextplace.core.ui.drive.LocalPortrait
+import androidx.compose.foundation.layout.ExperimentalLayoutApi
+import androidx.compose.foundation.layout.FlowRow
 import com.easycd.nextplace.core.ui.icon.NpIcons
 import com.easycd.nextplace.core.ui.theme.Motion
 import com.easycd.nextplace.core.ui.theme.Np
@@ -80,17 +83,19 @@ private fun Content(state: MyPlacesUiState, onAction: (MyPlacesAction) -> Unit) 
             }
         }
         if (!portrait) {
-            Spacer(Modifier.width(40.dp))
-            Box(Modifier.weight(1f).fillMaxSize().padding(bottom = 24.dp)) {
+            Spacer(Modifier.width(if (LocalCompact.current) 24.dp else 40.dp))
+            Box(Modifier.weight(mapWeight()).fillMaxSize().padding(bottom = 24.dp)) {
                 PinMap(state.pins, state.me, Modifier.fillMaxSize(), onPin = { onAction(MyPlacesAction.Pin(it)) })
             }
         }
     }
 }
 
+@OptIn(ExperimentalLayoutApi::class)
 @Composable
 private fun Filters(state: MyPlacesUiState, onAction: (MyPlacesAction) -> Unit) {
-    Row(horizontalArrangement = Arrangement.spacedBy(12.dp), verticalAlignment = Alignment.CenterVertically) {
+    // 좁은 창에서는 칩을 줄이지 않고 다음 줄로 넘긴다 (글자가 잘리거나 칩 안에서 두 줄이 되지 않게)
+    FlowRow(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
         FilterChip("${stringResource(R.string.mp_filter_all)} ${state.total}", state.filter == PlaceFilter.ALL, { onAction(MyPlacesAction.Filter(PlaceFilter.ALL)) })
         FilterChip("${stringResource(R.string.mp_filter_unconfirmed)} ${state.unconfirmedCount}", state.filter == PlaceFilter.UNCONFIRMED, { onAction(MyPlacesAction.Filter(PlaceFilter.UNCONFIRMED)) })
         FilterChip("${stringResource(R.string.mp_filter_visited)} ${state.visitedCount}", state.filter == PlaceFilter.VISITED, { onAction(MyPlacesAction.Filter(PlaceFilter.VISITED)) })
@@ -120,7 +125,13 @@ private fun Empty(state: MyPlacesUiState, onAction: (MyPlacesAction) -> Unit) {
         }
         if (!portrait) {
             Spacer(Modifier.width(40.dp))
-            Box(Modifier.weight(1f).fillMaxSize().padding(bottom = 24.dp)) { PinMap(emptyList(), state.me, Modifier.fillMaxSize()) }
+            Box(Modifier.weight(mapWeight()).fillMaxSize().padding(bottom = 24.dp)) { PinMap(emptyList(), state.me, Modifier.fillMaxSize()) }
         }
     }
 }
+
+/** 목록 : 지도 = 1 : 1. 좁은 가로 창은 목록에 자리를 더 준다 (가게 이름이 잘리지 않게). */
+@Composable
+private fun mapWeight(): Float = if (LocalCompact.current) COMPACT_MAP_WEIGHT else 1f
+
+private const val COMPACT_MAP_WEIGHT = 0.6f

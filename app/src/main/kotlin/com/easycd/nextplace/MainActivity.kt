@@ -34,6 +34,7 @@ import androidx.navigation.compose.rememberNavController
 import com.easycd.nextplace.core.domain.contract.Destination
 import com.easycd.nextplace.core.pleos.system.AndroidPermissionChecker
 import com.easycd.nextplace.core.ui.component.ToastHost
+import com.easycd.nextplace.core.ui.drive.LocalCompact
 import com.easycd.nextplace.core.ui.drive.LocalDriveRestricted
 import com.easycd.nextplace.core.ui.drive.LocalPortrait
 import com.easycd.nextplace.core.ui.drive.LocalSpeak
@@ -121,9 +122,11 @@ class MainActivity : ComponentActivity() {
         BoxWithConstraints(Modifier.fillMaxSize().background(Np.colors.background)) {
             // 세로 창(640×1080 등)만 세로 배치. 정사각형에 가까운 창은 가로 배치가 더 잘 맞는다.
             val portrait = maxHeight > maxWidth * PORTRAIT_RATIO
+            val compact = !portrait && maxWidth < COMPACT_WIDTH
             CompositionLocalProvider(
                 LocalDriveRestricted provides restricted,
                 LocalPortrait provides portrait,
+                LocalCompact provides compact,
                 LocalSpeak provides vm::speak,
             ) {
                 if (state.phase != ShellPhase.SPLASH) {
@@ -166,5 +169,6 @@ class MainActivity : ComponentActivity() {
         val PORTRAIT_TOAST_BOTTOM = 320.dp
         val PORTRAIT_TOAST_SIDE = 32.dp
         const val PORTRAIT_RATIO = 1.2f
+        val COMPACT_WIDTH = 1100.dp
     }
 }

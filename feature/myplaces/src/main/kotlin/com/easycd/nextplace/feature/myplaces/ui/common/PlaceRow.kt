@@ -88,9 +88,9 @@ fun PlaceRow(row: PlaceRowModel, selected: Boolean, onClick: () -> Unit, modifie
         Icon(NpIcons.MapPin, null, tint = Np.colors.muted, modifier = Modifier.size(36.dp))
         Spacer(Modifier.width(20.dp))
         Column(Modifier.weight(1f)) {
-            Text(row.name ?: stringResource(R.string.mp_unknown), style = NpType.cardTitle.copy(fontSize = NpType.title.fontSize), color = Np.colors.text, maxLines = 1, overflow = TextOverflow.Ellipsis)
+            Text(row.name ?: stringResource(R.string.mp_unknown), style = NpType.cardTitle.copy(fontSize = NpType.title.fontSize), color = Np.colors.text, maxLines = 2, overflow = TextOverflow.Ellipsis)
             val second = if (row.visits > 0) stringResource(R.string.mp_visits, row.visits) else stringResource(R.string.mp_saved_on, TimeText.saved(row.savedAt))
-            Text(listOfNotNull(row.category, row.distanceM?.let(DistanceText::of), second).joinToString(" · "), style = NpType.small, color = Np.colors.muted, maxLines = 1)
+            Text(listOfNotNull(row.category, row.distanceM?.let(DistanceText::of), second).joinToString(" · "), style = NpType.small, color = Np.colors.muted, maxLines = 2, overflow = TextOverflow.Ellipsis)
         }
         Spacer(Modifier.width(16.dp))
         // 상태 칩은 미확인 · 후보 찾음 · 방문만 (그냥 저장된 가게는 칩 없음, 설계서 S-07)

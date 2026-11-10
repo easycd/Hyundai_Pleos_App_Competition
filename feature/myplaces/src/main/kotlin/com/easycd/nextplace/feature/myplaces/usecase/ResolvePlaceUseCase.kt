@@ -27,8 +27,7 @@ class ResolvePlaceUseCase @Inject constructor(private val places: PlaceRepositor
             places.mergeInto(existing.id, place)
             ResolveResult.Merged(existing.id)
         } else {
-            val category = Categories.all.firstOrNull { Categories.matches(it, c.category) }?.name
-                ?: place.cues.category ?: c.category?.substringAfterLast(" > ")
+            val category = Categories.label(c.category, place.cues.category)
             places.update(
                 place.copy(
                     name = c.name,
