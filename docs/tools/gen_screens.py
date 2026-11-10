@@ -129,6 +129,7 @@ WIRE_CSS = r'''
 .mapph .lab.bot{top:auto;bottom:20px}
 .mapph .pin{position:absolute;color:var(--acc-t)}
 .mapph .pin.me{color:var(--fg)}
+.mapph.extapp{background:var(--map1);outline:4px dashed var(--line);outline-offset:-24px}
 .overlay{position:absolute;inset:0;background:var(--overlay)}
 .toast{position:absolute;left:140px;right:140px;height:120px;border-radius:36px;background:var(--glass2) var(--hi);border:1px solid var(--edge);box-shadow:inset 0 1px 0 var(--spec),var(--shadow);backdrop-filter:blur(28px) saturate(170%);display:flex;align-items:center;gap:24px;padding:0 40px;font-size:32px;font-weight:600}
 .frame .ok,.toast .ok{color:var(--ok)}
@@ -562,7 +563,7 @@ screen('S-04b','B','위치만 저장','주행 중 · 정차 중','후보 없음 
 screen('S-05','C','리마인드','주행 중','저장 가게 500m 안 진입 (차량 알림)','F-08, F-10',
  f'''
  <div class="body full" style="padding:0">
-   <div class="mapph" style="position:absolute;inset:0;border:0;border-radius:0"><div class="lab bot">현재 화면 (내비 등)</div></div>
+   <div class="mapph" style="position:absolute;inset:0;border:0;border-radius:0"><div class="lab bot">현재 화면 (Pleos 내비 등)</div></div>
    <div class="card a-down" data-co="1" style="position:absolute;left:48px;right:48px;top:48px;height:300px;display:flex;align-items:center;gap:32px;padding:36px 40px;background-color:var(--glass2)">
      {ic("pin",72)}
      <div style="flex:1">
@@ -588,17 +589,17 @@ screen('S-05','C','리마인드','주행 중','저장 가게 500m 안 진입 (�
 screen('S-05b','C','리마인드 · 안내 시작','주행 중','S-05에서 안내 시작 · 음성 “응”','F-10',
  f'''
  <div class="body full" style="padding:0">
-   <div class="mapph" style="position:absolute;inset:0;border:0;border-radius:0"><div class="lab bot" data-co="2" style="left:48px">내비 화면으로 전환 중</div><div class="pin" style="left:760px;top:420px">{ic("pin",72)}</div><div class="pin me" style="left:520px;top:640px">{ic("navi",56)}</div></div>
+   <div class="mapph extapp" style="position:absolute;inset:0;border:0;border-radius:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px"><div data-co="2" style="font-size:48px;font-weight:700;color:var(--fg);padding:0 52px">Pleos 내비</div><div style="font-size:28px">차량 기본 내비 앱 화면 · 이 앱이 그리지 않음</div></div>
    <div class="card a-pop" data-co="1" style="position:absolute;left:48px;right:48px;top:48px;height:140px;display:flex;align-items:center;gap:24px;padding:0 40px;background-color:var(--glass2)">
-     {ic("check",48,"ok")}<div class="h40">서울갈비로 안내할게요</div><div class="muted" style="margin-left:auto;font-size:28px">내비로 넘어가요</div>
+     {ic("check",48,"ok")}<div class="h40">서울갈비로 안내할게요</div><div class="muted" style="margin-left:auto;font-size:28px">Pleos 내비로 넘어가요</div>
    </div>
  </div>
  ''',
  [('1','확인 문구','TTS로 같은 문장. 1.5초 뒤 사라짐',''),
-  ('2','내비 화면','Pleos 내비가 목적지 안내를 시작함','도착하면 F-11 방문 기록 → S-15')],
+  ('2','Pleos 내비 화면','차량 기본 내비 앱이 화면을 넘겨받아 길안내. 앱은 목적지(가게 좌표 · 이름)만 넘기고 길을 그리지 않음','도착하면 F-11 방문 기록 → S-15')],
  [('카드 줄어듦','높이 300 → 140dp, 버튼 사라짐','200ms · standard','응답 직후'),
   ('카드 닫힘','위로 올라가며 페이드','200ms','1.5초 뒤')],
- '')
+ '길안내는 Pleos 내비가 한다. 이 앱에는 길안내 화면이 없고, NaviHelper SDK로 목적지만 설정한다. 확인 문구는 Pleos 내비 화면 위에 잠깐 겹쳐 보인다.')
 
 # ===== D. 추천 =====
 def rcard(n, name, meta, note, co1=False, co2=False, cls=''):
@@ -658,7 +659,7 @@ screen('S-06c','D','추천 · 선택됨','주행 중 · 정차 중','S-06에서 
  <div class="toast live" data-co="2" style="top:920px">{ic("navi",44,"ok")}<span>서울갈비로 안내할게요</span></div>
  <style>.frame [data-sel]{{border:2px solid var(--accent);box-shadow:0 0 0 6px var(--acc-ring),var(--shadow)}}.frame [data-sel] .a-dim{{opacity:1}}</style>
  ''',
- [('1','선택한 카드','테두리 주황 + 4% 확대, 나머지 카드는 흐려짐','1.5초 뒤 홈으로 돌아가고 내비가 안내 시작'),
+ [('1','선택한 카드','테두리 주황 + 4% 확대, 나머지 카드는 흐려짐','1.5초 뒤 홈으로 돌아가고 Pleos 내비가 안내 시작 (S-05b와 같음)'),
   ('2','안내 토스트','“서울갈비로 안내할게요” + TTS 동일',''),
   ('b','뒤로','홈 (선택 취소)','')],
  [('선택 카드','100 → 104% 확대, 테두리 주황','200ms · standard','선택 직후'),
@@ -671,7 +672,7 @@ screen('S-06c','D','추천 · 선택됨','주행 중 · 정차 중','S-06에서 
 screen('S-15','E','방문 메모','주행 중 · 정차 중','내비 도착 + 10분 체류 뒤 다시 출발할 때 (차량 알림)','F-11',
  f'''
  <div class="body full" style="padding:0">
-   <div class="mapph" style="position:absolute;inset:0;border:0;border-radius:0"><div class="lab bot">현재 화면 (내비 등)</div></div>
+   <div class="mapph" style="position:absolute;inset:0;border:0;border-radius:0"><div class="lab bot">현재 화면 (Pleos 내비 등)</div></div>
    <div class="card a-down" data-co="1" style="position:absolute;left:48px;right:48px;top:48px;height:300px;display:flex;align-items:center;gap:32px;padding:36px 40px;background-color:var(--glass2)">
      {ic("flag",72)}
      <div style="flex:1">
