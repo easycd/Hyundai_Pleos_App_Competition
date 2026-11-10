@@ -13,7 +13,7 @@ WIRE_DIR = sys.argv[2] if len(sys.argv) > 2 else os.path.join(OUT_DIR, 'wires')
 LIVE_DIR = os.path.join(WIRE_DIR, 'live')
 os.makedirs(WIRE_DIR, exist_ok=True); os.makedirs(LIVE_DIR, exist_ok=True)
 DATE = '2026-11-09'
-REV = '2026-11-10 (문서 검토 보고서 53건 반영)'
+REV = '2026-11-10 (문서 검토 보고서 53건 반영, S-00 시작 애니메이션 확정)'
 
 # ---------------------------------------------------------------- icons (Lucide style, 24 grid, stroke 2)
 ICONS = {
@@ -54,6 +54,20 @@ if os.path.exists(_p):
     if _m:
         APP_ICON = (f'<svg width="240" height="240" viewBox="0 0 100 100" aria-hidden="true">'
                     f'<rect width="100" height="100" rx="22" fill="#E4572E"/>{_m.group(1)}</svg>')
+# splash variant (S-00, 2026-11-10 재원 확정 A): spoon/chopsticks start hidden inside the badge circle
+# and slide up along their own tilt (cross) into place after the icon has risen
+SPOON_D = 'M0 -31C8.5 -31 12.5 -22 12.5 -13C12.5 -6.5 9.5 -2 6 0C4.4 0.9 3.3 1.8 3.2 3.4L3.8 27.5A3.8 3.8 0 0 1 -3.8 27.5L-3.2 3.4C-3.3 1.8 -4.4 0.9 -6 0C-9.5 -2 -12.5 -6.5 -12.5 -13C-12.5 -22 -8.5 -31 0 -31Z'
+SPLASH_ICON = ('<svg width="240" height="240" viewBox="0 0 100 100" aria-hidden="true" style="overflow:visible">'
+  '<defs><clipPath id="sx-badge"><circle cx="50" cy="41" r="23"/></clipPath></defs>'
+  '<rect width="100" height="100" rx="22" fill="#E4572E"/>'
+  '<path d="M50 90C50 90 20 60 20 41a30 30 0 1 1 60 0C80 60 50 90 50 90Z" fill="#FFFFFF" stroke="#FFFFFF" stroke-width="4" stroke-linejoin="round"/>'
+  '<circle class="sx-badge" cx="50" cy="41" r="23" fill="#E4572E"/>'
+  '<g clip-path="url(#sx-badge)"><g transform="translate(50 41) scale(0.62)">'
+  f'<g transform="rotate(38)"><g class="sx-spoon"><path d="{SPOON_D}" fill="#FFFFFF"/></g></g>'
+  '<g transform="rotate(-38)"><g class="sx-sticks" fill="none" stroke-linecap="round">'
+  '<path d="M-3.75 -27.5v55M3.75 -27.5v55" stroke="#E4572E" stroke-width="11.25"/>'
+  '<path d="M-3.75 -27.5v55M3.75 -27.5v55" stroke="#FFFFFF" stroke-width="6.25"/></g></g>'
+  '</g></g></svg>')
 BRAND_ICON = APP_ICON.replace('width="240" height="240"', 'width="56" height="56"') if APP_ICON else ''
 if not APP_ICON:
     APP_ICON = f'<div style="width:240px;height:240px;border-radius:52px;background:#E4572E;display:flex;align-items:center;justify-content:center;color:#fff">{ic("pin",140)}</div>'
@@ -224,6 +238,16 @@ ANIM_CSS = r'''
 .play .a-pop{animation:pop .2s cubic-bezier(.2,0,0,1) both}
 .play .a-fade{animation:fade .16s linear both}
 .play .a-drop{animation:drop .4s cubic-bezier(.05,.7,.1,1) both}
+@keyframes sxrise{from{opacity:0;transform:translateY(24px) scale(.94);filter:blur(14px)}to{opacity:1;transform:none;filter:none}}
+@keyframes sxup{from{transform:translate(0px,72px)}to{transform:translate(0px,0px)}}
+@keyframes sxpop{0%,100%{transform:scale(1)}40%{transform:scale(1.06)}}
+.sx-badge{transform-box:fill-box;transform-origin:50% 50%}
+.play .sx-rise{animation:sxrise .45s cubic-bezier(.05,.7,.1,1) both}
+.play .sx-spoon{animation:sxup .38s cubic-bezier(.3,1.35,.5,1) .45s both}
+.play .sx-sticks{animation:sxup .38s cubic-bezier(.3,1.35,.5,1) .57s both}
+.play .sx-badge{animation:sxpop .18s ease-out .865s both}
+.play .sx-name{animation:up .2s cubic-bezier(.05,.7,.1,1) .9s both}
+.play .sx-tag{animation:fade .2s linear 1s both}
 .play .a-slidex{animation:slidex .2s cubic-bezier(.2,0,0,1) both}
 .play .a-slides{animation:slides .2s cubic-bezier(.2,0,0,1) both}
 .play .a-shake{animation:shake .24s ease-in-out .4s 1}
@@ -338,17 +362,20 @@ def screen(sid, group, name, when, entry, funcs, wire, spec, motion, note='', gi
 screen('S-00','A','시작','주행 중 · 정차 중','앱 아이콘을 누름','공통',
  f'''
  <div class="body full" style="display:flex;flex-direction:column;align-items:center;justify-content:center;gap:40px">
-   <div class="a-drop" data-co="1">{APP_ICON}</div>
-   <div class="a-fade" data-co="2" style="font-size:56px;font-weight:700;animation-delay:.25s">다음에 가게</div>
-   <div class="muted a-fade" style="animation-delay:.4s">지나친 가게, 말로 저장하세요</div>
+   <div class="sx-rise" data-co="1">{SPLASH_ICON if APP_ICON.startswith('<svg') else APP_ICON}</div>
+   <div class="sx-name" data-co="2" style="font-size:56px;font-weight:700">다음에 가게</div>
+   <div class="muted sx-tag">지나친 가게, 말로 저장하세요</div>
  </div>
  ''',
- [('1','앱 아이콘','확정 아이콘(15번) 240dp','0.8초 안에 S-01 홈으로. 처음 실행이면 S-13'),
+ [('1','앱 아이콘','확정 아이콘(15번) 240dp. 처음에는 가운데 원만 있고 숟가락·젓가락은 없음','애니메이션(1.2초)이 끝나면 S-01 홈으로. 처음 실행이면 S-13'),
   ('2','앱 이름','56dp','')],
- [('앱 아이콘','위에서 24dp 내려오며 살짝 튕김','400ms · emphasized','화면 열릴 때 (주행 중에도 열리므로 24dp 이하)'),
-  ('앱 이름·문구','페이드 인','160ms · 250ms 지연','아이콘 뒤이어'),
-  ('홈으로 전환','페이드','200ms','불러오기 끝나면(최대 0.8초)')],
- '불러올 것이 없으면 이 화면은 0.3초만 보인다. 로딩 막대는 두지 않는다.', gif=True)
+ [('앱 아이콘','흐리고 투명한 상태(블러 14)에서 아래 24dp부터 떠오르며 선명해짐','450ms · emphasized decelerate','화면 열릴 때 (주행 중에도 열리므로 24dp 이하)'),
+  ('숟가락','원 안에서 왼쪽 아래 → 제자리로, 자기 기울기를 따라 올라옴(원 밖은 가려짐), 끝에 살짝 튕김','380ms · 450ms 지연 · 튕김(overshoot)','아이콘 떠오르기가 끝난 직후'),
+  ('젓가락','원 안에서 오른쪽 아래 → 제자리로, 숟가락과 X로 교차하며 앞쪽에 놓임','380ms · 570ms 지연 · 튕김','숟가락 120ms 뒤'),
+  ('가운데 원','1.06배로 한 번 톡','180ms · 865ms 지연','수저가 자리 잡는 순간'),
+  ('앱 이름·문구','이름은 아래 24dp에서 페이드 인, 문구는 페이드 인','200ms · 900ms / 1000ms 지연','수저 뒤이어'),
+  ('홈으로 전환','페이드','200ms','애니메이션 끝(1.2초) 뒤. 불러오기는 그 안에 끝냄(0.8초 목표)')],
+ '아이콘·수저 동작은 0.95초 안에 끝나 Android 시작 화면(SplashScreen) 아이콘 애니메이션 권장(1초 이하)에 맞는다. 수저가 움직이는 거리는 아이콘 안쪽이라 24dp 규칙에서 뺀다. 로딩 막대는 두지 않는다.', gif=True)
 
 screen('S-13','A','처음 실행 안내','정차 중 권장','S-00 뒤 첫 실행 1회','공통',
  f'''
