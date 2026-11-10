@@ -54,12 +54,17 @@ class RealSpeechRecognizer @Inject constructor(
         val mode = if (PleosCredentials.present) Mode.HYBRID else Mode.ON_DEVICE
         val engine = SpeechToText(context, mode)
         val ok = suspendCancellableCoroutine { cont ->
+            // 시간 초과로 취소되면 답이 없던 엔진은 놓아 준다 (다음 시도가 새 엔진을 만든다)
+            cont.invokeOnCancellation { runCatching { engine.release() } }
             engine.initialize(object : OnInitializeListener {
                 override fun onSuccess() { if (cont.isActive) cont.resume(true) }
                 override fun onFailure(errorType: ErrorType) { if (cont.isActive) cont.resume(false) }
             })
         }
-        if (!ok) return false
+        if (!ok) {
+            runCatching { engine.release() }
+            return false
+        }
         engine.setLocale(Locale.KOREA)
         if (PleosCredentials.present) {
             engine.registerApp(PleosCredentials.clientId, PleosCredentials.clientSecret, object : OnServerConnectionListener {
@@ -92,7 +97,12 @@ class RealSpeechRecognizer @Inject constructor(
                 close()
             }
         }
-        focus.acquire()
+        if (!focus.acquire()) {
+            // 다른 소리(통화 · 다른 음성 비서)가 포커스를 쥐고 있음: 듣지 않고 '포커스 잃음'으로 끝낸다 (기술서 7-0)
+            trySend(SttEvent.Failed(SttFailure.FOCUS_LOST))
+            close()
+            return@callbackFlow
+        }
         val lossJob = launch {
             focus.losses.collect { loss ->
                 if (loss != FocusLoss.DUCK) {

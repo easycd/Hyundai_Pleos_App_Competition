@@ -26,5 +26,12 @@ class AndroidPermissionChecker @Inject constructor(@ApplicationContext private v
         const val NAVI = "pleos.car.permission.NAVI_ROUTE"
         const val NAVI_SEARCH = "pleos.car.permission.NAVI_ROUTE_SEARCH"
         const val NAVI_MAP = "pleos.car.permission.NAVI_CUSTOM_MAP"
+        const val FINE = android.Manifest.permission.ACCESS_FINE_LOCATION
+        const val COARSE = android.Manifest.permission.ACCESS_COARSE_LOCATION
+
+        /** 위치 포그라운드 서비스를 띄울 수 있는지 (표준 위치 권한 둘 중 하나). */
+        fun canKeepLocation(context: Context) =
+            context.checkSelfPermission(FINE) == PackageManager.PERMISSION_GRANTED ||
+                context.checkSelfPermission(COARSE) == PackageManager.PERMISSION_GRANTED
     }
 }

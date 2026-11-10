@@ -41,11 +41,16 @@ class AudioFocusGate @Inject constructor(@ApplicationContext context: Context) {
         }
         .build()
 
+    /** 포커스를 얻었으면 true. false 면(통화 중 등) 부른 쪽은 말하거나 듣지 않고, [release]도 부르지 않는다. */
     @Synchronized
     fun acquire(): Boolean {
-        holders++
-        if (holders > 1) return true
-        return audio?.requestAudioFocus(request) != AudioManager.AUDIOFOCUS_REQUEST_FAILED
+        if (holders > 0) {
+            holders++
+            return true
+        }
+        val ok = audio?.requestAudioFocus(request) != AudioManager.AUDIOFOCUS_REQUEST_FAILED
+        if (ok) holders = 1
+        return ok
     }
 
     @Synchronized

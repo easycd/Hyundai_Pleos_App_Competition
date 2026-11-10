@@ -87,6 +87,8 @@ object Tunables {
 
     // 홈 도로명 (S-01)
     const val ROAD_NAME_REFRESH_MS = 30_000L
+    /** 홈 '근처 저장 가게 N곳'을 다시 세는 이동 거리. */
+    const val HOME_NEARBY_REFRESH_M = 300.0
 
     // 공유 (F-13)
     const val SHARE_MAX_PLACES = 30
@@ -108,4 +110,6 @@ object Tunables {
 
     // SDK 재연결 (기술서 10장)
     val SDK_RECONNECT_DELAYS_MS = listOf(2_000L, 4_000L, 8_000L)
+    /** SDK 연결 한 번의 상한: 초기화 콜백이 이 안에 없으면 실패로 보고 다시 시도. */
+    const val SDK_CONNECT_TIMEOUT_MS = 10_000L
 }

@@ -25,6 +25,11 @@ class PoiCache @Inject constructor(private val store: PoiCacheStore, private val
         store.put(key, json, now)
     }
 
+    /** 모두 삭제 때: DB 표는 저장소가 지우고, 메모리 쪽만 비운다. */
+    fun clearMemory() {
+        synchronized(memory) { memory.clear() }
+    }
+
     private suspend fun read(key: String): Pair<String, Long>? {
         synchronized(memory) { memory[key] }?.let { return it }
         val hit = store.get(key) ?: return null

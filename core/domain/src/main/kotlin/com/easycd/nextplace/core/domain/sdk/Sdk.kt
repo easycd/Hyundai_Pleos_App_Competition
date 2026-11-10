@@ -35,6 +35,8 @@ interface SpeechSynthesizer {
     suspend fun speak(prompt: VoicePrompt): Boolean
     fun stop()
     fun setVolume(volume: Float)
+    /** 음량을 단계로 조절할 수 있는가. false 면 0(끔)만 따르고 나머지는 차량 음량. */
+    val supportsVolume: Boolean get() = true
 }
 
 /** 위치를 받는 이유. 집합이 비어 있지 않은 동안 앱이 뒤에 있어도 위치를 받는다 (기술서 7-4). */

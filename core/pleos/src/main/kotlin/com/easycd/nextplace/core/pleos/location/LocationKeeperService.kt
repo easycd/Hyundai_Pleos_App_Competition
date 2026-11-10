@@ -20,7 +20,10 @@ class LocationKeeperService : LifecycleService() {
         super.onStartCommand(intent, flags, startId)
         val type = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) ServiceInfo.FOREGROUND_SERVICE_TYPE_LOCATION else 0
         runCatching { ServiceCompat.startForeground(this, ID, notification(), type) }
-            .onFailure { stopSelf() }
+            .onFailure {
+                android.util.Log.w("LocationKeeper", "startForeground refused", it)
+                stopSelf()
+            }
         return START_STICKY
     }
 

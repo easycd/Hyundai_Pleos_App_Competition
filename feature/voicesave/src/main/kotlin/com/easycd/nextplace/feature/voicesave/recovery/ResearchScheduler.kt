@@ -11,6 +11,7 @@ import dagger.hilt.android.qualifiers.ApplicationContext
 import java.util.concurrent.TimeUnit
 import javax.inject.Inject
 import javax.inject.Singleton
+import com.easycd.nextplace.core.domain.contract.DataResetHook
 
 /**
  * 미확인 가게 재검색 예약 (기술서 10장 '네트워크 없음·POI 실패'). 네트워크가 연결되면 1번 돈다.
@@ -37,4 +38,8 @@ class ResearchScheduler @Inject constructor(@ApplicationContext private val cont
         const val TAG = "research"
         const val BACKOFF_SEC = 30L
     }
+}
+
+class ResearchResetHook @Inject constructor(private val scheduler: ResearchScheduler) : DataResetHook {
+    override suspend fun onAllDataDeleted() = scheduler.cancelAll()
 }

@@ -3,7 +3,9 @@ package com.easycd.nextplace.feature.settings.ui
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.easycd.nextplace.core.domain.contract.Destination
+import com.easycd.nextplace.core.domain.contract.DataResetHook
 import com.easycd.nextplace.core.domain.contract.Navigator
+import com.easycd.nextplace.core.domain.contract.ShareCart
 import com.easycd.nextplace.core.domain.repository.PlaceRepository
 import com.easycd.nextplace.core.domain.repository.SettingsRepository
 import com.easycd.nextplace.core.domain.sdk.SpeechSynthesizer
@@ -23,11 +25,13 @@ class SettingsViewModel @Inject constructor(
     private val places: PlaceRepository,
     private val tts: SpeechSynthesizer,
     private val navigator: Navigator,
+    private val cart: ShareCart,
+    private val resetHooks: Set<@JvmSuppressWildcards DataResetHook>,
 ) : ViewModel() {
     private val dialog = MutableStateFlow(false)
 
     val state: StateFlow<SettingsUiState> = combine(repo.settings, places.observeCounts(), dialog) { s, c, d ->
-        SettingsUiState(s, c.total, d)
+        SettingsUiState(s, c.total, d, volumeAdjustable = tts.supportsVolume)
     }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(STOP_MS), SettingsUiState())
 
     fun onAction(a: SettingsAction) {
@@ -45,6 +49,10 @@ class SettingsViewModel @Inject constructor(
             SettingsAction.ConfirmDeleteAll -> viewModelScope.launch {
                 dialog.value = false
                 places.deleteEverything()
+                // DB 밖 상태도 처음처럼: 마지막 알림 시각(새 가게가 10분 제한에 걸리지 않게) · 공유 장바구니 · 예약 작업 · 캐시
+                repo.update { it.copy(lastRemindAt = null) }
+                cart.clear()
+                resetHooks.forEach { runCatching { it.onAllDataDeleted() } }
                 navigator.go(Destination.Home)
             }
             SettingsAction.Back -> navigator.go(Destination.Back)

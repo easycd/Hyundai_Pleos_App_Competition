@@ -12,7 +12,7 @@
 
 ```bash
 ./gradlew :app:assembleDebug        # app/build/outputs/apk/debug/app-debug.apk
-./gradlew testDebugUnitTest         # 단위·구조 테스트
+./gradlew testDebugUnitTest :core:domain:test   # 단위·구조 테스트 (domain 은 순수 JVM 이라 따로)
 ```
 
 ### local.properties (저장소에 올리지 않음)
@@ -60,11 +60,17 @@ web/nextplace/s         공유 링크를 폰에서 열 때 보이는 웹 목록 
 
 | 검사 | 명령 |
 | --- | --- |
-| 단위 · 구조 · 리소스 이름 테스트 | `./gradlew testDebugUnitTest` |
-| 화면 렌더 (다크 31장 + 라이트 7장) | `./gradlew -Pnextplace.screens=true :tools:screenshots:recordPaparazziDebug` → `tools/screenshots/src/test/snapshots/images/` |
+| 단위 · 구조 · 리소스 이름 테스트 | `./gradlew testDebugUnitTest :core:domain:test` |
+| 화면 렌더 (다크 31장 + 라이트 8장 + 좁은 가로 창 5장) | `./gradlew -Pnextplace.screens=true :tools:screenshots:recordPaparazziDebug` → `tools/screenshots/src/test/snapshots/images/` |
 | Lint | `./gradlew :app:lintDebug` |
 
 ## 공유 링크 웹 페이지
 
 공유 링크는 `https://easycd.github.io/nextplace/s#<데이터>` 형식이고, 목록은 링크 안에 압축해 담습니다(서버 없음).
 폰에서 열리는 페이지는 `web/nextplace/s/index.html`입니다. GitHub에 `nextplace` 저장소를 만들고 이 폴더의 `s/`를 올린 뒤 Pages를 켜면 링크가 동작합니다.
+
+## 지금 프로토타입의 한계
+
+- **내 맛집 지도**: 지금은 배경 지도 없이 핀만 그리는 간이 지도입니다(가게끼리의 위치 관계만 보임). 실제 지도(카카오맵) 연결은 기획서 F-12 범위로 남겨 두었습니다.
+- **가게 검색**: `local.properties`에 `KAKAO_REST_KEY`가 없거나 네트워크가 막히면, 개발용 샘플 가게 목록으로 대신 검색합니다. 실제 가게가 아니라는 점에 주의하세요.
+- **주행 중 홈**: 화면 폭이 좁은 창(가로 1100dp 미만)에서는 홈 카드 열이 세로로 스크롤됩니다. 주행 중 스크롤 금지 원칙상, 넓은 차량 화면에서는 스크롤 없이 다 보이도록 배치되어 있습니다.

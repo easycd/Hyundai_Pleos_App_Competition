@@ -30,6 +30,8 @@
                 <category android:name="android.intent.category.BROWSABLE" />
                 <data android:scheme="https" android:host="easycd.github.io" android:pathPrefix="/nextplace/s" />
             </intent-filter>
+            <!-- 주행 중에도 열 수 있는 화면 (기술서 7-0). 주행 제한은 CarUxRestrictions 로 앱이 직접 줄인다. -->
+            <meta-data android:name="distractionOptimized" android:value="true" />
         </activity>
 
         <!-- WorkManager 는 HiltWorkerFactory 로 직접 초기화한다 (NextPlaceApp). -->

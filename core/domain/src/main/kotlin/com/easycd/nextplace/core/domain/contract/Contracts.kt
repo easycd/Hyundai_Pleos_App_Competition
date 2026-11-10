@@ -21,3 +21,11 @@ interface RecommendRunner {
 interface VisitNoteRunner {
     suspend fun attachNoteToRecentVisit(memo: String): String?
 }
+
+/**
+ * '저장한 가게 모두 삭제'(S-11b) 때 DB 밖에 남는 것(예약 작업 · 메모리 캐시 등)을 정리하는 고리.
+ * 기능 모듈이 Hilt @IntoSet 으로 하나씩 등록하고, 설정 화면이 모두 부른다. 새 기능이 상태를 가지면 여기 하나 추가하면 된다.
+ */
+interface DataResetHook {
+    suspend fun onAllDataDeleted()
+}

@@ -1,5 +1,8 @@
 package com.easycd.nextplace.feature.voicesave.ui.home
 
+import kotlinx.coroutines.flow.collectLatest
+import com.easycd.nextplace.core.domain.geo.Geo
+import com.easycd.nextplace.core.domain.model.GeoPoint
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.easycd.nextplace.core.domain.Tunables
@@ -60,8 +63,18 @@ class HomeViewModel @Inject constructor(
 
     init {
         viewModelScope.launch { refreshRoadName() }
+        // '근처 저장 가게 N곳': 가게가 늘거나 줄거나 확인될 때, 첫 위치가 잡힐 때, 마지막 계산 뒤 300m 넘게 움직였을 때 다시 센다
         viewModelScope.launch {
-            places.observeCounts().map { it.total }.collect { refreshNearby() }
+            var lastCounts: Any? = null
+            var lastAt: GeoPoint? = null
+            combine(places.observeCounts(), location.latest.map { it?.point }) { c, p -> c to p }.collectLatest { (c, p) ->
+                val moved = p != null && (lastAt == null || Geo.distanceM(lastAt!!, p) > Tunables.HOME_NEARBY_REFRESH_M)
+                if (c != lastCounts || moved) {
+                    lastCounts = c
+                    if (p != null) lastAt = p
+                    refreshNearby()
+                }
+            }
         }
     }
 

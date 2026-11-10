@@ -70,7 +70,13 @@ fun SettingsScreen(state: SettingsUiState, onAction: (SettingsAction) -> Unit) {
                     SettingRow(stringResource(R.string.set_meal), enabled = s.remindEnabled) {
                         Switch(s.mealTimeOnly, { onAction(SettingsAction.MealOnly(it)) }, enabled = s.remindEnabled, colors = switchColors(), modifier = Modifier.scale(SWITCH_SCALE))
                     }
-                    SettingRow(stringResource(R.string.set_volume)) {
+                    if (!state.volumeAdjustable) {
+                        SettingRow(stringResource(R.string.set_voice_onoff)) {
+                            Text(stringResource(R.string.set_voice_car_volume), style = NpType.small, color = Np.colors.muted)
+                            Spacer(Modifier.width(24.dp))
+                            Switch(s.voiceVolume > 0f, { onAction(SettingsAction.Volume(if (it) 1f else 0f)) }, colors = switchColors(), modifier = Modifier.scale(SWITCH_SCALE))
+                        }
+                    } else SettingRow(stringResource(R.string.set_volume)) {
                         Icon(NpIcons.Volume, null, tint = Np.colors.muted, modifier = Modifier.size(36.dp))
                         Spacer(Modifier.width(16.dp))
                         Slider(

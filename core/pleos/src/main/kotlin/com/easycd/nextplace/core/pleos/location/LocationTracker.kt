@@ -2,6 +2,7 @@ package com.easycd.nextplace.core.pleos.location
 
 import android.content.Context
 import android.content.Intent
+import android.util.Log
 import androidx.core.content.ContextCompat
 import com.easycd.nextplace.core.domain.Tunables
 import com.easycd.nextplace.core.domain.location.LocationBuffer
@@ -13,6 +14,7 @@ import com.easycd.nextplace.core.domain.sdk.LocationReason
 import com.easycd.nextplace.core.domain.sdk.LocationSource
 import com.easycd.nextplace.core.domain.sdk.PermissionChecker
 import com.easycd.nextplace.core.domain.sdk.SdkStatus
+import com.easycd.nextplace.core.pleos.system.AndroidPermissionChecker
 import com.easycd.nextplace.core.pleos.system.PleosScope
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.Job
@@ -101,7 +103,13 @@ class LocationTracker @Inject constructor(
         val background = reasons.any { it != LocationReason.FOREGROUND }
         val intent = Intent(context, LocationKeeperService::class.java)
         if (background) {
+            // 표준 위치 권한이 없으면 서비스가 시작 즉시 막힌다: 띄우지 않고 남겨 둔다 (앱이 켜져 있을 때만 판정)
+            if (!AndroidPermissionChecker.canKeepLocation(context)) {
+                Log.w(TAG, "location keeper skipped: ACCESS_FINE/COARSE_LOCATION not granted")
+                return
+            }
             runCatching { ContextCompat.startForegroundService(context, intent) }
+                .onFailure { Log.w(TAG, "location keeper failed to start", it) }
         } else {
             context.stopService(intent)
         }
@@ -110,6 +118,10 @@ class LocationTracker @Inject constructor(
     /** 권한이 새로 생기면 다시 시도한다. */
     @Synchronized
     fun retry() {
-        if (reasons.isNotEmpty()) ensureRunning()
+        if (reasons.isEmpty()) return
+        ensureRunning()
+        updateKeeper()
     }
 }
+
+private const val TAG = "LocationTracker"

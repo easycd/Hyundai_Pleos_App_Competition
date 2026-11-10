@@ -11,11 +11,16 @@ import com.easycd.nextplace.core.domain.sdk.SdkStatus
 import com.easycd.nextplace.core.domain.sdk.SpeechSynthesizer
 import com.easycd.nextplace.core.domain.voice.VoicePrompt
 import com.easycd.nextplace.core.pleos.audio.AudioFocusGate
+import com.easycd.nextplace.core.pleos.audio.FocusLoss
 import com.easycd.nextplace.core.pleos.system.PleosCredentials
 import com.easycd.nextplace.core.pleos.system.PleosScope
 import com.easycd.nextplace.core.pleos.system.connectWithRetry
 import dagger.hilt.android.qualifiers.ApplicationContext
+import kotlinx.coroutines.async
+import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.selects.select
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.suspendCancellableCoroutine
@@ -55,12 +60,17 @@ class RealSpeechSynthesizer @Inject constructor(
         val mode = if (PleosCredentials.present) Mode.HYBRID else Mode.ON_DEVICE
         val engine = TextToSpeech(context, mode)
         val ok = suspendCancellableCoroutine { cont ->
+            // 시간 초과로 취소되면 답이 없던 엔진은 놓아 준다 (다음 시도가 새 엔진을 만든다)
+            cont.invokeOnCancellation { runCatching { engine.release() } }
             engine.initialize(object : OnInitializeListener {
                 override fun onSuccess() { if (cont.isActive) cont.resume(true) }
                 override fun onFailure(errorType: ErrorType) { if (cont.isActive) cont.resume(false) }
             })
         }
-        if (!ok) return false
+        if (!ok) {
+            runCatching { engine.release() }
+            return false
+        }
         engine.setLocale(Locale.KOREA)
         engine.setAudioAttributes(focus.attributes)
         if (PleosCredentials.present) {
@@ -73,6 +83,9 @@ class RealSpeechSynthesizer @Inject constructor(
         return true
     }
 
+    /** TextToSpeech SDK 3.3.1 에는 음량 API 가 없다: 설정 화면은 켜기/끄기로 보인다. */
+    override val supportsVolume: Boolean = false
+
     override fun setVolume(volume: Float) {
         this.volume = volume
     }
@@ -81,10 +94,20 @@ class RealSpeechSynthesizer @Inject constructor(
         val engine = tts ?: return@withLock false
         if (volume <= 0f) return@withLock true
         val text = texts.text(prompt)
-        focus.acquire()
+        // 포커스를 못 얻으면(통화 중 등) 읽지 않는다. 읽는 중에 잃으면(오리걸음 duck 제외) 멈춘다 (기술서 7-0)
+        if (!focus.acquire()) return@withLock false
         _speaking.value = true
         try {
-            withTimeoutOrNull(MAX_SPEAK_MS) { speakAndWait(engine, text) } ?: false
+            withTimeoutOrNull(MAX_SPEAK_MS) {
+                coroutineScope {
+                    val lost = async { focus.losses.first { it != FocusLoss.DUCK } }
+                    val spoken = async { speakAndWait(engine, text) }
+                    select<Boolean> {
+                        spoken.onAwait { it }
+                        lost.onAwait { false }
+                    }.also { lost.cancel(); spoken.cancel() }
+                }
+            } ?: false
         } finally {
             _speaking.value = false
             focus.release()

@@ -98,6 +98,8 @@ class MainActivity : ComponentActivity() {
             add(AndroidPermissionChecker.STT)
             add(AndroidPermissionChecker.TTS)
             add(AndroidPermissionChecker.LOCATION)
+            add(AndroidPermissionChecker.FINE)
+            add(AndroidPermissionChecker.COARSE)
             add(AndroidPermissionChecker.NAVI)
             add(AndroidPermissionChecker.NAVI_SEARCH)
             add(AndroidPermissionChecker.NAVI_MAP)

@@ -7,6 +7,8 @@
     <string name="set_meal">식사 시간에만 알림</string>
     <string name="set_meal_sub">11~14시 · 17~20시</string>
     <string name="set_volume">음성 안내 음량</string>
+    <string name="set_voice_onoff">음성 안내</string>
+    <string name="set_voice_car_volume">음량은 차량 음량을 따라요</string>
     <string name="set_volume_sub">0이면 음성 안내 없이 화면만 바뀌어요</string>
     <string name="set_lookback">가게를 특정할 때 쓰는 시간</string>
     <string name="set_lookback_sub">“방금”이나 시점 없이 말하면 이만큼 거슬러 올라가요 · “아까”는 45초 · “여기”는 0초</string>

@@ -164,7 +164,7 @@ class ScreensTest {
     @Test fun s09_resolve() = shot {
         ResolveScreen(ResolveUiState(true, now - day, "테헤란로", "강남역 방향", "방금 지난 국밥집 저장해줘", false, GeoPoint(37.5003, 127.0303), cands, 0, title = "할머니국밥?")) {}
     }
-    @Test fun s09b_search() = shot { DirectSearchScreen(DirectSearchUiState("국밥", cands, 0)) {} }
+    @Test fun s09b_search() = shot { DirectSearchScreen(DirectSearchUiState("국밥", cands, 0, resultsFor = "국밥")) {} }
 
     @Test fun s10_share() = shot {
         ShareScreen(
@@ -177,6 +177,7 @@ class ScreensTest {
     }
     @Test fun s11_settings() = shot { SettingsScreen(SettingsUiState(AppSettings(), 12)) {} }
     @Test fun s11b_delete_all() = shot { SettingsScreen(SettingsUiState(AppSettings(), 12, confirmDeleteAll = true)) {} }
+    @Test fun s11c_settings_car_volume() = shot { SettingsScreen(SettingsUiState(AppSettings(), 12, volumeAdjustable = false)) {} }
     @Test fun s12_drive_lock() = shot(restricted = true) { DriveLockScreen("내 맛집") {} }
 
     @Test fun s15_visit_note() = shot { HomeScreen(home) {}; VisitNoteCard(VisitNoteUiState(VisitNoteState.Asking("서울갈비", 1, now, false, ""))) {} }
