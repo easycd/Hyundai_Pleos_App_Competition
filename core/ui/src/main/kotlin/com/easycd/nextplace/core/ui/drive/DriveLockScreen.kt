@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.widthIn
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -18,7 +19,8 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.easycd.nextplace.core.ui.R
 import com.easycd.nextplace.core.ui.component.ScreenFrame
-import com.easycd.nextplace.core.ui.component.SpeakButton
+import com.easycd.nextplace.core.ui.component.PillButton
+import com.easycd.nextplace.core.ui.component.PillKind
 import com.easycd.nextplace.core.ui.icon.NpIcons
 import com.easycd.nextplace.core.ui.theme.Motion
 import com.easycd.nextplace.core.ui.theme.Np
@@ -36,20 +38,20 @@ fun DriveGate(title: String, onBack: () -> Unit, content: @Composable () -> Unit
     }
 }
 
-/** S-12 주행 중 안내: 제목은 열려던 화면 이름, 말하기 버튼, 뒤로 = 홈. */
+/** S-12 주행 중 안내: 제목은 열려던 화면 이름, 자동차 아이콘 · 안내 두 줄 · 말하기(주황 알약), 뒤로 = 홈. */
 @Composable
 fun DriveLockScreen(title: String, onBack: () -> Unit) {
     val speak = LocalSpeak.current
     val label = stringResource(R.string.ui_speak)
     ScreenFrame(title.ifBlank { stringResource(R.string.drive_title_fallback) }, onBack) {
         Column(Modifier.fillMaxSize(), horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.Center) {
-            Icon(NpIcons.Wheel, null, tint = Np.colors.brandText, modifier = Modifier.size(72.dp))
+            Icon(NpIcons.Car, null, tint = Np.colors.muted, modifier = Modifier.size(96.dp))
             Spacer(Modifier.height(24.dp))
             Text(stringResource(R.string.drive_line1), style = NpType.cardTitle, color = Np.colors.text, textAlign = TextAlign.Center)
             Spacer(Modifier.height(12.dp))
             Text(stringResource(R.string.drive_line2), style = NpType.body, color = Np.colors.muted, textAlign = TextAlign.Center)
             Spacer(Modifier.height(32.dp))
-            SpeakButton(speak, size = 200.dp, label = label)
+            PillButton(label, speak, Modifier.widthIn(min = 400.dp), kind = PillKind.PRIMARY, icon = NpIcons.Mic, height = 112.dp)
         }
     }
 }

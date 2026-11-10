@@ -159,7 +159,7 @@ class RecommendSession @Inject constructor(
         val from = page * Tunables.RECOMMEND_PAGE_SIZE
         val cards = ranked.drop(from).take(Tunables.RECOMMEND_PAGE_SIZE).mapIndexed { i, s ->
             val p = s.item.place
-            RecCard(p.id, i + 1, p.name ?: p.displayName ?: "", p.category, s.distanceM, p.memo ?: s.item.visitNotes.firstOrNull())
+            RecCard(p.id, i + 1, p.name ?: p.displayName ?: "", p.category, s.distanceM, p.memo ?: s.item.visitNotes.firstOrNull(), p.savedAt, s.item.visitCount)
         }
         gate.set(false)
         _state.value = RecommendState.Showing(category, cards, page)

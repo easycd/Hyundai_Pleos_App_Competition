@@ -1,5 +1,6 @@
 package com.easycd.nextplace.core.ui.component
 
+import com.easycd.nextplace.core.ui.icon.NpIcons
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
@@ -66,9 +67,16 @@ fun ConfirmDialog(
                     Text(description, style = NpType.body, color = Np.colors.muted)
                 }
                 Spacer(Modifier.height(40.dp))
-                Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(24.dp)) {
-                    PillButton(cancelText, onCancel, Modifier.weight(1f))
-                    PillButton(confirmText, onConfirm, Modifier.weight(1f), kind = if (danger) PillKind.DANGER else PillKind.PRIMARY)
+                // 취소 왼쪽 · 실행 오른쪽, 오른쪽 끝에 붙임 (설계서 S-08c · S-11b)
+                Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(24.dp, Alignment.End)) {
+                    PillButton(cancelText, onCancel, Modifier.widthIn(min = 240.dp))
+                    PillButton(
+                        confirmText,
+                        onConfirm,
+                        Modifier.widthIn(min = 280.dp),
+                        kind = if (danger) PillKind.DANGER else PillKind.PRIMARY,
+                        icon = if (danger) NpIcons.Trash else null,
+                    )
                 }
             }
         }

@@ -23,7 +23,7 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
-private data class ListOptions(val filter: PlaceFilter = PlaceFilter.ALL, val sort: PlaceSort = PlaceSort.RECENT, val selected: String? = null)
+private data class ListOptions(val filter: PlaceFilter = PlaceFilter.ALL, val sort: PlaceSort = PlaceSort.NEAR, val selected: String? = null)
 
 @HiltViewModel
 class MyPlacesViewModel @Inject constructor(
@@ -45,18 +45,22 @@ class MyPlacesViewModel @Inject constructor(
             }
         }
         val withDist = filtered.map { p -> p to me?.let { m -> p.place.point?.let { Geo.distanceM(m, it) } } }
-        val sorted = when (o.sort) {
+        // 가져온 직후(S-16b)에는 새 줄이 위에 오도록 최근 저장 순. 위치를 모르면 가까운 순을 쓸 수 없다.
+        val sort = if (fresh.isNotEmpty() || me == null) PlaceSort.RECENT else o.sort
+        val sorted = when (sort) {
             PlaceSort.NEAR -> withDist.sortedBy { it.second ?: Double.MAX_VALUE }
             PlaceSort.RECENT -> withDist.sortedByDescending { it.first.place.savedAt }
         }
         MyPlacesUiState(
             loaded = true,
             total = all.size,
+            unconfirmedCount = all.count { it.place.status == PlaceStatus.UNCONFIRMED },
+            visitedCount = all.count { it.visitCount > 0 },
             rows = sorted.map { (p, d) -> p.toRow(d) },
             pins = filtered.mapNotNull { it.toPin(it.place.id == o.selected) },
             me = me,
             filter = o.filter,
-            sort = o.sort,
+            sort = sort,
             selectedId = o.selected,
             freshIds = fresh,
         )

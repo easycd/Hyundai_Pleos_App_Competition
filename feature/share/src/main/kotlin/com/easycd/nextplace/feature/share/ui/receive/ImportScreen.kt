@@ -7,6 +7,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -59,9 +60,12 @@ fun ImportScreen(state: ImportUiState, onAction: (ImportAction) -> Unit) {
             }
             return@ScreenFrame
         }
-        Row(Modifier.fillMaxSize().padding(horizontal = 32.dp, vertical = 8.dp)) {
-            Column(Modifier.weight(1f)) {
-                Text(stringResource(R.string.import_from, state.title, TimeText.date(state.createdAt)), style = NpType.cardTitle, color = Np.colors.text, maxLines = 1, overflow = TextOverflow.Ellipsis)
+        Column(Modifier.fillMaxSize().padding(horizontal = 48.dp, vertical = 8.dp)) {
+            Text(stringResource(R.string.import_heading, state.title, state.rows.size), style = NpType.cardTitle, color = Np.colors.text, maxLines = 1, overflow = TextOverflow.Ellipsis)
+            val day = TimeText.monthDay(state.createdAt)
+            Text(state.from?.let { stringResource(R.string.import_from, it, day) } ?: day, style = NpType.body, color = Np.colors.muted)
+            Spacer(Modifier.height(16.dp))
+            Row(Modifier.weight(1f)) {
                 LazyColumn(Modifier.weight(1f)) {
                     itemsIndexed(state.rows) { i, r ->
                         Row(
@@ -70,31 +74,44 @@ fun ImportScreen(state: ImportUiState, onAction: (ImportAction) -> Unit) {
                             verticalAlignment = Alignment.CenterVertically,
                         ) {
                             Box(
-                                Modifier.padding(18.dp).size(40.dp).clip(RoundedCornerShape(10.dp)).background(if (r.checked) Np.colors.brand else Color.Transparent)
-                                    .border(3.dp, if (r.checked) Np.colors.brand else Np.colors.muted, RoundedCornerShape(10.dp)),
+                                Modifier.padding(end = 24.dp).size(56.dp).clip(RoundedCornerShape(14.dp)).background(if (r.checked) Np.colors.brand else Color.Transparent)
+                                    .border(3.dp, if (r.checked) Np.colors.brand else Np.colors.muted, RoundedCornerShape(14.dp)),
                                 contentAlignment = Alignment.Center,
-                            ) { if (r.checked) Icon(NpIcons.Check, null, tint = Color.White, modifier = Modifier.size(28.dp)) }
+                            ) { if (r.checked) Icon(NpIcons.Check, null, tint = Color.White, modifier = Modifier.size(36.dp)) }
                             Column(Modifier.weight(1f)) {
                                 Text(r.place.name, style = NpType.button, color = Np.colors.text, maxLines = 1, overflow = TextOverflow.Ellipsis)
                                 Text(listOfNotNull(r.place.category, r.place.memo?.let { "“$it”" }).joinToString(" · "), style = NpType.small, color = Np.colors.muted, maxLines = 1)
                             }
                             if (r.exists) StatusChip(stringResource(R.string.import_exists), ChipTone.SAVED)
                         }
+                        Box(Modifier.fillMaxWidth().height(1.dp).background(Np.colors.glassBorder))
                     }
                 }
-                Row(Modifier.fillMaxWidth().padding(vertical = 20.dp), horizontalArrangement = Arrangement.spacedBy(24.dp)) {
-                    PillButton(stringResource(R.string.import_close), { onAction(ImportAction.Close) }, Modifier.weight(1f))
-                    PillButton(stringResource(R.string.import_add), { onAction(ImportAction.Add) }, Modifier.weight(1f), kind = PillKind.PRIMARY, icon = NpIcons.Download, enabled = state.canAdd)
+                if (!portrait) {
+                    Spacer(Modifier.width(40.dp))
+                    Box(Modifier.width(MAP_W.dp).fillMaxHeight()) {
+                        PinMap(state.rows.mapIndexed { i, r -> MapPin("$i", GeoPoint(r.place.lat, r.place.lon), PinTone.SAVED, r.checked) }, null, Modifier.fillMaxSize())
+                        Text(stringResource(R.string.import_map), style = NpType.small, color = Np.colors.muted, modifier = Modifier.padding(20.dp))
+                    }
                 }
             }
-            if (!portrait) {
-                Spacer(Modifier.width(24.dp))
-                Box(Modifier.weight(1f).fillMaxSize().padding(bottom = 24.dp)) {
-                    PinMap(state.rows.mapIndexed { i, r -> MapPin("$i", GeoPoint(r.place.lat, r.place.lon), PinTone.SAVED, r.checked) }, null, Modifier.fillMaxSize())
+            Row(Modifier.fillMaxWidth().padding(vertical = 24.dp), verticalAlignment = Alignment.CenterVertically) {
+                if (!portrait) {
+                    Text(
+                        if (state.existing > 0) stringResource(R.string.import_summary_skip, state.toAdd, state.existing) else stringResource(R.string.import_summary, state.toAdd),
+                        style = NpType.body, color = Np.colors.muted, modifier = Modifier.weight(1f), maxLines = 1, overflow = TextOverflow.Ellipsis,
+                    )
                 }
+                PillButton(stringResource(R.string.import_close), { onAction(ImportAction.Close) }, if (portrait) Modifier.weight(1f) else Modifier.width(200.dp), height = 112.dp)
+                Spacer(Modifier.width(32.dp))
+                PillButton(
+                    stringResource(R.string.import_add), { onAction(ImportAction.Add) }, if (portrait) Modifier.weight(1f) else Modifier.width(400.dp),
+                    kind = PillKind.PRIMARY, icon = NpIcons.Download, enabled = state.canAdd, height = 112.dp,
+                )
             }
         }
     }
 }
 
+private const val MAP_W = 480
 private const val DIM = 0.45f

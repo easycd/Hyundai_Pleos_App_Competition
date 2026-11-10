@@ -1,11 +1,13 @@
 package com.easycd.nextplace.feature.voicesave.ui.listen
 
 import androidx.compose.animation.AnimatedContent
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.togetherWith
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -52,41 +54,44 @@ import com.easycd.nextplace.core.ui.theme.Np
 import com.easycd.nextplace.core.ui.theme.NpType
 import com.easycd.nextplace.feature.voicesave.R
 
-/** 어느 화면 위에도 겹쳐 뜨는 음성 레이어 (S-02a/b/c, S-14). 뒤 화면은 흐리게만 하고 바꾸지 않는다. */
+/**
+ * 어느 화면 위에도 겹쳐 뜨는 음성 레이어 (S-02a/b/c). 뒤 화면은 흐리게만 하고 바꾸지 않는다.
+ * 카드 960×640dp (세로 창은 폭 가득) 안에 상태 문구 · 가운데 표시 · 문장 · 취소가 위에서 아래로 놓인다.
+ * S-14 가게 찾는 중은 겹침이 아니라 화면 전체(문구 + 추정 위치 지도 + 말한 문장).
+ */
 @Composable
 fun ListenOverlay(state: ListenUiState, onAction: (ListenAction) -> Unit) {
     val portrait = LocalPortrait.current
-    ScrimOverlay(state.phase != ListenPhase.HIDDEN) {
-        Column(
-            Modifier.fillMaxSize().padding(32.dp),
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = if (portrait) Arrangement.SpaceBetween else Arrangement.Center,
-        ) {
-            if (portrait) Spacer(Modifier.height(1.dp))
-            AnimatedContent(
-                targetState = state.phase,
-                transitionSpec = { fadeIn(tween(Motion.SCRIM_MS)).togetherWith(fadeOut(tween(Motion.SCRIM_MS))) },
-                label = "phase",
-            ) { phase ->
-                GlassCard(Modifier.widthIn(max = 1000.dp).fillMaxWidth(), strong = true, padding = 48.dp) {
+    val talking = state.phase == ListenPhase.LISTENING || state.phase == ListenPhase.UNDERSTANDING || state.phase == ListenPhase.RETRY
+    ScrimOverlay(talking) {
+        val size = if (portrait) Modifier.fillMaxWidth().padding(horizontal = 24.dp).heightIn(min = 640.dp) else Modifier.width(CARD_W.dp).height(CARD_H.dp)
+        GlassCard(size, strong = true, padding = 48.dp) {
+            Column(Modifier.fillMaxSize(), horizontalAlignment = Alignment.CenterHorizontally) {
+                AnimatedContent(
+                    targetState = state.phase,
+                    transitionSpec = { fadeIn(tween(Motion.SCRIM_MS)).togetherWith(fadeOut(tween(Motion.SCRIM_MS))) },
+                    modifier = Modifier.weight(1f),
+                    label = "phase",
+                ) { phase ->
                     when (phase) {
                         ListenPhase.LISTENING -> Listening(state, onAction)
                         ListenPhase.UNDERSTANDING -> Understanding(state.text)
                         ListenPhase.RETRY -> Retry()
-                        ListenPhase.SEARCHING -> Searching(state)
-                        ListenPhase.HIDDEN -> Unit
+                        ListenPhase.SEARCHING, ListenPhase.HIDDEN -> Unit
                     }
                 }
+                PillButton(
+                    stringResource(R.string.cancel),
+                    { onAction(ListenAction.Cancel) },
+                    Modifier.widthIn(min = 320.dp),
+                    icon = NpIcons.Close,
+                    height = if (portrait) 112.dp else 88.dp,
+                )
             }
-            Spacer(Modifier.height(32.dp))
-            PillButton(
-                stringResource(R.string.cancel),
-                { onAction(ListenAction.Cancel) },
-                Modifier.widthIn(min = 320.dp),
-                icon = NpIcons.Close,
-                height = if (portrait) 112.dp else 88.dp,
-            )
         }
+    }
+    AnimatedVisibility(state.phase == ListenPhase.SEARCHING, enter = fadeIn(tween(Motion.SCRIM_MS)), exit = fadeOut(tween(Motion.SCRIM_MS))) {
+        Searching(state)
     }
 }
 
@@ -149,33 +154,43 @@ private fun Retry() {
     }
     Column(Modifier.fillMaxWidth().offset(x = shake.value.dp), horizontalAlignment = Alignment.CenterHorizontally) {
         Text(stringResource(R.string.retry_title), style = NpType.question, color = Np.colors.text)
-        Spacer(Modifier.height(24.dp))
-        SoundBars(0f, Modifier.widthIn(max = 600.dp).fillMaxWidth().height(80.dp), color = Np.colors.muted, active = false)
-        Spacer(Modifier.height(24.dp))
-        Text(stringResource(R.string.retry_sub), style = NpType.cardTitle, color = Np.colors.text)
-        Spacer(Modifier.height(8.dp))
-        Text(stringResource(R.string.retry_example), style = NpType.body, color = Np.colors.muted, textAlign = TextAlign.Center)
+        Spacer(Modifier.height(32.dp))
+        SoundBars(0f, Modifier.widthIn(max = 600.dp).fillMaxWidth().height(120.dp), color = Np.colors.muted, active = false)
+        Spacer(Modifier.height(32.dp))
+        Text(stringResource(R.string.retry_sub), style = NpType.live, color = Np.colors.muted, textAlign = TextAlign.Center)
+        Text(stringResource(R.string.retry_example), style = NpType.live, color = Np.colors.text, textAlign = TextAlign.Center)
     }
 }
 
 @Composable
 private fun Searching(state: ListenUiState) {
-    Column(Modifier.fillMaxWidth(), horizontalAlignment = Alignment.CenterHorizontally) {
+    // S-14: 보통 1초 안에 지나가는 화면이라 글자는 두 줄뿐. 지도가 없으면(위치 못 잡음) 그 자리는 비움.
+    Column(
+        Modifier.fillMaxSize().background(Np.colors.background).padding(horizontal = 140.dp, vertical = 40.dp),
+        horizontalAlignment = Alignment.CenterHorizontally,
+    ) {
         Row(verticalAlignment = Alignment.CenterVertically) {
-            SpinnerRing(size = 56.dp)
+            SpinnerRing(size = 72.dp)
             Spacer(Modifier.width(24.dp))
             Text(stringResource(R.string.search_title), style = NpType.question, color = Np.colors.text)
         }
-        val pins = listOfNotNull(state.target?.let { MapPin("target", it, PinTone.CANDIDATE, selected = true) })
-        if (pins.isNotEmpty() || state.current != null) {
-            Spacer(Modifier.height(24.dp))
-            Box(Modifier.fillMaxWidth().height(MAP_HEIGHT.dp)) { PinMap(pins, state.current, Modifier.fillMaxSize()) }
+        Spacer(Modifier.height(32.dp))
+        Box(Modifier.fillMaxWidth().weight(1f)) {
+            val pins = listOfNotNull(state.target?.let { MapPin("target", it, PinTone.CANDIDATE, selected = true) })
+            if (pins.isNotEmpty() || state.current != null) {
+                GlassCard(Modifier.fillMaxSize(), padding = 24.dp) {
+                    PinMap(pins, state.current, Modifier.fillMaxSize())
+                    Text(stringResource(R.string.search_map_label), style = NpType.small, color = Np.colors.muted, modifier = Modifier.align(Alignment.TopStart))
+                    Text(stringResource(R.string.search_map_legend), style = NpType.small, color = Np.colors.muted, modifier = Modifier.align(Alignment.BottomStart))
+                }
+            }
         }
-        Spacer(Modifier.height(24.dp))
-        Text("“${state.text}”", style = NpType.body, color = Np.colors.muted, textAlign = TextAlign.Center, maxLines = 2, overflow = TextOverflow.Ellipsis)
+        Spacer(Modifier.height(32.dp))
+        Text("“${state.text}”", style = NpType.live, color = Np.colors.muted, textAlign = TextAlign.Center, maxLines = 2, overflow = TextOverflow.Ellipsis)
     }
 }
 
 private const val SHAKE = 8f
 private const val SHAKE_STEP_MS = 60
-private const val MAP_HEIGHT = 300
+private const val CARD_W = 960
+private const val CARD_H = 640

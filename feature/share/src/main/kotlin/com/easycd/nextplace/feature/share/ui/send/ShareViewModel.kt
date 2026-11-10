@@ -51,7 +51,7 @@ class ShareViewModel @Inject constructor(
             val all = places.allConfirmed().sortedByDescending { it.place.savedAt }
             source = all.associateBy { it.place.id }
             val chosen = cart.ids.value + listOfNotNull(pre)
-            val rows = all.map { ShareRowModel(it.place.id, it.place.name.orEmpty(), it.place.category, it.place.id in chosen) }
+            val rows = all.map { ShareRowModel(it.place.id, it.place.name.orEmpty(), it.place.category, it.place.id in chosen, it.visitCount) }
             _state.value = ShareUiState(loaded = true, rows = limit(rows))
             rebuild()
         }

@@ -12,7 +12,7 @@ import java.util.zip.Inflater
 import kotlin.math.roundToLong
 
 /** 링크 안의 목록 (버전 1). 방문 기록·차량 위치·발화 원문은 넣지 않는다 (기획서 F-13). */
-data class SharePayload(val title: String, val createdAt: Long, val places: List<SharedPlace>)
+data class SharePayload(val title: String, val createdAt: Long, val places: List<SharedPlace>, val from: String? = null)
 
 sealed interface DecodeResult {
     data class Ok(val payload: SharePayload) : DecodeResult
@@ -36,6 +36,7 @@ object ShareCodec {
             v = VERSION,
             t = payload.title.take(Tunables.SHARE_TEXT_MAX),
             d = payload.createdAt,
+            f = payload.from?.take(Tunables.SHARE_TEXT_MAX)?.takeIf { it.isNotBlank() },
             p = payload.places.take(Tunables.SHARE_MAX_PLACES).map {
                 P(it.name.take(Tunables.SHARE_TEXT_MAX), it.category?.take(Tunables.SHARE_TEXT_MAX), it.address?.take(Tunables.SHARE_TEXT_MAX * 2), r6(it.lat), r6(it.lon), it.memo?.take(Tunables.SHARE_TEXT_MAX), it.provider, it.providerId)
             },
@@ -69,7 +70,7 @@ object ShareCodec {
             dto.v < 1 || dto.p.isEmpty() || dto.p.size > Tunables.SHARE_MAX_PLACES -> DecodeResult.Broken
             dto.p.any { it.n.isBlank() || it.y !in LAT || it.x !in LON } -> DecodeResult.Broken
             else -> DecodeResult.Ok(
-                SharePayload(dto.t.take(Tunables.SHARE_TEXT_MAX), dto.d, dto.p.map { SharedPlace(it.n.take(Tunables.SHARE_TEXT_MAX), it.c, it.a, it.y, it.x, it.m, it.s, it.i) }),
+                SharePayload(dto.t.take(Tunables.SHARE_TEXT_MAX), dto.d, dto.p.map { SharedPlace(it.n.take(Tunables.SHARE_TEXT_MAX), it.c, it.a, it.y, it.x, it.m, it.s, it.i) }, dto.f?.take(Tunables.SHARE_TEXT_MAX)),
             )
         }
     }.getOrDefault(DecodeResult.Broken)
@@ -77,7 +78,7 @@ object ShareCodec {
     private fun r6(v: Double) = (v * E6).roundToLong() / E6
 
     @Serializable
-    private data class Dto(val v: Int, val t: String = "", val d: Long = 0, val p: List<P> = emptyList())
+    private data class Dto(val v: Int, val t: String = "", val d: Long = 0, val f: String? = null, val p: List<P> = emptyList())
 
     @Serializable
     private data class P(

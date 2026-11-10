@@ -17,6 +17,8 @@ object TimeText {
         }
     }
 
+    fun monthDay(atMs: Long): String = SimpleDateFormat("M월 d일", Locale.KOREA).format(Date(atMs))
+
     fun date(atMs: Long): String = SimpleDateFormat("yyyy.M.d", Locale.KOREA).format(Date(atMs))
 
     fun dayDiff(atMs: Long, nowMs: Long): Int {

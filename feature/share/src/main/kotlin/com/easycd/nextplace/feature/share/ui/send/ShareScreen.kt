@@ -1,5 +1,6 @@
 package com.easycd.nextplace.feature.share.ui.send
 
+import com.easycd.nextplace.core.ui.component.FilterChip
 import androidx.compose.animation.Crossfade
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Image
@@ -56,13 +57,11 @@ fun ShareScreen(state: ShareUiState, onAction: (ShareAction) -> Unit) {
             Text(stringResource(R.string.share_none), style = NpType.cardTitle, color = Np.colors.muted, modifier = Modifier.padding(40.dp))
             return@ScreenFrame
         }
-        Row(Modifier.fillMaxSize().imePadding().padding(horizontal = 32.dp, vertical = 8.dp)) {
+        Row(Modifier.fillMaxSize().imePadding().padding(horizontal = 40.dp, vertical = 8.dp)) {
             Column(Modifier.weight(1f)) {
                 Row(verticalAlignment = Alignment.CenterVertically) {
-                    Check(state.rows.isNotEmpty() && state.rows.all { it.checked }) { onAction(ShareAction.ToggleAll) }
+                    FilterChip(stringResource(R.string.share_select_all), state.rows.isNotEmpty() && state.rows.all { it.checked }, { onAction(ShareAction.ToggleAll) })
                     Spacer(Modifier.width(16.dp))
-                    Text(stringResource(R.string.share_select_all), style = NpType.button, color = Np.colors.text)
-                    Spacer(Modifier.weight(1f))
                     Text(stringResource(R.string.share_count, state.selectedCount), style = NpType.small, color = Np.colors.muted)
                 }
                 LazyColumn(Modifier.weight(1f)) {
@@ -75,14 +74,16 @@ fun ShareScreen(state: ShareUiState, onAction: (ShareAction) -> Unit) {
                             Spacer(Modifier.width(16.dp))
                             Column {
                                 Text(r.name, style = NpType.button, color = Np.colors.text, maxLines = 1, overflow = TextOverflow.Ellipsis)
-                                r.category?.let { Text(it, style = NpType.small, color = Np.colors.muted) }
+                                val visits = if (r.visits > 0) stringResource(R.string.share_visits, r.visits) else null
+                                listOfNotNull(r.category, visits).takeIf { it.isNotEmpty() }?.let { Text(it.joinToString(" · "), style = NpType.small, color = Np.colors.muted) }
                             }
                         }
+                        Box(Modifier.fillMaxWidth().height(1.dp).background(Np.colors.glassBorder))
                     }
                 }
             }
-            Spacer(Modifier.width(32.dp))
-            Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(16.dp)) {
+            Spacer(Modifier.width(40.dp))
+            Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(24.dp)) {
                 OutlinedTextField(
                     value = state.title,
                     onValueChange = { onAction(ShareAction.Title(it)) },
@@ -93,21 +94,38 @@ fun ShareScreen(state: ShareUiState, onAction: (ShareAction) -> Unit) {
                     colors = OutlinedTextFieldDefaults.colors(focusedBorderColor = Np.colors.brand, cursorColor = Np.colors.brand),
                     modifier = Modifier.fillMaxWidth(),
                 )
-                if (!portrait) Qr(state)
-                Row(horizontalArrangement = Arrangement.spacedBy(20.dp)) {
-                    Crossfade(state.copied, Modifier.weight(1f), animationSpec = tween(Motion.SCRIM_MS), label = "copy") { copied ->
-                        PillButton(
-                            stringResource(if (copied) R.string.share_copied else R.string.share_copy),
-                            { onAction(ShareAction.Copy) },
-                            Modifier.fillMaxWidth(),
-                            icon = if (copied) NpIcons.Check else NpIcons.Link,
-                            enabled = state.link != null,
-                        )
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    if (!portrait && state.qr != null) {
+                        Qr(state)
+                        Spacer(Modifier.width(24.dp))
                     }
-                    PillButton(stringResource(R.string.share_send), { onAction(ShareAction.Send) }, Modifier.weight(1f), kind = PillKind.PRIMARY, icon = NpIcons.Send, enabled = state.link != null)
+                    Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(16.dp)) {
+                        val link = state.link
+                        Text(
+                            link?.removePrefix("https://") ?: stringResource(R.string.share_pick_first),
+                            style = NpType.small, color = Np.colors.muted, maxLines = 2, overflow = TextOverflow.Ellipsis,
+                        )
+                        if (link != null && state.qr == null) Text(stringResource(R.string.share_qr_too_long), style = NpType.small, color = Np.colors.muted)
+                        Crossfade(state.copied, animationSpec = tween(Motion.SCRIM_MS), label = "copy") { copied ->
+                            PillButton(
+                                stringResource(if (copied) R.string.share_copied else R.string.share_copy),
+                                { onAction(ShareAction.Copy) },
+                                Modifier.fillMaxWidth(),
+                                kind = PillKind.PRIMARY,
+                                icon = if (copied) NpIcons.Check else NpIcons.Link,
+                                enabled = link != null,
+                            )
+                        }
+                        PillButton(stringResource(R.string.share_send), { onAction(ShareAction.Send) }, Modifier.fillMaxWidth(), icon = NpIcons.Share, enabled = link != null)
+                    }
                 }
-                Text(stringResource(R.string.share_receivers), style = NpType.small, color = Np.colors.muted)
-                Text(stringResource(R.string.share_notice), style = NpType.small, color = Np.colors.muted)
+                GlassCard(Modifier.fillMaxWidth(), padding = 28.dp) {
+                    Column {
+                        Text(stringResource(R.string.share_receivers_label), style = NpType.small, color = Np.colors.muted)
+                        Spacer(Modifier.height(4.dp))
+                        Text(stringResource(R.string.share_receivers), style = NpType.body, color = Np.colors.text)
+                    }
+                }
             }
         }
     }
@@ -115,15 +133,8 @@ fun ShareScreen(state: ShareUiState, onAction: (ShareAction) -> Unit) {
 
 @Composable
 private fun Qr(state: ShareUiState) {
-    GlassCard(Modifier.fillMaxWidth(), padding = 24.dp) {
-        Crossfade(state.qr, Modifier.fillMaxWidth(), animationSpec = tween(Motion.BASE_MS), label = "qr") { qr ->
-            Box(Modifier.fillMaxWidth().height(QR_DP.dp), contentAlignment = Alignment.Center) {
-                when {
-                    qr != null -> Image(qr.asImageBitmap(), null, Modifier.size(QR_DP.dp).clip(RoundedCornerShape(16.dp)).background(Color.White))
-                    state.link != null -> Text(stringResource(R.string.share_qr_too_long), style = NpType.body, color = Np.colors.muted)
-                }
-            }
-        }
+    Crossfade(state.qr, animationSpec = tween(Motion.BASE_MS), label = "qr") { qr ->
+        if (qr != null) Image(qr.asImageBitmap(), null, Modifier.size(QR_DP.dp).clip(RoundedCornerShape(24.dp)).background(Color.White).padding(12.dp))
     }
 }
 
@@ -142,4 +153,4 @@ private fun Check(checked: Boolean, onClick: () -> Unit) {
     }
 }
 
-private const val QR_DP = 280
+private const val QR_DP = 240

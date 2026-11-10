@@ -1,5 +1,9 @@
 package com.easycd.nextplace.feature.myplaces.ui.search
 
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.widthIn
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Row
 import androidx.compose.animation.Crossfade
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.layout.Column
@@ -35,18 +39,19 @@ import com.easycd.nextplace.core.ui.theme.NpType
 import com.easycd.nextplace.feature.myplaces.R
 import com.easycd.nextplace.feature.myplaces.ui.common.CandidateRow
 
-/** S-09b 직접 검색: 검색창 · 결과 목록(페이드 교체) · 이걸로 저장. 화면이 열리면 키보드가 올라온다. */
+/** S-09b 가게 이름으로 찾기: 검색창(그때 위치 2km 안) · 결과 목록(페이드 교체) · 이걸로 저장. 화면이 열리면 키보드가 올라온다. */
 @Composable
 fun DirectSearchScreen(state: DirectSearchUiState, onAction: (DirectSearchAction) -> Unit) {
     val focus = remember { FocusRequester() }
     LaunchedEffect(Unit) { runCatching { focus.requestFocus() } }
-    ScreenFrame(stringResource(R.string.search_title), onBack = { onAction(DirectSearchAction.Back) }) {
+    ScreenFrame(stringResource(R.string.ds_title), onBack = { onAction(DirectSearchAction.Back) }) {
         Column(Modifier.fillMaxSize().imePadding().padding(horizontal = 40.dp)) {
             OutlinedTextField(
                 value = state.query,
                 onValueChange = { onAction(DirectSearchAction.Query(it)) },
                 placeholder = { Text(stringResource(R.string.search_hint), style = NpType.body) },
-                leadingIcon = { Icon(NpIcons.Search, null) },
+                leadingIcon = { Icon(NpIcons.Search, null, modifier = Modifier.size(36.dp)) },
+                trailingIcon = { Text(stringResource(R.string.ds_scope), style = NpType.small, color = Np.colors.muted, modifier = Modifier.padding(end = 24.dp)) },
                 textStyle = NpType.body.copy(color = Np.colors.text),
                 singleLine = true,
                 shape = RoundedCornerShape(44.dp),
@@ -54,7 +59,7 @@ fun DirectSearchScreen(state: DirectSearchUiState, onAction: (DirectSearchAction
                 modifier = Modifier.fillMaxWidth().heightIn(min = 88.dp).focusRequester(focus),
             )
             Spacer(Modifier.height(16.dp))
-            Crossfade(state.results, Modifier.weight(1f), animationSpec = tween(Motion.SCRIM_MS), label = "results") { list ->
+            Crossfade(state.results, Modifier.weight(1f, fill = false), animationSpec = tween(Motion.SCRIM_MS), label = "results") { list ->
                 if (list.isEmpty() && state.query.isNotBlank() && !state.loading) {
                     Text(
                         stringResource(if (state.offline) R.string.search_offline else R.string.search_empty),
@@ -64,17 +69,20 @@ fun DirectSearchScreen(state: DirectSearchUiState, onAction: (DirectSearchAction
                     )
                 } else {
                     LazyColumn {
-                        itemsIndexed(list) { i, c -> CandidateRow(c, i == state.selected) { onAction(DirectSearchAction.Pick(i)) } }
+                        itemsIndexed(list) { i, c -> CandidateRow(c, i == state.selected, searchStyle = true) { onAction(DirectSearchAction.Pick(i)) } }
                     }
                 }
             }
-            PillButton(
-                stringResource(R.string.resolve_save),
-                { onAction(DirectSearchAction.Save) },
-                Modifier.fillMaxWidth().padding(vertical = 20.dp),
-                kind = PillKind.PRIMARY,
-                enabled = state.selected != null,
-            )
+            Row(Modifier.fillMaxWidth().padding(vertical = 20.dp), horizontalArrangement = Arrangement.End) {
+                PillButton(
+                    stringResource(R.string.resolve_save),
+                    { onAction(DirectSearchAction.Save) },
+                    Modifier.widthIn(min = 300.dp),
+                    kind = PillKind.PRIMARY,
+                    icon = NpIcons.Check,
+                    enabled = state.selected != null,
+                )
+            }
         }
     }
 }

@@ -192,6 +192,11 @@ private fun LatestOrEmpty(state: HomeUiState, onAction: (HomeAction) -> Unit) {
 private fun EmptyCard() {
     GlassCard(Modifier.fillMaxWidth(), padding = 32.dp) {
         Column {
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Text(stringResource(R.string.home_empty_label), style = NpType.body, color = Np.colors.muted, modifier = Modifier.weight(1f))
+                StatusChip(stringResource(R.string.chip_none), ChipTone.SAVED)
+            }
+            Spacer(Modifier.height(16.dp))
             Text(stringResource(R.string.home_empty_title), style = NpType.cardTitle, color = Np.colors.text)
             Spacer(Modifier.height(8.dp))
             Text(stringResource(R.string.home_empty_sub), style = NpType.body, color = Np.colors.muted)

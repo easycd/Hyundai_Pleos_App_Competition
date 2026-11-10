@@ -25,6 +25,12 @@ class ShareCodecTest {
         assertEquals(2, r.payload.places.size)
         assertEquals(37.501235, r.payload.places[1].lat, 1e-9)
         assertEquals("갈비 맛있음", r.payload.places[0].memo)
+        assertEquals(null, r.payload.from)
+    }
+
+    @Test fun senderRoundTrip() {
+        val r = ShareCodec.decode(ShareCodec.link(payload.copy(from = "재원"))) as DecodeResult.Ok
+        assertEquals("재원", r.payload.from)
     }
 
     @Test fun brokenLink() {

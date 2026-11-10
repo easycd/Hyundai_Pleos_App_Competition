@@ -1,5 +1,10 @@
 package com.easycd.nextplace.feature.myplaces.ui.edit
 
+import com.easycd.nextplace.core.ui.drive.LocalPortrait
+import androidx.compose.ui.Alignment
+import androidx.compose.foundation.layout.widthIn
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
@@ -31,30 +36,42 @@ import com.easycd.nextplace.core.ui.theme.Np
 import com.easycd.nextplace.core.ui.theme.NpType
 import com.easycd.nextplace.feature.myplaces.R
 
-/** S-08b 가게 수정: 이름 · 업종 칩 · 내 메모 · 후보 다시 고르기 · 취소(왼쪽) · 저장(오른쪽). 키보드는 정차 중에만. */
+/**
+ * S-08b 수정: 위 줄 이름(왼쪽) · 업종 칩(오른쪽), 다음 줄 내 메모, 아래 줄 후보 다시 고르기(왼쪽) … 취소 · 저장(오른쪽).
+ * 그 아래는 시스템 키보드 자리(320dp). 방문 기록이 있으면 후보 다시 고르기는 흐리고 누를 수 없음.
+ */
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
 fun PlaceEditScreen(state: PlaceEditUiState, onAction: (PlaceEditAction) -> Unit) {
+    val portrait = LocalPortrait.current
     ScreenFrame(stringResource(R.string.edit_title), onBack = { onAction(PlaceEditAction.Cancel) }) {
-        Column(Modifier.fillMaxSize().imePadding().padding(horizontal = 40.dp)) {
-            Column(Modifier.weight(1f).verticalScroll(rememberScrollState()), verticalArrangement = Arrangement.spacedBy(20.dp)) {
-                Field(stringResource(R.string.edit_name), state.name, { onAction(PlaceEditAction.Name(it)) }, error = !state.canSave)
-                Text(stringResource(R.string.edit_category), style = NpType.small, color = Np.colors.muted)
-                FlowRow(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-                    state.categories.forEach { c -> FilterChip(c, state.category == c, { onAction(PlaceEditAction.Category(c)) }) }
+        Column(Modifier.fillMaxSize().imePadding().padding(horizontal = 40.dp).verticalScroll(rememberScrollState()), verticalArrangement = Arrangement.spacedBy(24.dp)) {
+            val name: @Composable (Modifier) -> Unit = { m -> Box(m) { Field(stringResource(R.string.edit_name), state.name, { onAction(PlaceEditAction.Name(it)) }, error = !state.canSave) } }
+            val cats: @Composable (Modifier) -> Unit = { m ->
+                Column(m) {
+                    Text(stringResource(R.string.edit_category), style = NpType.small, color = Np.colors.muted)
+                    Spacer(Modifier.height(8.dp))
+                    FlowRow(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+                        state.categories.forEach { c -> FilterChip(c, state.category == c, { onAction(PlaceEditAction.Category(c)) }) }
+                    }
                 }
-                Field(stringResource(R.string.edit_memo), state.memo, { onAction(PlaceEditAction.Memo(it)) })
-                PillButton(
-                    stringResource(R.string.edit_repick),
-                    { onAction(PlaceEditAction.Repick) },
-                    enabled = state.canRepick,
-                    icon = NpIcons.Search,
-                )
-                if (!state.canRepick) Text(stringResource(R.string.edit_repick_disabled), style = NpType.small, color = Np.colors.muted)
             }
-            Row(Modifier.fillMaxWidth().padding(vertical = 24.dp), horizontalArrangement = Arrangement.spacedBy(24.dp)) {
-                PillButton(stringResource(R.string.cancel), { onAction(PlaceEditAction.Cancel) }, Modifier.weight(1f))
-                PillButton(stringResource(R.string.edit_save), { onAction(PlaceEditAction.Save) }, Modifier.weight(1f), kind = PillKind.PRIMARY, enabled = state.canSave)
+            if (portrait) {
+                name(Modifier.fillMaxWidth())
+                cats(Modifier.fillMaxWidth())
+            } else {
+                Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(40.dp)) {
+                    name(Modifier.weight(1f))
+                    cats(Modifier.weight(1f))
+                }
+            }
+            Field(stringResource(R.string.edit_memo), state.memo, { onAction(PlaceEditAction.Memo(it)) })
+            Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
+                PillButton(stringResource(R.string.edit_repick), { onAction(PlaceEditAction.Repick) }, enabled = state.canRepick, icon = NpIcons.Search)
+                Spacer(Modifier.weight(1f))
+                PillButton(stringResource(R.string.cancel), { onAction(PlaceEditAction.Cancel) }, Modifier.widthIn(min = 200.dp))
+                Spacer(Modifier.width(24.dp))
+                PillButton(stringResource(R.string.edit_save), { onAction(PlaceEditAction.Save) }, Modifier.widthIn(min = 260.dp), kind = PillKind.PRIMARY, icon = NpIcons.Check, enabled = state.canSave)
             }
         }
     }

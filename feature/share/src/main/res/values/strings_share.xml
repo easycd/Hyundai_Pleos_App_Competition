@@ -2,20 +2,27 @@
 <resources>
     <string name="share_title">맛집 지도 공유</string>
     <string name="share_select_all">전체 선택</string>
-    <string name="share_count">%1$d곳 선택 · 최대 30곳</string>
+    <string name="share_count">%1$d곳 선택됨 · 미확인 가게는 뺌</string>
+    <string name="share_visits">방문 %1$d회</string>
+    <string name="share_pick_first">보낼 가게를 골라 주세요</string>
+    <string name="share_receivers_label">받는 사람 화면</string>
     <string name="share_list_title">제목</string>
     <string name="share_default_title">내 맛집 %1$d곳</string>
     <string name="share_copy">링크 복사</string>
     <string name="share_copied">복사했어요</string>
     <string name="share_send">보내기</string>
     <string name="share_qr_too_long">가게가 많아 QR 대신 링크로 보내 주세요</string>
-    <string name="share_receivers">받는 사람: 폰은 웹 목록 · 지도로 보고, Pleos 차량은 앱에서 바로 가져와요</string>
+    <string name="share_receivers">폰에서는 웹 목록이 열리고, Pleos 차량에서 열면 내 지도에 추가로 가져와요</string>
     <string name="share_notice">이름 · 업종 · 주소 · 좌표 · 메모만 링크에 담겨요. 보낸 링크는 회수할 수 없어요</string>
     <string name="share_none">공유할 확인된 가게가 없어요</string>
     <string name="share_chooser">맛집 목록 보내기</string>
 
-    <string name="import_title">받은 목록 가져오기</string>
-    <string name="import_from">%1$s · %2$s</string>
+    <string name="import_title">받은 맛집 목록</string>
+    <string name="import_heading">%1$s %2$d곳</string>
+    <string name="import_from">보낸 사람 %1$s · %2$s</string>
+    <string name="import_map">위치</string>
+    <string name="import_summary">%1$d곳을 추가해요</string>
+    <string name="import_summary_skip">%1$d곳을 추가해요 · 이미 있는 %2$d곳은 건너뜀</string>
     <string name="import_exists">이미 있음</string>
     <string name="import_add">내 지도에 추가</string>
     <string name="import_close">닫기</string>

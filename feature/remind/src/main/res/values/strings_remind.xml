@@ -4,6 +4,11 @@
     <string name="remind_ahead">%1$s 앞</string>
     <string name="remind_near">근처</string>
     <string name="remind_question">갈까요?</string>
+    <string name="remind_title">%1$s 저장한 %2$s</string>
+    <string name="remind_left">왼쪽</string>
+    <string name="remind_right">오른쪽</string>
+    <string name="remind_voice_hint">“응”이라고 말해도 돼요</string>
+    <string name="remind_to_navi">Pleos 내비로 넘어가요</string>
     <string name="remind_start">안내 시작</string>
     <string name="remind_close">닫기</string>
     <string name="remind_route">%1$s 안내할게요</string>

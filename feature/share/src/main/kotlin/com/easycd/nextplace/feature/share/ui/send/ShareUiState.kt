@@ -2,7 +2,7 @@ package com.easycd.nextplace.feature.share.ui.send
 
 import android.graphics.Bitmap
 
-data class ShareRowModel(val id: String, val name: String, val category: String?, val checked: Boolean)
+data class ShareRowModel(val id: String, val name: String, val category: String?, val checked: Boolean, val visits: Int = 0)
 
 /** S-10 맛집 지도 공유. [link] 가 null 이면 0곳 선택 (링크 복사 · 보내기 흐림). */
 data class ShareUiState(

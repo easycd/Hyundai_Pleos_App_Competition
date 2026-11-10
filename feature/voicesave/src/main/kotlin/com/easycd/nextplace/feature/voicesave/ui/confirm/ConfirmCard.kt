@@ -17,6 +17,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.widthIn
@@ -98,8 +99,9 @@ private fun CandidateCard(s: ConfirmUiState) {
         Side.RIGHT -> stringResource(R.string.confirm_meta_side, cat, dist, dir, stringResource(R.string.side_right))
         Side.UNKNOWN -> stringResource(R.string.confirm_meta, cat, dist, dir)
     }.trimStart(' ', '·')
-    GlassCard(Modifier.widthIn(max = 1000.dp).fillMaxWidth(), padding = 56.dp) {
-        Column {
+    // 설계서 S-03 ②: 폭 1000 · 높이 400dp 카드, 이름 64dp 가 세로 가운데
+    GlassCard(Modifier.widthIn(max = 1000.dp).fillMaxWidth().heightIn(min = 400.dp), padding = 56.dp) {
+        Column(Modifier.align(Alignment.CenterStart)) {
             Text(s.name, style = NpType.placeName, color = Np.colors.text, maxLines = 1, overflow = TextOverflow.Ellipsis)
             Spacer(Modifier.height(16.dp))
             Text(meta, style = NpType.body, color = Np.colors.text)

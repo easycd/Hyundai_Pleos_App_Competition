@@ -34,6 +34,8 @@ fun Modifier.glass(shape: Shape, strong: Boolean = false, elevation: Dp = 12.dp)
     return this
         .shadow(elevation, shape, ambientColor = c.shadow, spotColor = c.shadow)
         .clip(shape)
+        // 진한 유리(창·알림 카드·토스트): 뒤 흐림이 없으니 바탕을 거의 불투명하게 깔아 뒤 글자가 비치지 않게 한다.
+        .then(if (strong) Modifier.background(c.solidCard.copy(alpha = STRONG_BASE)) else Modifier)
         .background(fill)
         .background(Brush.verticalGradient(listOf(c.glassHighlight.copy(alpha = c.glassHighlight.alpha * HIGHLIGHT), fill.copy(alpha = 0f))))
         .border(1.dp, c.glassBorder, shape)
@@ -51,3 +53,4 @@ fun Modifier.pressable(enabled: Boolean = true, role: Role = Role.Button, onClic
 
 private const val PRESSED = 0.96f
 private const val HIGHLIGHT = 0.35f
+private const val STRONG_BASE = 0.9f

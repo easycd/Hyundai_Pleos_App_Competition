@@ -32,6 +32,6 @@
 
     <!-- S-12 주행 중 안내 -->
     <string name="drive_title_fallback">주행 중</string>
-    <string name="drive_line1">멈춘 뒤에 볼 수 있어요</string>
-    <string name="drive_line2">주행 중에는 말로 저장하고 추천받을 수 있어요</string>
+    <string name="drive_line1">멈추면 볼 수 있어요</string>
+    <string name="drive_line2">주행 중에는 음성으로 이용해 주세요</string>
 </resources>

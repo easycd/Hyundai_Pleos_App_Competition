@@ -31,3 +31,6 @@ include(":feature:visit")
 include(":feature:myplaces")
 include(":feature:share")
 include(":feature:settings")
+
+// 화면 렌더링 검사 (에뮬레이터 없이 Paparazzi 로 S-xx 화면을 PNG 로 그림). 필요할 때만: ./gradlew -Pnextplace.screens=true :tools:screenshots:recordPaparazziDebug
+if (providers.gradleProperty("nextplace.screens").orNull == "true") include(":tools:screenshots")

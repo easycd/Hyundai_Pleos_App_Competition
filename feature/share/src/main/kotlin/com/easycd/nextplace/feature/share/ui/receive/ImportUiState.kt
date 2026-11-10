@@ -12,8 +12,11 @@ data class ImportUiState(
     val problem: ImportProblem = ImportProblem.NONE,
     val title: String = "",
     val createdAt: Long = 0,
+    val from: String? = null,
     val rows: List<ImportRow> = emptyList(),
     val adding: Boolean = false,
 ) {
     val canAdd: Boolean get() = rows.any { it.checked && !it.exists } && !adding
+    val toAdd: Int get() = rows.count { it.checked && !it.exists }
+    val existing: Int get() = rows.count { it.exists }
 }

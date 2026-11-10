@@ -36,7 +36,10 @@ import com.easycd.nextplace.core.ui.theme.NpType
 import com.easycd.nextplace.feature.myplaces.R
 import com.easycd.nextplace.feature.myplaces.ui.common.CandidateRow
 
-/** S-09 미확인 가게 정리: 그때 상황 · 후보 5곳 · 지도 · 이걸로 저장 · 직접 검색. 삭제는 상단 오른쪽. */
+/**
+ * S-09 어느 가게였나요?: 왼쪽 = 그때 상황 카드(시각 · 도로(방향) · 말한 문장) + 그때 위치 지도,
+ * 오른쪽 = 후보 5곳(라디오) + 이걸로 저장 · 직접 검색. 삭제는 상단 오른쪽(S-08 수정 버튼 자리).
+ */
 @Composable
 fun ResolveScreen(state: ResolveUiState, onAction: (ResolveAction) -> Unit) {
     val portrait = LocalPortrait.current
@@ -46,29 +49,38 @@ fun ResolveScreen(state: ResolveUiState, onAction: (ResolveAction) -> Unit) {
             onBack = { onAction(ResolveAction.Back) },
             action = { PillButton(stringResource(R.string.detail_delete), { onAction(ResolveAction.Delete) }, kind = PillKind.DANGER_OUTLINE, icon = NpIcons.Trash) },
         ) {
-            Row(Modifier.fillMaxSize().padding(horizontal = 32.dp, vertical = 8.dp)) {
-                Column(Modifier.weight(1f)) {
-                    Context(state)
-                    Spacer(Modifier.height(16.dp))
-                    Candidates(state, onAction, Modifier.weight(1f))
-                    Row(Modifier.fillMaxWidth().padding(vertical = 20.dp), horizontalArrangement = Arrangement.spacedBy(24.dp)) {
-                        PillButton(stringResource(R.string.resolve_search), { onAction(ResolveAction.Search) }, Modifier.weight(1f), icon = NpIcons.Search)
-                        PillButton(
-                            stringResource(R.string.resolve_save),
-                            { onAction(ResolveAction.Save) },
-                            Modifier.weight(1f),
-                            kind = PillKind.PRIMARY,
-                            enabled = state.candidates.isNotEmpty(),
-                        )
-                    }
-                }
+            Row(Modifier.fillMaxSize().padding(horizontal = 40.dp).padding(bottom = 32.dp)) {
                 if (!portrait) {
-                    Spacer(Modifier.width(24.dp))
-                    Box(Modifier.weight(1f).fillMaxSize().padding(bottom = 24.dp)) {
-                        val pins = state.candidates.mapIndexed { i, c -> MapPin("c$i", GeoPoint(c.lat, c.lon), PinTone.CANDIDATE, i == state.selected) } +
-                            listOfNotNull(state.estimated?.let { MapPin("est", it, PinTone.ESTIMATED) })
-                        PinMap(pins, null, Modifier.fillMaxSize(), onPin = { pid -> pid.removePrefix("c").toIntOrNull()?.let { onAction(ResolveAction.Pick(it)) } })
+                    Column(Modifier.weight(1f)) {
+                        Context(state)
+                        Spacer(Modifier.height(24.dp))
+                        GlassCard(Modifier.fillMaxWidth().weight(1f), padding = 24.dp) {
+                            val pins = state.candidates.mapIndexed { i, c -> MapPin("c$i", GeoPoint(c.lat, c.lon), PinTone.CANDIDATE, i == state.selected) } +
+                                listOfNotNull(state.estimated?.let { MapPin("est", it, PinTone.ESTIMATED) })
+                            PinMap(pins, null, Modifier.fillMaxSize(), onPin = { pid -> pid.removePrefix("c").toIntOrNull()?.let { onAction(ResolveAction.Pick(it)) } })
+                            Text(stringResource(R.string.resolve_map), style = NpType.small, color = Np.colors.muted, modifier = Modifier.align(Alignment.TopStart))
+                        }
                     }
+                    Spacer(Modifier.width(40.dp))
+                }
+                Column(Modifier.weight(1f)) {
+                    if (portrait) {
+                        Context(state)
+                        Spacer(Modifier.height(16.dp))
+                    }
+                    Candidates(state, onAction, Modifier.weight(1f))
+                    Spacer(Modifier.height(24.dp))
+                    PillButton(
+                        stringResource(R.string.resolve_save),
+                        { onAction(ResolveAction.Save) },
+                        Modifier.fillMaxWidth(),
+                        kind = PillKind.PRIMARY,
+                        icon = NpIcons.Check,
+                        enabled = state.candidates.isNotEmpty(),
+                        height = 112.dp,
+                    )
+                    Spacer(Modifier.height(20.dp))
+                    PillButton(stringResource(R.string.resolve_search), { onAction(ResolveAction.Search) }, Modifier.fillMaxWidth(), icon = NpIcons.Search)
                 }
             }
         }
@@ -89,10 +101,14 @@ fun ResolveScreen(state: ResolveUiState, onAction: (ResolveAction) -> Unit) {
 private fun Context(s: ResolveUiState) {
     GlassCard(Modifier.fillMaxWidth(), padding = 28.dp) {
         Column {
-            Text(stringResource(R.string.resolve_context), style = NpType.small, color = Np.colors.muted)
             val where = if (s.noLocation) stringResource(R.string.resolve_no_location) else s.where
-            Text(listOfNotNull(TimeText.saved(s.savedAt), where, s.heading?.let { stringResource(R.string.resolve_heading, it) }).joinToString(" · "), style = NpType.body, color = Np.colors.text)
-            s.utterance?.let { Text("“$it”", style = NpType.body, color = Np.colors.muted, maxLines = 2) }
+            val moving = s.heading?.let { stringResource(R.string.resolve_moving, it) }
+            val place = listOfNotNull(where, moving?.let { "($it)" }).joinToString(" ")
+            Text(listOf(TimeText.saved(s.savedAt), place).filter { it.isNotBlank() }.joinToString(" · "), style = NpType.small, color = Np.colors.muted)
+            s.utterance?.let {
+                Spacer(Modifier.height(8.dp))
+                Text("“$it”", style = NpType.title.copy(fontWeight = androidx.compose.ui.text.font.FontWeight.Normal), color = Np.colors.text, maxLines = 3)
+            }
         }
     }
 }
@@ -100,7 +116,6 @@ private fun Context(s: ResolveUiState) {
 @Composable
 private fun Candidates(s: ResolveUiState, onAction: (ResolveAction) -> Unit, modifier: Modifier) {
     Column(modifier) {
-        Text(stringResource(R.string.resolve_candidates), style = NpType.small, color = Np.colors.muted)
         when {
             s.searching -> Row(Modifier.padding(24.dp), verticalAlignment = Alignment.CenterVertically) {
                 SpinnerRing(size = 48.dp)
@@ -109,7 +124,7 @@ private fun Candidates(s: ResolveUiState, onAction: (ResolveAction) -> Unit, mod
             }
             s.candidates.isEmpty() -> Text(stringResource(R.string.resolve_no_candidates), style = NpType.body, color = Np.colors.muted, modifier = Modifier.padding(24.dp))
             else -> LazyColumn {
-                itemsIndexed(s.candidates) { i, c -> CandidateRow(c, i == s.selected) { onAction(ResolveAction.Pick(i)) } }
+                itemsIndexed(s.candidates) { i, c -> CandidateRow(c, i == s.selected, showAddress = false) { onAction(ResolveAction.Pick(i)) } }
             }
         }
     }

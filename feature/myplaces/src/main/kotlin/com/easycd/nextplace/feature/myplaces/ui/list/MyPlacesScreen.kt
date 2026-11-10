@@ -1,5 +1,9 @@
 package com.easycd.nextplace.feature.myplaces.ui.list
 
+import com.easycd.nextplace.core.ui.component.PillKind
+import androidx.compose.foundation.layout.widthIn
+import androidx.compose.foundation.layout.size
+import androidx.compose.material3.Icon
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -26,7 +30,6 @@ import com.easycd.nextplace.core.ui.component.FilterChip
 import com.easycd.nextplace.core.ui.component.PillButton
 import com.easycd.nextplace.core.ui.component.PinMap
 import com.easycd.nextplace.core.ui.component.ScreenFrame
-import com.easycd.nextplace.core.ui.component.SpeakButton
 import com.easycd.nextplace.core.ui.drive.LocalPortrait
 import com.easycd.nextplace.core.ui.icon.NpIcons
 import com.easycd.nextplace.core.ui.theme.Motion
@@ -77,7 +80,7 @@ private fun Content(state: MyPlacesUiState, onAction: (MyPlacesAction) -> Unit) 
             }
         }
         if (!portrait) {
-            Spacer(Modifier.width(24.dp))
+            Spacer(Modifier.width(40.dp))
             Box(Modifier.weight(1f).fillMaxSize().padding(bottom = 24.dp)) {
                 PinMap(state.pins, state.me, Modifier.fillMaxSize(), onPin = { onAction(MyPlacesAction.Pin(it)) })
             }
@@ -88,30 +91,36 @@ private fun Content(state: MyPlacesUiState, onAction: (MyPlacesAction) -> Unit) 
 @Composable
 private fun Filters(state: MyPlacesUiState, onAction: (MyPlacesAction) -> Unit) {
     Row(horizontalArrangement = Arrangement.spacedBy(12.dp), verticalAlignment = Alignment.CenterVertically) {
-        FilterChip(stringResource(R.string.mp_filter_all), state.filter == PlaceFilter.ALL, { onAction(MyPlacesAction.Filter(PlaceFilter.ALL)) })
-        FilterChip(stringResource(R.string.mp_filter_unconfirmed), state.filter == PlaceFilter.UNCONFIRMED, { onAction(MyPlacesAction.Filter(PlaceFilter.UNCONFIRMED)) })
-        FilterChip(stringResource(R.string.mp_filter_visited), state.filter == PlaceFilter.VISITED, { onAction(MyPlacesAction.Filter(PlaceFilter.VISITED)) })
-        Spacer(Modifier.width(12.dp))
-        FilterChip(stringResource(R.string.mp_sort_near), state.sort == PlaceSort.NEAR, { onAction(MyPlacesAction.Sort(PlaceSort.NEAR)) })
-        FilterChip(stringResource(R.string.mp_sort_recent), state.sort == PlaceSort.RECENT, { onAction(MyPlacesAction.Sort(PlaceSort.RECENT)) })
+        FilterChip("${stringResource(R.string.mp_filter_all)} ${state.total}", state.filter == PlaceFilter.ALL, { onAction(MyPlacesAction.Filter(PlaceFilter.ALL)) })
+        FilterChip("${stringResource(R.string.mp_filter_unconfirmed)} ${state.unconfirmedCount}", state.filter == PlaceFilter.UNCONFIRMED, { onAction(MyPlacesAction.Filter(PlaceFilter.UNCONFIRMED)) })
+        FilterChip("${stringResource(R.string.mp_filter_visited)} ${state.visitedCount}", state.filter == PlaceFilter.VISITED, { onAction(MyPlacesAction.Filter(PlaceFilter.VISITED)) })
+        // 정렬은 칩 하나를 눌러 바꾼다 (가까운 순 ↔ 최근 저장 순)
+        val near = state.sort == PlaceSort.NEAR
+        FilterChip(
+            stringResource(if (near) R.string.mp_sort_near else R.string.mp_sort_recent),
+            false,
+            { onAction(MyPlacesAction.Sort(if (near) PlaceSort.RECENT else PlaceSort.NEAR)) },
+        )
     }
 }
 
 @Composable
 private fun Empty(state: MyPlacesUiState, onAction: (MyPlacesAction) -> Unit) {
     val portrait = LocalPortrait.current
-    Row(Modifier.fillMaxSize().padding(32.dp)) {
+    Row(Modifier.fillMaxSize().padding(horizontal = 32.dp, vertical = 8.dp)) {
         Column(Modifier.weight(1f).fillMaxSize(), horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.Center) {
-            Text(stringResource(R.string.mp_empty_title), style = NpType.question, color = Np.colors.text, textAlign = TextAlign.Center)
+            Icon(NpIcons.MapPin, null, tint = Np.colors.muted, modifier = Modifier.size(96.dp))
+            Spacer(Modifier.height(24.dp))
+            Text(stringResource(R.string.mp_empty_title), style = NpType.title, color = Np.colors.text, textAlign = TextAlign.Center)
             Spacer(Modifier.height(12.dp))
             Text(stringResource(R.string.mp_empty_sub), style = NpType.body, color = Np.colors.muted, textAlign = TextAlign.Center)
             Text(stringResource(R.string.mp_empty_example), style = NpType.body, color = Np.colors.muted, textAlign = TextAlign.Center)
             Spacer(Modifier.height(24.dp))
-            SpeakButton({ onAction(MyPlacesAction.Speak) }, size = 200.dp, label = stringResource(R.string.mp_speak))
+            PillButton(stringResource(R.string.mp_speak), { onAction(MyPlacesAction.Speak) }, Modifier.widthIn(min = 320.dp), kind = PillKind.PRIMARY, icon = NpIcons.Mic, height = 112.dp)
         }
         if (!portrait) {
-            Spacer(Modifier.width(24.dp))
-            Box(Modifier.weight(1f).fillMaxSize()) { PinMap(emptyList(), state.me, Modifier.fillMaxSize()) }
+            Spacer(Modifier.width(40.dp))
+            Box(Modifier.weight(1f).fillMaxSize().padding(bottom = 24.dp)) { PinMap(emptyList(), state.me, Modifier.fillMaxSize()) }
         }
     }
 }

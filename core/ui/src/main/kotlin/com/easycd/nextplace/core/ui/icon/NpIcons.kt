@@ -66,6 +66,18 @@ object NpIcons {
     val Send by lazy { icon("send", "M22 2l-7 20-4-9-9-4Z", "M22 2L11 13") }
     val Plus by lazy { icon("plus", "M5 12h14", "M12 5v14") }
     val Alert by lazy { icon("alert", "M22 12a10 10 0 1 1-20 0a10 10 0 1 1 20 0", "M12 8v4", "M12 16h0.01") }
+    val Car by lazy {
+        icon(
+            "car-front",
+            "M21 8l-2 2l-1.5-3.7A2 2 0 0 0 15.6 5H8.4a2 2 0 0 0-1.9 1.3L5 10L3 8",
+            "M7 14h0.01",
+            "M17 14h0.01",
+            "M5 10h14a2 2 0 0 1 2 2v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4a2 2 0 0 1 2-2Z",
+            "M5 18v2",
+            "M19 18v2",
+        )
+    }
+    val Flag by lazy { icon("flag", "M4 15s1-1 4-1s5 2 8 2s4-1 4-1V3s-1 1-4 1s-5-2-8-2s-4 1-4 1z", "M4 22v-7") }
     val Wheel by lazy {
         icon(
             "wheel",

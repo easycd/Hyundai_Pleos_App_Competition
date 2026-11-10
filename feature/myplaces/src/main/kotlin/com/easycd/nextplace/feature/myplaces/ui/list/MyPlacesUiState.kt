@@ -11,11 +11,13 @@ enum class PlaceSort { NEAR, RECENT }
 data class MyPlacesUiState(
     val loaded: Boolean = false,
     val total: Int = 0,
+    val unconfirmedCount: Int = 0,
+    val visitedCount: Int = 0,
     val rows: List<PlaceRowModel> = emptyList(),
     val pins: List<MapPin> = emptyList(),
     val me: GeoPoint? = null,
     val filter: PlaceFilter = PlaceFilter.ALL,
-    val sort: PlaceSort = PlaceSort.RECENT,
+    val sort: PlaceSort = PlaceSort.NEAR,
     val selectedId: String? = null,
     val freshIds: Set<String> = emptySet(),
 )

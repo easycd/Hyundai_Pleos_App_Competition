@@ -2,7 +2,16 @@ package com.easycd.nextplace.feature.recommend.session
 
 import com.easycd.nextplace.core.domain.voice.VoicePrompt
 
-data class RecCard(val id: String, val number: Int, val name: String, val category: String?, val distanceM: Double?, val memo: String?)
+data class RecCard(
+    val id: String,
+    val number: Int,
+    val name: String,
+    val category: String?,
+    val distanceM: Double?,
+    val memo: String?,
+    val savedAt: Long = 0,
+    val visits: Int = 0,
+)
 
 /** 추천 세션 상태 하나 (S-06 · S-06b · S-06c). */
 sealed interface RecommendState {

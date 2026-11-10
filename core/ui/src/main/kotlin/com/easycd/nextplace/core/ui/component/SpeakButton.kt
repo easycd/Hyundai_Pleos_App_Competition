@@ -39,7 +39,19 @@ fun SpeakButton(onClick: () -> Unit, modifier: Modifier = Modifier, size: Dp = 3
         Canvas(Modifier.fillMaxSize()) {
             val r = size.toPx() / 2
             val g = glow.dp.toPx()
-            drawCircle(Brush.radialGradient(listOf(c.brand.copy(alpha = 0.45f), Color.Transparent), center, r + g), r + g)
+            // 버튼 가장자리에서 진하게 시작해 바깥으로 사라지는 빛 (설계서 S-01 ①: 버튼 둘레 고리 2겹)
+            val edge = r / (r + g)
+            drawCircle(
+                Brush.radialGradient(
+                    0f to c.brand.copy(alpha = 0.5f),
+                    edge to c.brand.copy(alpha = 0.5f),
+                    (edge + 1f) / 2f to c.brand.copy(alpha = 0.22f),
+                    1f to Color.Transparent,
+                    center = center,
+                    radius = r + g,
+                ),
+                r + g,
+            )
         }
         Box(
             Modifier.size(size).clip(CircleShape)

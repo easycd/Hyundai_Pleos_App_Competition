@@ -111,7 +111,7 @@ class RemindPipeline @Inject constructor(
         val name = p.name ?: return
         val whenSaved = savedWhen(p)
         val dist = e.distanceM.toInt()
-        val asking = RemindState.Asking(name, whenSaved, dist, e.ahead, null)
+        val asking = RemindState.Asking(name, whenSaved, dist, e.ahead, e.side, null)
         _state.value = asking
         headsUp.show(HeadsUp.REMIND_ID, name, context.getString(R.string.remind_notify_text, distanceLabel(dist, e.ahead)), Tunables.REMIND_BUTTON_WAIT_MS * 2)
         try {

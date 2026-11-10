@@ -4,10 +4,11 @@ import com.easycd.nextplace.core.domain.Tunables
 import com.easycd.nextplace.core.domain.geo.Geo
 import com.easycd.nextplace.core.domain.model.LocationSample
 import com.easycd.nextplace.core.domain.model.Place
+import com.easycd.nextplace.core.domain.model.Side
 import javax.inject.Inject
 
 /** 근접 이벤트: 알림 거리 안에 들어온 가게 (또는 보류 중 1분마다 다시 보는 가게). */
-data class ProximityEvent(val place: Place, val distanceM: Double, val ahead: Boolean)
+data class ProximityEvent(val place: Place, val distanceM: Double, val ahead: Boolean, val side: Side = Side.UNKNOWN)
 
 /**
  * 근접 감시 (기술서 7-2 이벤트 원천 2안: 1초 위치 콜백에서 반경에 걸친 격자 칸만 보고 거리 계산).
@@ -59,7 +60,7 @@ class ProximityWatcher @Inject constructor() {
             when {
                 was == null && d <= radiusM -> {
                     inside[p.id] = s.timeMs
-                    out += ProximityEvent(p, d, Geo.isAhead(s.point, s.heading.toDouble(), p.point!!))
+                    out += ProximityEvent(p, d, Geo.isAhead(s.point, s.heading.toDouble(), p.point!!), Geo.sideOf(s.point, s.heading.toDouble(), p.point!!))
                 }
                 was != null && d > radiusM + Tunables.REMIND_EXIT_MARGIN_M -> {
                     inside.remove(p.id)
@@ -67,7 +68,7 @@ class ProximityWatcher @Inject constructor() {
                 }
                 was != null && p.id in held && s.timeMs - was >= Tunables.REMIND_RECHECK_MS -> {
                     inside[p.id] = s.timeMs
-                    out += ProximityEvent(p, d, Geo.isAhead(s.point, s.heading.toDouble(), p.point!!))
+                    out += ProximityEvent(p, d, Geo.isAhead(s.point, s.heading.toDouble(), p.point!!), Geo.sideOf(s.point, s.heading.toDouble(), p.point!!))
                 }
             }
         }

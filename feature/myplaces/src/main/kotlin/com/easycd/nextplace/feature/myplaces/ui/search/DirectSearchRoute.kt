@@ -11,7 +11,7 @@ import com.easycd.nextplace.feature.myplaces.R
 @Composable
 fun DirectSearchRoute(vm: DirectSearchViewModel = hiltViewModel()) {
     val state by vm.state.collectAsStateWithLifecycle()
-    DriveGate(stringResource(R.string.search_title), onBack = { vm.onAction(DirectSearchAction.Back) }) {
+    DriveGate(stringResource(R.string.ds_title), onBack = { vm.onAction(DirectSearchAction.Back) }) {
         DirectSearchScreen(state, vm::onAction)
     }
 }

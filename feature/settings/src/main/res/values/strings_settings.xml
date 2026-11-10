@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="settings_title">설정</string>
-    <string name="set_remind">근처 리마인드</string>
+    <string name="set_remind">리마인드</string>
     <string name="set_remind_sub">저장한 가게 근처를 지나면 알려 드려요</string>
     <string name="set_radius">알림 거리</string>
     <string name="set_meal">식사 시간에만 알림</string>
@@ -13,9 +13,11 @@
     <string name="set_seconds">%1$d초</string>
     <string name="set_meters">%1$dm</string>
     <string name="set_km">1km</string>
-    <string name="set_delete_all">모두 삭제</string>
-    <string name="delete_all_q">저장한 가게 %1$d곳을 모두 지울까요?</string>
-    <string name="delete_all_desc">방문 기록과 메모도 함께 지워지고 되돌릴 수 없어요. 이미 보낸 공유 링크는 회수되지 않아요.</string>
+    <string name="set_delete_all_row">저장한 가게 모두 삭제</string>
+    <string name="set_delete">삭제</string>
+    <string name="set_footer">버전 0.1 · 저장 가게와 방문 기록은 이 차 안에만 보관</string>
+    <string name="delete_all_q">저장한 가게 %1$d곳을 모두 삭제할까요?</string>
+    <string name="delete_all_desc">방문 기록 · 메모 · 공유 기록도 지워지고 되돌릴 수 없어요. 이미 보낸 링크는 회수되지 않아요.</string>
     <string name="delete_all_ok">모두 삭제</string>
     <string name="cancel">취소</string>
 </resources>

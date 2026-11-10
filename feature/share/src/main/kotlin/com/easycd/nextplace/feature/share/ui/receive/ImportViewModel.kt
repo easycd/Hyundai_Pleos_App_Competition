@@ -41,6 +41,7 @@ class ImportViewModel @Inject constructor(
                     loaded = true,
                     title = r.payload.title,
                     createdAt = r.payload.createdAt,
+                    from = r.payload.from,
                     rows = r.payload.places.map { p -> importer.exists(p).let { ImportRow(p, it, !it) } },
                 )
             }

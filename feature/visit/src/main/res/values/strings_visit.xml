@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="visit_title">%1$s 다녀오셨네요</string>
-    <string name="visit_count">방문 %1$d회 기록됨</string>
-    <string name="visit_question">한 줄 남길까요?</string>
+    <string name="visit_sub">방문 %1$d회로 기록했어요 · 한 줄 남길까요?</string>
+    <string name="visit_hint">“괜찮았어”처럼 바로 말해도 돼요</string>
     <string name="visit_listening">듣고 있어요</string>
     <string name="visit_speak">말하기</string>
     <string name="visit_later">다음에</string>

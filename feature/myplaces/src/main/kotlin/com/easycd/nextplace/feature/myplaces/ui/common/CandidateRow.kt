@@ -1,5 +1,7 @@
 package com.easycd.nextplace.feature.myplaces.ui.common
 
+import com.easycd.nextplace.core.ui.icon.NpIcons
+import androidx.compose.material3.Icon
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
@@ -33,17 +35,22 @@ import com.easycd.nextplace.core.ui.theme.Motion
 import com.easycd.nextplace.core.ui.theme.Np
 import com.easycd.nextplace.core.ui.theme.NpType
 
-/** 후보 한 줄 (S-09 · S-09b): 라디오 + 이름 · 업종 · 거리 · 좌우 · 주소. */
+/**
+ * 후보 한 줄. S-09: 라디오(왼쪽) + 이름 / "고깃집 · 80m 오른쪽".
+ * S-09b([searchStyle]): 핀(왼쪽) + 이름 / "고깃집 · 강남대로 123" + 거리 · 라디오(오른쪽).
+ */
 @Composable
-fun CandidateRow(c: PoiCandidate, selected: Boolean, onClick: () -> Unit) {
+fun CandidateRow(c: PoiCandidate, selected: Boolean, showAddress: Boolean = false, searchStyle: Boolean = false, onClick: () -> Unit) {
     val bg by animateColorAsState(if (selected) Np.colors.brand.copy(alpha = 0.14f) else Color.Transparent, tween(Motion.FAST_MS), label = "c")
     Row(
-        Modifier.fillMaxWidth().heightIn(min = 96.dp).clip(RoundedCornerShape(24.dp)).background(bg)
+        Modifier.fillMaxWidth().heightIn(min = 104.dp).clip(RoundedCornerShape(24.dp)).background(bg)
             .pressable(role = Role.RadioButton, onClick = onClick).padding(horizontal = 20.dp, vertical = 10.dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {
-        Box(Modifier.size(36.dp).clip(CircleShape).border(3.dp, if (selected) Np.colors.brand else Np.colors.muted, CircleShape), contentAlignment = Alignment.Center) {
-            if (selected) Box(Modifier.size(18.dp).clip(CircleShape).background(Np.colors.brand))
+        if (searchStyle) {
+            Icon(NpIcons.MapPin, null, tint = Np.colors.muted, modifier = Modifier.size(36.dp))
+        } else {
+            Radio(selected)
         }
         Spacer(Modifier.width(20.dp))
         Column(Modifier.weight(1f)) {
@@ -53,13 +60,26 @@ fun CandidateRow(c: PoiCandidate, selected: Boolean, onClick: () -> Unit) {
                 Side.RIGHT -> "오른쪽"
                 Side.UNKNOWN -> null
             }
-            Text(
-                listOfNotNull(c.category?.substringAfterLast(" > "), DistanceText.of(c.distanceM), side, c.address).joinToString(" · "),
-                style = NpType.small,
-                color = Np.colors.muted,
-                maxLines = 1,
-                overflow = TextOverflow.Ellipsis,
-            )
+            val cat = c.category?.substringAfterLast(" > ")
+            val meta = if (searchStyle) {
+                listOfNotNull(cat, c.address).joinToString(" · ")
+            } else {
+                listOfNotNull(cat, listOfNotNull(DistanceText.of(c.distanceM), side).joinToString(" "), c.address?.takeIf { showAddress }).joinToString(" · ")
+            }
+            Text(meta, style = NpType.small, color = Np.colors.muted, maxLines = 1, overflow = TextOverflow.Ellipsis)
         }
+        if (searchStyle) {
+            Spacer(Modifier.width(16.dp))
+            Text(DistanceText.of(c.distanceM), style = NpType.small, color = Np.colors.muted)
+            Spacer(Modifier.width(20.dp))
+            Radio(selected)
+        }
+    }
+}
+
+@Composable
+private fun Radio(selected: Boolean) {
+    Box(Modifier.size(44.dp).clip(CircleShape).border(3.dp, if (selected) Np.colors.brand else Np.colors.muted, CircleShape), contentAlignment = Alignment.Center) {
+        if (selected) Box(Modifier.size(24.dp).clip(CircleShape).background(Np.colors.brand))
     }
 }

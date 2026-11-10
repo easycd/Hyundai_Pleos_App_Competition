@@ -1,5 +1,13 @@
 package com.easycd.nextplace.feature.recommend.ui
 
+import com.easycd.nextplace.core.ui.text.TimeText
+import androidx.compose.material3.Icon
+import androidx.compose.foundation.layout.widthIn
+import androidx.compose.foundation.layout.size
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.draw.clip
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.background
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
@@ -53,7 +61,7 @@ import com.easycd.nextplace.feature.recommend.session.RecommendState
 fun RecommendScreen(state: RecommendUiState, onAction: (RecommendAction) -> Unit) {
     val s = state.session
     val category = (s as? RecommendState.Showing)?.category ?: (s as? RecommendState.Empty)?.category
-    val title = category?.let { stringResource(R.string.rec_title_category, it) } ?: stringResource(R.string.rec_title)
+    val title = stringResource(R.string.rec_title)
     ScreenFrame(title, onBack = { onAction(RecommendAction.Back) }) {
         when (s) {
             is RecommendState.Showing -> Showing(s, onAction)
@@ -89,11 +97,8 @@ private fun Showing(s: RecommendState.Showing, onAction: (RecommendAction) -> Un
             }
         }
         Spacer(Modifier.height(24.dp))
-        Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.Center, verticalAlignment = Alignment.CenterVertically) {
-            if (!portrait) {
-                Text(stringResource(R.string.rec_hint), style = NpType.body, color = Np.colors.muted, modifier = Modifier.weight(1f))
-            }
-            PillButton(stringResource(R.string.rec_more), { onAction(RecommendAction.More) }, enabled = s.selectedIndex == null)
+        Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.Center) {
+            PillButton(stringResource(R.string.rec_more), { onAction(RecommendAction.More) }, Modifier.widthIn(min = 400.dp), enabled = s.selectedIndex == null)
         }
     }
 }
@@ -116,11 +121,13 @@ private fun LandscapeCard(c: RecCard, s: RecommendState.Showing, i: Int, modifie
         onClick = { onAction(RecommendAction.Select(i)) },
     ) {
         Column(Modifier.fillMaxHeight()) {
-            Text("${c.number}", style = NpType.placeName, color = Np.colors.brandText)
+            NumberBadge(c.number)
+            Spacer(Modifier.height(24.dp))
             Text(c.name, style = NpType.cardTitle, color = Np.colors.text, maxLines = 2, overflow = TextOverflow.Ellipsis)
+            Spacer(Modifier.height(16.dp))
+            Text(meta(c), style = NpType.body, color = Np.colors.text, maxLines = 1)
             Spacer(Modifier.height(8.dp))
-            Text(meta(c), style = NpType.body, color = Np.colors.muted, maxLines = 1)
-            c.memo?.let { Text("“$it”", style = NpType.body, color = Np.colors.muted, maxLines = 2, overflow = TextOverflow.Ellipsis) }
+            Text(history(c), style = NpType.small, color = Np.colors.muted, maxLines = 2, overflow = TextOverflow.Ellipsis)
             Spacer(Modifier.weight(1f))
             PillButton(stringResource(R.string.rec_start), { onAction(RecommendAction.Select(i)) }, Modifier.fillMaxWidth(), kind = PillKind.PRIMARY, icon = NpIcons.Navigation)
         }
@@ -137,7 +144,7 @@ private fun PortraitCard(c: RecCard, s: RecommendState.Showing, i: Int, onAction
         onClick = { onAction(RecommendAction.Select(i)) },
     ) {
         Row(verticalAlignment = Alignment.CenterVertically) {
-            Text("${c.number}", style = NpType.placeName, color = Np.colors.brandText)
+            NumberBadge(c.number)
             Spacer(Modifier.width(24.dp))
             Column(Modifier.weight(1f)) {
                 Text(c.name, style = NpType.cardTitle, color = Np.colors.text, maxLines = 1, overflow = TextOverflow.Ellipsis)
@@ -150,6 +157,22 @@ private fun PortraitCard(c: RecCard, s: RecommendState.Showing, i: Int, onAction
 
 private fun meta(c: RecCard) = listOfNotNull(c.category, c.distanceM?.let(DistanceText::of)).joinToString(" · ")
 
+/** "저장 11월 2일 · 안 가 봄" 또는 "방문 1회 · “괜찮았어”" (설계서 S-06 카드 셋째 줄). */
+@Composable
+private fun history(c: RecCard): String {
+    val first = if (c.visits > 0) stringResource(R.string.rec_visits, c.visits) else stringResource(R.string.rec_saved_on, TimeText.saved(c.savedAt))
+    val second = c.memo?.let { "“$it”" } ?: if (c.visits == 0) stringResource(R.string.rec_not_visited) else null
+    return listOfNotNull(first, second).joinToString(" · ")
+}
+
+/** 번호 원 56dp (주황 채움, 흰 숫자). TTS 가 읽는 번호와 같다. */
+@Composable
+private fun NumberBadge(n: Int) {
+    Box(Modifier.size(56.dp).clip(CircleShape).background(Np.colors.brand), contentAlignment = Alignment.Center) {
+        Text("$n", style = NpType.title, color = Color.White)
+    }
+}
+
 @Composable
 private fun Empty(s: RecommendState.Empty, onAction: (RecommendAction) -> Unit) {
     val cat = s.category?.let { Josa.iGa(it) }
@@ -159,7 +182,11 @@ private fun Empty(s: RecommendState.Empty, onAction: (RecommendAction) -> Unit) 
         NoneReason.NONE_30KM -> cat?.let { stringResource(R.string.rec_none_30km_category, it) } ?: stringResource(R.string.rec_none_30km)
     }
     Column(Modifier.fillMaxSize().padding(40.dp), horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.Center) {
+        Icon(NpIcons.MapPin, null, tint = Np.colors.muted, modifier = Modifier.size(96.dp))
+        Spacer(Modifier.height(24.dp))
         Text(text, style = NpType.question, color = Np.colors.text, textAlign = TextAlign.Center)
+        Spacer(Modifier.height(16.dp))
+        Text(stringResource(R.string.rec_none_sub), style = NpType.body, color = Np.colors.muted, textAlign = TextAlign.Center)
         if (s.reason == NoneReason.NONE_10KM) {
             Spacer(Modifier.height(40.dp))
             PillButton(stringResource(R.string.rec_widen), { onAction(RecommendAction.Widen) }, kind = PillKind.PRIMARY, height = 112.dp)
