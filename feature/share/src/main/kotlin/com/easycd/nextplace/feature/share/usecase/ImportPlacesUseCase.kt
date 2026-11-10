@@ -30,7 +30,15 @@ class ImportPlacesUseCase @Inject constructor(private val places: PlaceRepositor
 
     suspend fun import(list: List<SharedPlace>): Result<List<String>> = runCatching {
         val now = clock.now()
-        val rows = list.mapIndexed { i, s ->
+        // 같은 카카오 ID 가 이미 행으로 있으면(방금 지워 '삭제 예정'인 것 포함) 새로 넣지 않는다.
+        // UNIQUE(provider, providerId) 때문에 넣으면 전체가 실패한다. 삭제 예정인 것은 되살린다.
+        val known = list.associateWith { s ->
+            val provider = s.provider
+            val pid = s.providerId
+            if (provider != null && pid != null) places.findByProvider(provider, pid) else null
+        }
+        val fresh = list.filter { known[it] == null }
+        val rows = fresh.mapIndexed { i, s ->
             Place(
                 id = UUID.randomUUID().toString(),
                 name = s.name,
@@ -58,6 +66,7 @@ class ImportPlacesUseCase @Inject constructor(private val places: PlaceRepositor
             )
         }
         places.insertAll(rows)
-        rows.map { it.id }
+        val revived = known.values.filterNotNull().onEach { if (it.deletedAt != null) places.restore(it.id) }
+        rows.map { it.id } + revived.map { it.id }
     }
 }

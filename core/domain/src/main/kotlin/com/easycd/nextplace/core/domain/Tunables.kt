@@ -91,7 +91,10 @@ object Tunables {
     // 공유 (F-13)
     const val SHARE_MAX_PLACES = 30
     const val SHARE_TEXT_MAX = 40
+    /** 링크 데이터 상한: **압축 후** 8KB (기술서 공유 상한). 보낼 때·받을 때 같은 기준. */
     const val SHARE_MAX_BYTES = 8 * 1024
+    /** 풀었을 때 상한 (압축 폭탄 방지). 30곳 × 모든 칸 최대 길이 한글이어도 약 25KB. */
+    const val SHARE_MAX_INFLATED_BYTES = 64 * 1024
     const val SHARE_QR_MAX_CHARS = 2_000
     const val SAME_PLACE_DISTANCE_M = 50.0
 

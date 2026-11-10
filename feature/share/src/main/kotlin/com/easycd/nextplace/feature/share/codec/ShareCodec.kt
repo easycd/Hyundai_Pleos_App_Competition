@@ -22,7 +22,8 @@ sealed interface DecodeResult {
 
 /**
  * 공유 링크 코덱 (기술서 4장 ShareCodec): JSON → raw deflate → base64url (서버 없음).
- * 링크 형식 https://easycd.github.io/nextplace/s#<데이터>. 풀 때는 크기(8KB)·버전·필드를 검사한다.
+ * 링크 형식 https://easycd.github.io/nextplace/s#<데이터>. 풀 때는 크기(압축 후 8KB, 푼 뒤 64KB)·버전·필드를 검사한다.
+ * 보내는 쪽은 [fits]로 같은 기준을 미리 확인한다.
  */
 object ShareCodec {
     const val VERSION = 1
@@ -30,6 +31,9 @@ object ShareCodec {
     private val json = Json { ignoreUnknownKeys = true; encodeDefaults = false; explicitNulls = false }
 
     fun link(payload: SharePayload): String = BASE_URL + encode(payload)
+
+    /** 이 링크를 받는 쪽(같은 앱)이 읽을 수 있는가. 보내기 전에 왕복으로 확인한다. */
+    fun fits(link: String): Boolean = decode(link) is DecodeResult.Ok
 
     fun encode(payload: SharePayload): String {
         val dto = Dto(
@@ -54,6 +58,7 @@ object ShareCodec {
     fun decode(linkOrData: String): DecodeResult = runCatching {
         val data = linkOrData.substringAfter('#').trim()
         val bytes = Base64.getUrlDecoder().decode(data)
+        if (bytes.size > Tunables.SHARE_MAX_BYTES) return DecodeResult.Broken
         val inf = Inflater(true).apply { setInput(bytes) }
         val out = ByteArrayOutputStream()
         val buf = ByteArray(BUF)
@@ -61,7 +66,7 @@ object ShareCodec {
             val n = inf.inflate(buf)
             if (n == 0 && (inf.needsInput() || inf.needsDictionary())) break
             out.write(buf, 0, n)
-            if (out.size() > Tunables.SHARE_MAX_BYTES) return DecodeResult.Broken
+            if (out.size() > Tunables.SHARE_MAX_INFLATED_BYTES) return DecodeResult.Broken
         }
         inf.end()
         val dto = json.decodeFromString(Dto.serializer(), out.toString(Charsets.UTF_8.name()))

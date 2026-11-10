@@ -1,6 +1,5 @@
 package com.easycd.nextplace.feature.voicesave.recovery
 
-import com.easycd.nextplace.core.domain.Tunables
 import com.easycd.nextplace.core.domain.model.PlaceStatus
 import com.easycd.nextplace.core.domain.repository.PlaceRepository
 import com.easycd.nextplace.core.domain.sdk.Clock
@@ -18,7 +17,9 @@ class SaveRecovery @Inject constructor(
 ) {
     suspend fun run() {
         withDbRetry { places.purgeMarkedDeleted() }
-        val stale = places.staleDrafts(clock.now() - Tunables.DRAFT_STALE_MS)
+        // 앱(프로세스)이 막 시작했으니 지금 있는 초안은 모두 지난 실행의 것이다. 나이와 상관없이 마무리한다
+        // (1분보다 새 초안만 남기면, 1분 안에 다시 켰을 때 그 초안이 다음 실행까지 목록에서 숨는다).
+        val stale = places.staleDrafts(clock.now())
         stale.forEach { d -> withDbRetry { places.update(d.copy(draft = false, status = PlaceStatus.UNCONFIRMED)) } }
         if (places.unconfirmedWithoutCandidates().any { it.point != null }) research.schedule()
     }

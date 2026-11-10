@@ -28,8 +28,10 @@ class RecommendDialogue @Inject constructor(
         onSelect: (Int) -> Unit,
         onNext: () -> Unit,
         onCancel: () -> Unit,
+        /** false: 목록을 다시 읽지 않고 바로 듣는다 (선택을 1.5초 안에 취소하고 돌아왔을 때). */
+        readList: Boolean = true,
     ) {
-        coroutineScope {
+        if (readList) coroutineScope {
             val highlight = launch {
                 cards.indices.forEach { i ->
                     onReading(i)

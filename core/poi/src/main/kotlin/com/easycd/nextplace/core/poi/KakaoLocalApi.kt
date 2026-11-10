@@ -28,6 +28,14 @@ internal interface KakaoLocalApi {
         @Query("size") size: Int = 15,
     ): KakaoSearchResponse
 
+    /** 기준 좌표 없이 전국에서 정확도 순 (예: "강남 할머니국밥"). */
+    @GET("v2/local/search/keyword.json")
+    suspend fun keywordAnywhere(
+        @Query("query") query: String,
+        @Query("sort") sort: String = "accuracy",
+        @Query("size") size: Int = 15,
+    ): KakaoSearchResponse
+
     @GET("v2/local/geo/coord2address.json")
     suspend fun coord2address(@Query("x") lon: Double, @Query("y") lat: Double): KakaoAddressResponse
 }

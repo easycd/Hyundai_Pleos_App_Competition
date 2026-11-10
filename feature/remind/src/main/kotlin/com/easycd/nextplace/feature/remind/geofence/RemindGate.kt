@@ -1,6 +1,7 @@
 package com.easycd.nextplace.feature.remind.geofence
 
 import com.easycd.nextplace.core.domain.Tunables
+import com.easycd.nextplace.core.domain.model.PlaceStatus
 import com.easycd.nextplace.core.domain.repository.PlaceRepository
 import com.easycd.nextplace.core.domain.repository.SettingsRepository
 import com.easycd.nextplace.core.domain.sdk.Clock
@@ -12,6 +13,8 @@ import javax.inject.Singleton
 /**
  * 빈도 상한 (기술서 7-2): 같은 가게 하루 1회 + 전체 10분 1회를 뮤텍스 하나로 함께 확인하고,
  * TTS 를 시작하는 순간 두 값을 함께 갱신한다. 동시에 온 이벤트는 차례로 처리되어 하나만 통과한다.
+ * 음성 차례를 기다리는 동안 설정이 바뀌었을 수 있으므로, 여기서 지금의 설정·가게 상태를 다시 본다
+ * (리마인드 끔 · 이 가게 알림 끔 · 삭제 예정 · 미확인이면 거절).
  */
 @Singleton
 class RemindGate @Inject constructor(
@@ -25,6 +28,7 @@ class RemindGate @Inject constructor(
         val now = clock.now()
         val p = places.get(placeId) ?: return false
         val s = settings.current()
+        if (!s.remindEnabled || !p.remindEnabled || p.deletedAt != null || p.draft || p.status != PlaceStatus.CONFIRMED) return false
         if (p.lastRemindedAt?.let { clock.dayIndex(it) == clock.dayIndex(now) } == true) return false
         if (s.lastRemindAt?.let { now - it < Tunables.REMIND_GLOBAL_GAP_MS } == true) return false
         places.setLastReminded(placeId, now)

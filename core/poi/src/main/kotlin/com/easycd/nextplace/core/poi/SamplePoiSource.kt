@@ -1,6 +1,7 @@
 package com.easycd.nextplace.core.poi
 
 import android.content.Context
+import com.easycd.nextplace.core.domain.voice.TextNormalizer
 import com.easycd.nextplace.core.domain.model.PoiCandidate
 import com.easycd.nextplace.core.domain.poi.PoiQuery
 import com.easycd.nextplace.core.domain.poi.PoiResult
@@ -27,6 +28,11 @@ class SamplePoiSource @Inject constructor(@ApplicationContext private val contex
     }
 
     override suspend fun search(query: PoiQuery): PoiResult = PoiResult.Found(places.matching(query).refine(query))
+
+    override suspend fun searchAnywhere(keyword: String): PoiResult {
+        val key = TextNormalizer.compact(keyword)
+        return PoiResult.Found(places.filter { key.isNotEmpty() && TextNormalizer.compact(it.name).contains(key) }.map { it.copy(distanceM = Double.NaN) })
+    }
 
     @Serializable
     private data class SampleFile(val places: List<SamplePlace>)

@@ -70,7 +70,8 @@ fun CandidateRow(c: PoiCandidate, selected: Boolean, showAddress: Boolean = fals
         }
         if (searchStyle) {
             Spacer(Modifier.width(16.dp))
-            Text(DistanceText.of(c.distanceM), style = NpType.small, color = Np.colors.muted)
+            // 위치 없이 찾은 결과는 거리를 모른다 (NaN)
+            if (!c.distanceM.isNaN()) Text(DistanceText.of(c.distanceM), style = NpType.small, color = Np.colors.muted)
             Spacer(Modifier.width(20.dp))
             Radio(selected)
         }

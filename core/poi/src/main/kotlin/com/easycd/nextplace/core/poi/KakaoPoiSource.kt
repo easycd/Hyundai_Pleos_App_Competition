@@ -1,5 +1,6 @@
 package com.easycd.nextplace.core.poi
 
+import com.easycd.nextplace.core.domain.Tunables
 import com.easycd.nextplace.core.domain.model.GeoPoint
 import com.easycd.nextplace.core.domain.model.PoiCandidate
 import com.easycd.nextplace.core.domain.poi.PoiQuery
@@ -28,19 +29,24 @@ internal class KakaoPoiSource @Inject constructor(
 
     override suspend fun search(query: PoiQuery): PoiResult {
         val keyword = query.keyword?.takeIf { it.isNotBlank() }
-        val group = query.category?.kakaoGroup ?: Category.FOOD
+        // 업종을 말하지 않았으면 음식점과 카페를 모두 모은다 (기술서 PoiSource 계약: 음식점·카페 전체)
+        val groups = query.category?.let { listOf(it.kakaoGroup) } ?: listOf(Category.FOOD, Category.CAFE)
+        val group = groups.joinToString("+")
         val endpoint = if (keyword != null || query.category != null) "keyword" else "category"
         val text = keyword ?: query.category?.name ?: ""
         val cell = GeoPoint(round3(query.center.lat), round3(query.center.lon))
         val wideRadius = query.radiusM + CELL_M
         val key = listOf(endpoint, TextNormalizer.compact(text), if (keyword != null) "" else group, wideRadius, cell.lat, cell.lon)
             .joinToString("|")
-        cache.fresh(key)?.let { return PoiResult.Found(decode(it).refine(query).matching(query)) }
+        // 캐시 키에 검색어가 들어 있으므로, 꺼낼 때도 API 응답과 같은 후처리(반경)만 한다.
+        // 이름 부분 일치로 다시 거르면 카카오가 주소 낱말로 찾아 준 결과("강남 스타벅스" → "스타벅스 강남역점")가 두 번째부터 사라진다.
+        cache.fresh(key)?.let { return PoiResult.Found(decode(it).refine(query)) }
         return try {
+            val radius = wideRadius.coerceAtMost(MAX_RADIUS)
             val docs = if (endpoint == "category") {
-                api.category(group, cell.lon, cell.lat, wideRadius.coerceAtMost(MAX_RADIUS)).documents
+                groups.flatMap { api.category(it, cell.lon, cell.lat, radius).documents }.distinctBy { it.id }
             } else {
-                api.keyword(text, cell.lon, cell.lat, wideRadius.coerceAtMost(MAX_RADIUS), if (keyword != null) null else group).documents
+                api.keyword(text, cell.lon, cell.lat, radius, if (keyword != null) null else groups.first()).documents
             }
             val list = docs.mapNotNull { d ->
                 val lat = d.y.toDoubleOrNull() ?: return@mapNotNull null
@@ -52,10 +58,27 @@ internal class KakaoPoiSource @Inject constructor(
         } catch (e: CancellationException) {
             throw e
         } catch (e: IOException) {
-            cache.staleOk(key)?.let { PoiResult.Found(decode(it).refine(query).matching(query), stale = true) } ?: PoiResult.Offline
+            cache.staleOk(key)?.let { PoiResult.Found(decode(it).refine(query), stale = true) } ?: PoiResult.Offline
         } catch (e: Exception) {
             PoiResult.Failed
         }
+    }
+
+    override suspend fun searchAnywhere(keyword: String): PoiResult = try {
+        val docs = api.keywordAnywhere(keyword.trim()).documents
+        PoiResult.Found(
+            docs.mapNotNull { d ->
+                val lat = d.y.toDoubleOrNull() ?: return@mapNotNull null
+                val lon = d.x.toDoubleOrNull() ?: return@mapNotNull null
+                PoiCandidate(PROVIDER, d.id, d.name, d.category, d.roadAddress?.takeIf { it.isNotBlank() } ?: d.address, lat, lon, distanceM = Double.NaN)
+            }.take(Tunables.POI_MAX_CANDIDATES),
+        )
+    } catch (e: CancellationException) {
+        throw e
+    } catch (e: IOException) {
+        PoiResult.Offline
+    } catch (e: Exception) {
+        PoiResult.Failed
     }
 
     private fun encode(list: List<PoiCandidate>) = json.encodeToString(listSerializer, list.map(CachedCandidate::from))

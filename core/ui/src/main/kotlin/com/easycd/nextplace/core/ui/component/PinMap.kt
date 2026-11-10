@@ -35,9 +35,11 @@ fun PinMap(pins: List<MapPin>, me: GeoPoint?, modifier: Modifier = Modifier, onP
     val c = Np.colors
     val all = pins.map { it.point } + listOfNotNull(me)
     Canvas(
-        modifier.glass(RoundedCornerShape(36.dp), elevation = 0.dp).pointerInput(pins, onPin) {
+        modifier.glass(RoundedCornerShape(36.dp), elevation = 0.dp).pointerInput(pins, me, onPin) {
             if (onPin != null) {
                 detectTapGestures { tap ->
+                    // 핀이 없으면(필터 결과 0 · 위치만 있음) 누를 것이 없다. 빈 목록으로 투영을 만들면 minOf 가 던진다.
+                    if (pins.isEmpty() || all.isEmpty()) return@detectTapGestures
                     val proj = Projection(all, size.width.toFloat(), size.height.toFloat())
                     pins.minByOrNull { p -> proj.of(p.point).let { hypot(it.x - tap.x, it.y - tap.y) } }
                         ?.takeIf { p -> proj.of(p.point).let { hypot(it.x - tap.x, it.y - tap.y) } < TAP_PX }

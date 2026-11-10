@@ -5,6 +5,7 @@
     <string name="share_count">%1$d곳 선택됨 · 미확인 가게는 뺌</string>
     <string name="share_visits">방문 %1$d회</string>
     <string name="share_pick_first">보낼 가게를 골라 주세요</string>
+    <string name="share_too_big">링크에 담기에 너무 많아요. 몇 곳을 빼 주세요</string>
     <string name="share_receivers_label">받는 사람 화면</string>
     <string name="share_list_title">제목</string>
     <string name="share_default_title">내 맛집 %1$d곳</string>

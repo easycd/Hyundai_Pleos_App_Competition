@@ -2,19 +2,30 @@ package com.easycd.nextplace.core.domain.contract
 
 import com.easycd.nextplace.core.domain.model.UserMessage
 import kotlinx.coroutines.channels.BufferOverflow
+import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.asSharedFlow
+import kotlinx.coroutines.flow.receiveAsFlow
 import javax.inject.Inject
 import javax.inject.Singleton
 
-/** 화면 이동 요청 통로. app 이 모아서 NavController 로 옮긴다. */
+/**
+ * 화면 이동 요청 통로. app 이 모아서 NavController 로 옮긴다.
+ * 받는 쪽(NavHost)이 아직 없을 때 온 요청도 버리지 않고 쌓아 두었다가 한 번만 넘긴다
+ * (앱이 꺼진 상태에서 공유 링크로 열면 링크 처리가 시작 화면보다 먼저 온다). 넘긴 요청은 다시 재생하지 않는다.
+ */
 @Singleton
 class Navigator @Inject constructor() {
-    private val _commands = MutableSharedFlow<Destination>(extraBufferCapacity = 8, onBufferOverflow = BufferOverflow.DROP_OLDEST)
-    val commands: SharedFlow<Destination> = _commands.asSharedFlow()
+    private val _commands = Channel<Destination>(capacity = PENDING_MAX, onBufferOverflow = BufferOverflow.DROP_OLDEST)
+    val commands: Flow<Destination> = _commands.receiveAsFlow()
     fun go(destination: Destination) {
-        _commands.tryEmit(destination)
+        _commands.trySend(destination)
+    }
+
+    private companion object {
+        const val PENDING_MAX = 8
     }
 }
 

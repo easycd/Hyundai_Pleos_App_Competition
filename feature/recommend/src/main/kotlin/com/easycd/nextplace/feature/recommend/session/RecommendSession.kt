@@ -29,6 +29,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import java.util.concurrent.atomic.AtomicBoolean
+import java.util.concurrent.atomic.AtomicInteger
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -60,6 +61,9 @@ class RecommendSession @Inject constructor(
     private var talk: Job? = null
     private var idle: Job? = null
     private var sending: Job? = null
+    private var loading: Job? = null
+    /** 열기·닫기마다 1 올린다. 불러오기가 끝났을 때 세대가 바뀌었으면(그 사이 닫힘) 결과를 버린다. */
+    private val generation = AtomicInteger(0)
     private val gate = AtomicBoolean(false)
     /** 1.5초가 지나 목적지를 보내기 시작함: 이 뒤로는 앱에서 취소하지 않는다 (안내 취소는 Pleos 내비에서). */
     @Volatile private var committed = false
@@ -67,13 +71,19 @@ class RecommendSession @Inject constructor(
     override fun open(category: String?, snapshot: LocationSnapshot) {
         this.snapshot = snapshot
         this.category = category
+        val gen = generation.incrementAndGet()
         _state.value = RecommendState.Loading
         navigator.go(Destination.Recommend)
-        scope.launch { load(Tunables.RECOMMEND_RADIUS_M) }
+        startLoad(gen, Tunables.RECOMMEND_RADIUS_M)
     }
 
     fun widen() {
-        scope.launch { load(Tunables.RECOMMEND_WIDE_RADIUS_M) }
+        startLoad(generation.get(), Tunables.RECOMMEND_WIDE_RADIUS_M)
+    }
+
+    private fun startLoad(gen: Int, radiusM: Int) {
+        loading?.cancel()
+        loading = scope.launch { load(gen, radiusM) }
     }
 
     /** 다른 곳 추천: 4~6위, 7~9위 (최대 2회). 더 없으면 "더 없어요"라고 말하고 지금 카드를 둔다. */
@@ -124,6 +134,8 @@ class RecommendSession @Inject constructor(
             tts.stop()
             gate.set(false)
             _state.value = s.copy(selectedIndex = null)
+            // 선택하면서 끊었던 음성 대화를 다시 연다 (목록은 이미 읽었으니 바로 듣기)
+            startTalk(s.cards, readList = false)
             restartIdle()
             return
         }
@@ -131,16 +143,20 @@ class RecommendSession @Inject constructor(
     }
 
     fun close() {
+        generation.incrementAndGet()
+        loading?.cancel()
         talk?.cancel()
         idle?.cancel()
         _state.value = RecommendState.Closed
         navigator.go(Destination.Home)
     }
 
-    private suspend fun load(radiusM: Int) {
+    private suspend fun load(gen: Int, radiusM: Int) {
         val origin = snapshot?.current?.point
         val all = places.allConfirmed()
         val within = if (origin == null) all else places.nearbyConfirmed(origin, radiusM.toDouble())
+        // 불러오는 동안 뒤로 나갔으면(닫힘) 아무것도 띄우거나 말하지 않는다
+        if (gen != generation.get()) return
         ranked = scorer.rank(within, category, RecommendContext(origin, radiusM, clock.now()))
         if (ranked.isEmpty()) {
             val reason = when {
@@ -163,13 +179,17 @@ class RecommendSession @Inject constructor(
         }
         gate.set(false)
         _state.value = RecommendState.Showing(category, cards, page)
+        startTalk(cards, readList = true)
+        restartIdle()
+    }
+
+    private fun startTalk(cards: List<RecCard>, readList: Boolean) {
         talk?.cancel()
         talk = scope.launch {
             voice.runUser {
-                dialogue.run(cards, onReading = { i -> update { it.copy(readingIndex = i) } }, onSelect = ::select, onNext = ::next, onCancel = ::close)
+                dialogue.run(cards, onReading = { i -> update { it.copy(readingIndex = i) } }, onSelect = ::select, onNext = ::next, onCancel = ::close, readList = readList)
             }
         }
-        restartIdle()
     }
 
     private fun restartIdle() {

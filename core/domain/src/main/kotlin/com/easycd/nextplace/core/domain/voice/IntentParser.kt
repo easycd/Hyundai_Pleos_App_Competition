@@ -107,7 +107,8 @@ class IntentParser @Inject constructor(private val slots: SlotExtractor) {
         val NO_WORDS = listOf("아니", "아뇨", "다른", "틀려", "틀렸", "싫어", "안 가", "안가", "노")
         val NEXT_WORDS = listOf("다른", "다음 거", "다음거", "또 없", "더 없")
         val MEMO_CANCEL_EXACT = setOf("됐어", "됐어요", "괜찮아", "괜찮아요", "아니", "아니요", "아뇨", "없어", "없어요", "다음에")
-        val DIGIT_NUMBER = Regex("([0-9])\\s?번")
+        // 여러 자리 숫자를 통째로 읽는다 ("11번"이 1번으로 잡히지 않게). 범위 밖 번호는 대화 쪽에서 거른다.
+        val DIGIT_NUMBER = Regex("(?<![0-9])([0-9]+)\\s?번")
         val ORDINALS = linkedMapOf(
             listOf("첫번째", "첫째", "일번", "하나", "첫번") to 1,
             listOf("두번째", "둘째", "이번째", "두번", "둘") to 2,

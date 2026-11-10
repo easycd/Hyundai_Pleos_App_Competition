@@ -33,6 +33,8 @@ interface PlaceRepository {
     suspend fun markDeleted(id: String, at: Long)
     suspend fun restore(id: String)
     suspend fun purgeMarkedDeleted()
+    /** 삭제 예정 표시가 [at] 그대로일 때만 지운다 (되돌리기 시간 안에 복원된 가게는 남긴다). */
+    suspend fun deleteIfMarkedAt(id: String, at: Long)
     suspend fun staleDrafts(olderThan: Long): List<Place>
     suspend fun unconfirmedWithoutCandidates(): List<Place>
     /** 받은 목록 가져오기: 전부 성공하거나 전부 되돌린다. */

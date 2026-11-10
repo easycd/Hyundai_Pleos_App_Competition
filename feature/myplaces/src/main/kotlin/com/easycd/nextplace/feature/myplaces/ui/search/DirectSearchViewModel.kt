@@ -54,18 +54,22 @@ class DirectSearchViewModel @Inject constructor(
     }
 
     private suspend fun search(q: String) {
-        if (q.isEmpty()) return _state.update { it.copy(results = emptyList(), selected = null, loading = false, offline = false) }
-        val center = places.get(id)?.point ?: location.latest.value?.point ?: return
+        if (q.isEmpty()) return _state.update { it.copy(results = emptyList(), selected = null, loading = false, offline = false, resultsFor = q) }
+        val p = places.get(id)
+        val saidAt = p?.savedLat?.let { lat -> p.savedLon?.let { lon -> GeoPoint(lat, lon) } }
+        val center = p?.point ?: saidAt ?: location.latest.value?.point
         _state.update { it.copy(loading = true) }
-        val r = poi.search(PoiQuery(center, Tunables.SEARCH_RADIUS_M, keyword = q))
+        // 기준 위치가 하나도 없으면(좌표 없이 저장 + 지금도 위치 없음) 이름·지역 낱말로 전국에서 찾는다
+        val r = if (center == null) poi.searchAnywhere(q) else poi.search(PoiQuery(center, Tunables.SEARCH_RADIUS_M, keyword = q))
         val list = (r as? PoiResult.Found)?.candidates.orEmpty()
-            .map { it.copy(distanceM = Geo.distanceM(center, GeoPoint(it.lat, it.lon))) }
-        _state.update { it.copy(results = list, selected = if (list.isEmpty()) null else 0, loading = false, offline = r is PoiResult.Offline) }
+            .map { c -> if (center == null) c else c.copy(distanceM = Geo.distanceM(center, GeoPoint(c.lat, c.lon))) }
+        _state.update { it.copy(results = list, selected = if (list.isEmpty()) null else 0, loading = false, offline = r is PoiResult.Offline, resultsFor = q) }
     }
 
     fun onAction(a: DirectSearchAction) {
         when (a) {
-            is DirectSearchAction.Query -> _state.update { it.copy(query = a.text) }
+            // 검색어가 바뀌면 이전 결과의 선택은 풀어 둔다 (새 결과가 오기 전에 저장을 눌러 이전 가게가 저장되지 않게)
+            is DirectSearchAction.Query -> _state.update { if (it.query.trim() == a.text.trim()) it.copy(query = a.text) else it.copy(query = a.text, selected = null) }
             is DirectSearchAction.Pick -> _state.update { it.copy(selected = a.index) }
             DirectSearchAction.Back -> navigator.go(Destination.Back)
             DirectSearchAction.Save -> save()
@@ -74,6 +78,7 @@ class DirectSearchViewModel @Inject constructor(
 
     private fun save() {
         val s = _state.value
+        if (!s.canSave) return
         val c = s.selected?.let { s.results.getOrNull(it) } ?: return
         viewModelScope.launch {
             val p = places.get(id) ?: return@launch

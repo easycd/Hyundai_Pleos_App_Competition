@@ -85,6 +85,10 @@ interface PlaceDao {
     @Query("DELETE FROM place WHERE deletedAt IS NOT NULL")
     suspend fun purgeMarkedDeleted()
 
+    /** 되돌리기 시간이 끝났을 때: 그 사이 복원(다시 저장·가져오기)되지 않았을 때만 지운다. */
+    @Query("DELETE FROM place WHERE id = :id AND deletedAt = :at")
+    suspend fun deleteIfMarkedAt(id: String, at: Long)
+
     @Query("SELECT * FROM place WHERE draft = 1 AND savedAt < :olderThan")
     suspend fun staleDrafts(olderThan: Long): List<PlaceEntity>
 

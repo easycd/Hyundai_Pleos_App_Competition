@@ -22,6 +22,12 @@ sealed interface PoiResult {
 /** 가게 찾기 (카카오 로컬 API 또는 내장 샘플). 카카오 ID는 내비로 넘기지 않는다. */
 interface PoiSource {
     suspend fun search(query: PoiQuery): PoiResult
+
+    /**
+     * 기준 위치 없이 이름(과 지역 낱말)만으로 찾는다. 좌표 없이 저장한 미확인 기록을, 위치도 못 잡는 상태에서 직접 검색으로 정리할 때.
+     * 결과의 distanceM 은 모름(NaN).
+     */
+    suspend fun searchAnywhere(keyword: String): PoiResult = PoiResult.Failed
 }
 
 /** 좌표 → 도로명 (홈 현재 위치, 30초에 1회). */

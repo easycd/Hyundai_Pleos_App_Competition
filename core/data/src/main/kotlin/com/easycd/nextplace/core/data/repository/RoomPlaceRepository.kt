@@ -85,6 +85,8 @@ internal class RoomPlaceRepository @Inject constructor(private val db: NextPlace
 
     override suspend fun purgeMarkedDeleted() = dao.purgeMarkedDeleted()
 
+    override suspend fun deleteIfMarkedAt(id: String, at: Long) = dao.deleteIfMarkedAt(id, at)
+
     override suspend fun staleDrafts(olderThan: Long): List<Place> = dao.staleDrafts(olderThan).map { it.toModel() }
 
     override suspend fun unconfirmedWithoutCandidates(): List<Place> = dao.unconfirmedWithoutCandidates().map { it.toModel() }

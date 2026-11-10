@@ -60,7 +60,7 @@ fun ShareScreen(state: ShareUiState, onAction: (ShareAction) -> Unit) {
         Row(Modifier.fillMaxSize().imePadding().padding(horizontal = 40.dp, vertical = 8.dp)) {
             Column(Modifier.weight(1f)) {
                 Row(verticalAlignment = Alignment.CenterVertically) {
-                    FilterChip(stringResource(R.string.share_select_all), state.rows.isNotEmpty() && state.rows.all { it.checked }, { onAction(ShareAction.ToggleAll) })
+                    FilterChip(stringResource(R.string.share_select_all), state.allSelected, { onAction(ShareAction.ToggleAll) })
                     Spacer(Modifier.width(16.dp))
                     Text(stringResource(R.string.share_count, state.selectedCount), style = NpType.small, color = Np.colors.muted)
                 }
@@ -94,6 +94,8 @@ fun ShareScreen(state: ShareUiState, onAction: (ShareAction) -> Unit) {
                     colors = OutlinedTextFieldDefaults.colors(focusedBorderColor = Np.colors.brand, cursorColor = Np.colors.brand),
                     modifier = Modifier.fillMaxWidth(),
                 )
+                // 세로 창은 칸이 좁아 QR 을 링크 위에 따로 둔다
+                if (portrait && state.qr != null) Qr(state, Modifier.align(Alignment.CenterHorizontally))
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     if (!portrait && state.qr != null) {
                         Qr(state)
@@ -102,7 +104,7 @@ fun ShareScreen(state: ShareUiState, onAction: (ShareAction) -> Unit) {
                     Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(16.dp)) {
                         val link = state.link
                         Text(
-                            link?.removePrefix("https://") ?: stringResource(R.string.share_pick_first),
+                            link?.removePrefix("https://") ?: stringResource(if (state.tooBig) R.string.share_too_big else R.string.share_pick_first),
                             style = NpType.small, color = Np.colors.muted, maxLines = 2, overflow = TextOverflow.Ellipsis,
                         )
                         if (link != null && state.qr == null) Text(stringResource(R.string.share_qr_too_long), style = NpType.small, color = Np.colors.muted)
@@ -132,8 +134,8 @@ fun ShareScreen(state: ShareUiState, onAction: (ShareAction) -> Unit) {
 }
 
 @Composable
-private fun Qr(state: ShareUiState) {
-    Crossfade(state.qr, animationSpec = tween(Motion.BASE_MS), label = "qr") { qr ->
+private fun Qr(state: ShareUiState, modifier: Modifier = Modifier) {
+    Crossfade(state.qr, modifier, animationSpec = tween(Motion.BASE_MS), label = "qr") { qr ->
         if (qr != null) Image(qr.asImageBitmap(), null, Modifier.size(QR_DP.dp).clip(RoundedCornerShape(24.dp)).background(Color.White).padding(12.dp))
     }
 }

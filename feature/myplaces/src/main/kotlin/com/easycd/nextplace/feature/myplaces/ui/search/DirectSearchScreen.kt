@@ -80,7 +80,7 @@ fun DirectSearchScreen(state: DirectSearchUiState, onAction: (DirectSearchAction
                     Modifier.widthIn(min = 300.dp),
                     kind = PillKind.PRIMARY,
                     icon = NpIcons.Check,
-                    enabled = state.selected != null,
+                    enabled = state.canSave,
                 )
             }
         }

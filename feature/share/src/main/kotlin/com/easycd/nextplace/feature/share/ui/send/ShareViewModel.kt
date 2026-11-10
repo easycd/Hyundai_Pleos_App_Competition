@@ -68,8 +68,8 @@ class ShareViewModel @Inject constructor(
             }
             ShareAction.ToggleAll -> {
                 _state.update { s ->
-                    val all = s.rows.isNotEmpty() && s.rows.all { it.checked }
-                    s.copy(rows = limit(s.rows.map { it.copy(checked = !all) }))
+                    val on = !s.allSelected
+                    s.copy(rows = limit(s.rows.map { it.copy(checked = on) }))
                 }
                 rebuild()
             }
@@ -100,10 +100,12 @@ class ShareViewModel @Inject constructor(
         val s = _state.value
         val chosen = s.rows.filter { it.checked }.mapNotNull { source[it.id]?.place }
         val title = if (s.titleEdited) s.title else app.getString(R.string.share_default_title, chosen.size)
-        if (chosen.isEmpty()) return _state.update { it.copy(title = title, link = null, qr = null) }
+        if (chosen.isEmpty()) return _state.update { it.copy(title = title, link = null, qr = null, tooBig = false) }
         val payload = SharePayload(title, clock.now(), chosen.map { SharedPlace(it.name.orEmpty(), it.category, it.address, it.lat!!, it.lon!!, it.memo, it.provider, it.providerId) })
         val link = ShareCodec.link(payload)
-        _state.update { it.copy(title = title, link = link) }
+        // 받는 쪽과 같은 기준으로 미리 풀어 본다. 못 읽는 링크는 내보내지 않는다.
+        if (!ShareCodec.fits(link)) return _state.update { it.copy(title = title, link = null, qr = null, tooBig = true) }
+        _state.update { it.copy(title = title, link = link, tooBig = false) }
         viewModelScope.launch {
             val qr = if (link.length <= Tunables.SHARE_QR_MAX_CHARS) withContext(Dispatchers.Default) { QrBitmap.of(link) } else null
             if (_state.value.link == link) _state.update { it.copy(qr = qr) }

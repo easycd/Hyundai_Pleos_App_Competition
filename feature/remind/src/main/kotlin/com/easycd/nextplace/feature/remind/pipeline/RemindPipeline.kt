@@ -91,7 +91,9 @@ class RemindPipeline @Inject constructor(
         val passed = events.filter { e -> passes(e, ctx) }
         val e = passed.minByOrNull { it.distanceM } ?: return
         voice.runQueued(VoiceSession.Kind.REMIND, Tunables.REMIND_QUEUE_MAX_WAIT_MS) {
-            if (gate.tryAcquire(e.place.id)) ask(e)
+            // 차례를 기다리는 동안(최대 30초) 내비 상태·식사 시간 등이 바뀌었을 수 있다: 지금 기준으로 다시 거른다
+            val now = RemindContext(clock.now(), settings.current())
+            if (passes(e, now) && gate.tryAcquire(e.place.id)) ask(e)
         } ?: trace.event(TAG, "skipped: voice busy over 30s")
     }
 
