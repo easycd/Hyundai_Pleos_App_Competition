@@ -16,7 +16,10 @@ object KakaoMaps {
 
     fun init(context: Context) {
         val key = BuildConfig.KAKAO_NATIVE_KEY
-        if (key.isBlank()) return
+        if (key.isBlank()) {
+            Log.i(TAG, "kakao map off: KAKAO_NATIVE_KEY is empty, using the pin map")
+            return
+        }
         // 엔진은 ARM 용만 있다. x86_64 로 설치된 앱(에뮬레이터)에는 없으므로 먼저 불러 보고 없으면 핀 지도로 간다.
         val engine = runCatching { System.loadLibrary(ENGINE_LIB) }
         if (engine.isFailure) {
