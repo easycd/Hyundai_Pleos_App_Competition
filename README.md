@@ -19,7 +19,8 @@
 
 ```properties
 sdk.dir=...                     # Android Studio가 자동으로 채움
-KAKAO_REST_KEY=...              # 카카오 로컬 API REST 키 (가게 후보 검색). 없으면 후보 없이 '미확인'으로 저장됨
+KAKAO_REST_KEY=...              # 카카오 로컬 API REST 키 (가게 후보 검색). 없으면 개발용 샘플 가게 목록으로 검색
+KAKAO_NATIVE_KEY=...            # 카카오맵 네이티브 앱 키 (내 맛집 지도 배경). 없으면 배경 없는 핀 지도
 PLEOS_CLIENT_ID=...             # Pleos Playground 자격 증명 (STT·TTS 서버 모드)
 PLEOS_CLIENT_SECRET=...
 ```
@@ -30,6 +31,7 @@ PLEOS_CLIENT_SECRET=...
 | --- | --- | --- |
 | `nextplace.fakeSdk` | false | true면 Pleos SDK 대신 가짜 SDK로 실행 (일반 에뮬레이터·개발용) |
 | `nextplace.fakeLocation` | false | true면 `docs/tools/route_gangnam_60s.json` 경로를 가짜 위치로 재생 |
+| `nextplace.abi` | (전체) | 넣을 CPU 종류. 예: `arm64-v8a` (x86_64 에뮬레이터에서 카카오맵 확인용) |
 | `nextplace.screens` | false | true면 화면 렌더 검사 모듈(`tools/screenshots`)을 포함 |
 
 예: `./gradlew :app:assembleDebug -Pnextplace.fakeSdk=true -Pnextplace.fakeLocation=true`
@@ -42,6 +44,7 @@ core/domain             모델·계약·파이프라인 단계 (Android 의존 �
 core/data               Room·DataStore 저장소
 core/pleos              Pleos SDK 어댑터 (STT·TTS·위치·내비·주행 제한) + 가짜 SDK
 core/poi                카카오 로컬 API 가게 검색 + 캐시
+core/map                카카오맵 지도 (핀 지도 그리개, 키·엔진이 없으면 쓰지 않음)
 core/ui                 리퀴드 글라스 디자인 시스템, 공통 컴포넌트, 주행 중 잠금
 feature/voicesave       음성 저장 (홈 · 듣는 중 · 확인 · 저장 완료)
 feature/remind          근처 리마인드
@@ -71,6 +74,7 @@ web/nextplace/s         공유 링크를 폰에서 열 때 보이는 웹 목록 
 
 ## 지금 프로토타입의 한계
 
-- **내 맛집 지도**: 지금은 배경 지도 없이 핀만 그리는 간이 지도입니다(가게끼리의 위치 관계만 보임). 실제 지도(카카오맵) 연결은 기획서 F-12 범위로 남겨 두었습니다.
-- **가게 검색**: `local.properties`에 `KAKAO_REST_KEY`가 없거나 네트워크가 막히면, 개발용 샘플 가게 목록으로 대신 검색합니다. 실제 가게가 아니라는 점에 주의하세요.
+- **내 맛집 지도**: `KAKAO_NATIVE_KEY`가 있으면 카카오맵 위에 핀을 그립니다. 카카오 개발자 콘솔의 앱 > 플랫폼 > Android에 패키지명 `com.easycd.nextplace`와 키 해시를 등록해야 합니다(키 해시는 앱 실행 시 logcat `KakaoMaps` 태그에 찍힘). 키가 없거나 인증·엔진이 실패하면 배경 없는 핀 지도로 그립니다.
+- **카카오맵 엔진은 ARM 전용**입니다. x86_64 에뮬레이터에서 지도를 보려면 `-Pnextplace.abi=arm64-v8a`로 빌드합니다(에뮬레이터의 ARM 변환으로 실행). 차량(ARM)에서는 그대로 동작합니다.
+- **가게 검색**: `local.properties`에 `KAKAO_REST_KEY`가 없으면 개발용 샘플 가게 목록으로 대신 검색합니다(실제 가게가 아님). 키가 있는데 네트워크가 막히면 '오프라인'으로 보고 미확인으로 저장합니다.
 - **주행 중 홈**: 화면 폭이 좁은 창(가로 1100dp 미만)에서는 홈 카드 열이 세로로 스크롤됩니다. 주행 중 스크롤 금지 원칙상, 넓은 차량 화면에서는 스크롤 없이 다 보이도록 배치되어 있습니다.

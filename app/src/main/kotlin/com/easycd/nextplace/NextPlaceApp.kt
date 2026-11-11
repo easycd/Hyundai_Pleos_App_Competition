@@ -3,6 +3,7 @@ package com.easycd.nextplace
 import android.app.Application
 import androidx.hilt.work.HiltWorkerFactory
 import androidx.work.Configuration
+import com.easycd.nextplace.core.map.KakaoMaps
 import com.easycd.nextplace.start.AppStartup
 import dagger.hilt.android.HiltAndroidApp
 import javax.inject.Inject
@@ -18,6 +19,7 @@ class NextPlaceApp : Application(), Configuration.Provider {
 
     override fun onCreate() {
         super.onCreate()
+        KakaoMaps.init(this)
         startup.run()
     }
 }

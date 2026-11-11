@@ -23,6 +23,8 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
+import com.easycd.nextplace.core.map.KakaoMaps
+import com.easycd.nextplace.core.ui.component.LocalMapRenderer
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -93,6 +95,9 @@ class MainActivity : ComponentActivity() {
         vm.navigator.go(Destination.Import(data))
     }
 
+    /** 카카오맵 키가 있고 이 기기에서 지도 엔진을 쓸 수 있으면 실제 지도, 아니면 null(핀 지도). */
+    private val mapRenderer by lazy { KakaoMaps.renderer() }
+
     private fun requestOnboardingPermissions() {
         val list = buildList {
             add(AndroidPermissionChecker.STT)
@@ -129,6 +134,7 @@ class MainActivity : ComponentActivity() {
                 LocalDriveRestricted provides restricted,
                 LocalPortrait provides portrait,
                 LocalCompact provides compact,
+                LocalMapRenderer provides mapRenderer,
                 LocalSpeak provides vm::speak,
             ) {
                 if (state.phase != ShellPhase.SPLASH) {

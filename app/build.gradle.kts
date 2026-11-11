@@ -14,6 +14,8 @@ android {
         targetSdk = 35
         versionCode = 1
         versionName = "0.1.0"
+        // x86_64 에뮬레이터에서 카카오맵(ARM 전용 엔진)을 보려면 -Pnextplace.abi=arm64-v8a 로 ARM 만 넣어 빌드한다 (ARM 변환으로 실행)
+        providers.gradleProperty("nextplace.abi").orNull?.let { ndk { abiFilters += it.split(',') } }
     }
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_17
@@ -43,6 +45,7 @@ dependencies {
     implementation(project(":core:data"))
     implementation(project(":core:pleos"))
     implementation(project(":core:poi"))
+    implementation(project(":core:map"))
     implementation(project(":core:ui"))
     implementation(project(":feature:voicesave"))
     implementation(project(":feature:remind"))

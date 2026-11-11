@@ -20,6 +20,8 @@ splash = "1.0.1"
 retrofit = "2.11.0"
 okhttp = "4.12.0"
 zxing = "3.5.3"
+# 카카오맵 Android SDK v2 (devrepo.kakao.com). 2.15 부터 네이티브 라이브러리가 16KB 페이지 정렬.
+kakaoMaps = "2.15.2"
 junit4 = "4.13.2"
 junit5 = "5.11.3"
 turbine = "1.2.0"
@@ -30,6 +32,7 @@ pleosLocation = "1.1.3"
 pleosNavi = "3.0.5"
 
 [libraries]
+kakao-maps = { module = "com.kakao.maps.open:android", version.ref = "kakaoMaps" }
 kotlinx-coroutines-core = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-core", version.ref = "coroutines" }
 kotlinx-coroutines-android = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-android", version.ref = "coroutines" }
 kotlinx-coroutines-test = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-test", version.ref = "coroutines" }

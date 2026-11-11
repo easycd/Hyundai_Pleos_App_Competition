@@ -13,6 +13,8 @@ dependencyResolutionManagement {
         google()
         mavenCentral()
         maven("https://nexus-playground.pleos.ai/repository/maven-releases/")
+        // 카카오맵 SDK
+        maven("https://devrepo.kakao.com/nexus/content/groups/public/") { content { includeGroup("com.kakao.maps.open") } }
     }
 }
 
@@ -23,6 +25,7 @@ include(":core:domain")
 include(":core:data")
 include(":core:pleos")
 include(":core:poi")
+include(":core:map")
 include(":core:ui")
 include(":feature:voicesave")
 include(":feature:remind")

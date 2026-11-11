@@ -5,6 +5,7 @@ import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Immutable
+import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
@@ -26,12 +27,30 @@ enum class PinTone { SAVED, VISITED, UNCONFIRMED, CANDIDATE, ESTIMATED }
 data class MapPin(val id: String, val point: GeoPoint, val tone: PinTone, val selected: Boolean = false)
 
 /**
- * 핀 지도 (S-07 · S-08 · S-09 · S-14 · S-16). 카카오맵 SDK 가 차량에서 뜨는지 확인 전이라
- * 프로토타입은 배경 지도 없이 핀과 내 위치만 상대 위치로 그린다 (화면 설계서 8장: 지도가 없으면 비움).
+ * 실제 지도를 그리는 쪽 (카카오맵, core:map). 앱이 [LocalMapRenderer]로 넣어 주고, 없으면 [PinCanvas]로 그린다.
+ * 기능 화면은 지도 SDK 를 모르고 [PinMap]만 부른다.
+ */
+fun interface MapRenderer {
+    @Composable
+    fun Map(pins: List<MapPin>, me: GeoPoint?, modifier: Modifier, onPin: ((String) -> Unit)?)
+}
+
+val LocalMapRenderer = staticCompositionLocalOf<MapRenderer?> { null }
+
+/**
+ * 핀 지도 (S-07 · S-08 · S-09 · S-14 · S-16). 카카오맵 키가 있고 지도가 뜨면 실제 지도 위에 핀을 그리고,
+ * 아니면(키 없음 · 인증 실패 · 차량에서 SDK 가 안 뜸) 배경 지도 없이 핀과 내 위치만 상대 위치로 그린다.
  * 핀 색은 상태 칩과 같다: 저장 주황 · 방문 초록 · 미확인 노랑(+?).
  */
 @Composable
 fun PinMap(pins: List<MapPin>, me: GeoPoint?, modifier: Modifier = Modifier, onPin: ((String) -> Unit)? = null) {
+    val renderer = LocalMapRenderer.current
+    if (renderer != null) renderer.Map(pins, me, modifier, onPin) else PinCanvas(pins, me, modifier, onPin)
+}
+
+/** 배경 지도 없는 핀 지도. 실제 지도가 실패했을 때도 이것으로 돌아온다. */
+@Composable
+fun PinCanvas(pins: List<MapPin>, me: GeoPoint?, modifier: Modifier = Modifier, onPin: ((String) -> Unit)? = null) {
     val c = Np.colors
     val all = pins.map { it.point } + listOfNotNull(me)
     Canvas(
