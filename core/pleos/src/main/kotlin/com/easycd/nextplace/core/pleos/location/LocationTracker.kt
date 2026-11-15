@@ -24,6 +24,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import java.util.concurrent.atomic.AtomicLong
 import javax.inject.Inject
@@ -89,6 +90,8 @@ class LocationTracker @Inject constructor(
     private fun ensureRunning() {
         if (job?.isActive == true || !hasPermission()) return
         job = scope.launch {
+            // SDK 연결(초기화)이 끝나기 전에 콜백을 등록하면 아무것도 오지 않고 끝난다: 연결을 기다린 뒤 받는다
+            if (feed.status.first { it != SdkStatus.CONNECTING } != SdkStatus.READY) return@launch
             feed.updates().collect { s ->
                 if (buffer.add(s)) {
                     _latest.value = s
