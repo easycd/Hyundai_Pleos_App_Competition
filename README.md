@@ -17,7 +17,7 @@
 
 ## APK 파일 위치
 
-- **[`김재원_다음에가게_release.apk`](김재원_다음에가게_release.apk)** (저장소 루트)
+- **[`apk/김재원_다음에가게_release.apk`](apk/김재원_다음에가게_release.apk)**
 - 릴리스 빌드, 실제 Pleos Connect SDK 사용, 디버그 키 서명, 지원 CPU: arm64-v8a · armeabi-v7a · x86_64 · x86
 
 ## 실행 방법
@@ -28,7 +28,7 @@
 2. APK를 설치하고 실행합니다.
 
    ```bash
-   adb install -r 김재원_다음에가게_release.apk
+   adb install -r apk/김재원_다음에가게_release.apk
    adb shell monkey -p com.easycd.nextplace -c android.intent.category.LAUNCHER 1
    ```
 
