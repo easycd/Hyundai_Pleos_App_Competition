@@ -92,7 +92,9 @@ class RecommendSession @Inject constructor(
         val nextPage = s.page + 1
         if (nextPage >= Tunables.RECOMMEND_MAX_PAGES || nextPage * Tunables.RECOMMEND_PAGE_SIZE >= ranked.size) {
             messages.show(UserMessage.NoMore)
-            scope.launch { tts.speak(VoicePrompt.NoMore) }
+            // "더 없어요" 뒤에도 지금 카드에서 번호·이름으로 고를 수 있게 다시 듣는다 (목록은 다시 읽지 않음)
+            startTalk(s.cards, readList = false, preamble = VoicePrompt.NoMore)
+            restartIdle()
             return
         }
         show(nextPage)
@@ -118,7 +120,7 @@ class RecommendSession @Inject constructor(
             launch { tts.speak(if (changing) VoicePrompt.RouteChange(card.name) else VoicePrompt.RouteStart(card.name)) }
             delay(Tunables.RECOMMEND_SEND_DELAY_MS)
             committed = true
-            if (!routes.send(place)) {
+            if (!routes.send(place, changing)) {
                 messages.show(UserMessage.RouteFailed)
                 tts.speak(VoicePrompt.RouteFailed)
             }
@@ -183,10 +185,11 @@ class RecommendSession @Inject constructor(
         restartIdle()
     }
 
-    private fun startTalk(cards: List<RecCard>, readList: Boolean) {
+    private fun startTalk(cards: List<RecCard>, readList: Boolean, preamble: VoicePrompt? = null) {
         talk?.cancel()
         talk = scope.launch {
             voice.runUser {
+                preamble?.let { tts.speak(it) }
                 dialogue.run(cards, onReading = { i -> update { it.copy(readingIndex = i) } }, onSelect = ::select, onNext = ::next, onCancel = ::close, readList = readList)
             }
         }

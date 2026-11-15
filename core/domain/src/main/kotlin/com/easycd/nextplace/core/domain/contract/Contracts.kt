@@ -23,6 +23,14 @@ interface VisitNoteRunner {
 }
 
 /**
+ * 안내 시작 확인 문구("서울갈비로 안내할게요")를 Pleos 내비 화면 위에 잠깐 띄운다 (화면 설계서 S-05b: 앱 겹침 창이 아니라 차량 알림).
+ * 내비가 화면을 넘겨받으면 앱 카드·토스트는 보이지 않기 때문이다. 구현은 core/ui 의 차량 알림.
+ */
+fun interface RouteNotice {
+    fun show(name: String, changing: Boolean)
+}
+
+/**
  * '저장한 가게 모두 삭제'(S-11b) 때 DB 밖에 남는 것(예약 작업 · 메모리 캐시 등)을 정리하는 고리.
  * 기능 모듈이 Hilt @IntoSet 으로 하나씩 등록하고, 설정 화면이 모두 부른다. 새 기능이 상태를 가지면 여기 하나 추가하면 된다.
  */

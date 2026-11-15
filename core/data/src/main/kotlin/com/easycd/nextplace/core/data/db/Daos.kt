@@ -119,7 +119,11 @@ interface VisitDao {
     @Query("UPDATE visit SET note = :note WHERE id = :id")
     suspend fun setNote(id: String, note: String)
 
-    @Query("SELECT * FROM visit WHERE arrivedAt >= :since OR leftAt IS NULL OR leftAt >= :since ORDER BY arrivedAt DESC LIMIT 1")
+    /**
+     * [since] 뒤에 도착했거나 떠난 가장 최근 방문. 떠난 시각이 비어 있는(머무는 중) 오래된 방문은 여기서 고르지 않는다:
+     * 머무는 중인지는 방문 판정 세션이 알고, 안내가 바뀌어 세션이 사라진 옛 방문이 몇 날 뒤 메모를 가로채면 안 된다.
+     */
+    @Query("SELECT * FROM visit WHERE arrivedAt >= :since OR leftAt >= :since ORDER BY arrivedAt DESC LIMIT 1")
     suspend fun latestSince(since: Long): VisitEntity?
 
     @Query("SELECT * FROM visit WHERE placeId = :placeId ORDER BY arrivedAt DESC LIMIT 1")

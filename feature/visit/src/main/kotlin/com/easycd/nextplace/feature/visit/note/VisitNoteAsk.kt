@@ -17,6 +17,8 @@ import com.easycd.nextplace.core.domain.voice.VoicePrompt
 import com.easycd.nextplace.core.domain.voice.VoiceSession
 import com.easycd.nextplace.core.domain.voice.VoiceStage
 import com.easycd.nextplace.core.ui.notify.HeadsUp
+import com.easycd.nextplace.core.ui.notify.HeadsUpAnswers
+import com.easycd.nextplace.core.ui.notify.HeadsUpButtons
 import com.easycd.nextplace.feature.visit.R
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.CompletableDeferred
@@ -48,6 +50,7 @@ class VisitNoteAsk @Inject constructor(
     private val visits: VisitRepository,
     private val messages: Messages,
     private val headsUp: HeadsUp,
+    private val answers: HeadsUpAnswers,
     private val clock: Clock,
 ) {
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.Default)
@@ -69,12 +72,17 @@ class VisitNoteAsk @Inject constructor(
     private suspend fun runAsk(visitId: String, placeName: String) {
         val count = visits.get(visitId)?.placeId?.let { countFor(it) } ?: 1
         _state.value = VisitNoteState.Asking(placeName, count, null, false, "")
-        headsUp.show(HeadsUp.VISIT_ID, context.getString(R.string.visit_title, placeName), context.getString(R.string.visit_notify_text), Tunables.REMIND_BUTTON_WAIT_MS * 2)
+        val buttons = HeadsUpButtons(context.getString(R.string.visit_later), context.getString(R.string.visit_speak))
+        headsUp.show(HeadsUp.VISIT_ID, context.getString(R.string.visit_title, placeName), context.getString(R.string.visit_notify_text), Tunables.REMIND_BUTTON_WAIT_MS * 2, buttons)
         try {
-            button = CompletableDeferred()
-            tts.speak(VoicePrompt.VisitAsk(placeName))
-            update { it.copy(waitStartedAt = clock.now(), listening = true) }
-            val memo = awaitMemo() ?: return
+            val memo = coroutineScope {
+                button = CompletableDeferred()
+                // 차량 알림의 '말하기' · '다음에' 버튼도 카드 버튼과 같다
+                val taps = launch { answers.of(HeadsUp.VISIT_ID).collect { press(it) } }
+                tts.speak(VoicePrompt.VisitAsk(placeName))
+                update { it.copy(waitStartedAt = clock.now(), listening = true) }
+                awaitMemo().also { taps.cancel() }
+            } ?: return
             visits.setNote(visitId, memo)
             messages.show(UserMessage.NoteSaved(placeName, memo))
             tts.speak(VoicePrompt.NoteSaved(placeName))

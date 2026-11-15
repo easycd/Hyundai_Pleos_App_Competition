@@ -9,6 +9,7 @@ import com.easycd.nextplace.core.domain.repository.SettingsRepository
 import com.easycd.nextplace.core.domain.sdk.LocationReason
 import com.easycd.nextplace.core.domain.sdk.LocationSource
 import com.easycd.nextplace.core.domain.sdk.SpeechSynthesizer
+import com.easycd.nextplace.core.pleos.vehicle.VehicleLog
 import com.easycd.nextplace.feature.remind.RemindController
 import com.easycd.nextplace.feature.visit.tracker.VisitTracker
 import com.easycd.nextplace.feature.voicesave.recovery.SaveRecovery
@@ -35,6 +36,7 @@ class AppStartup @Inject constructor(
     private val remind: Lazy<RemindController>,
     private val visit: Lazy<VisitTracker>,
     private val recovery: Lazy<SaveRecovery>,
+    private val vehicle: Lazy<VehicleLog>,
     private val trace: TraceLog,
 ) {
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.Default)
@@ -58,6 +60,7 @@ class AppStartup @Inject constructor(
             runCatching { tts.get().setVolume(settings.get().settings.first().voiceVolume) }
             remind.get().start()
             visit.get().start()
+            vehicle.get().start()
             trace.event("startup", "ready")
         }
     }

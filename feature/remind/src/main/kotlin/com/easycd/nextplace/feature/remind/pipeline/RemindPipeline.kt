@@ -25,6 +25,8 @@ import com.easycd.nextplace.core.domain.voice.VoicePrompt.SavedWhen
 import com.easycd.nextplace.core.domain.voice.VoiceSession
 import com.easycd.nextplace.core.domain.voice.VoiceStage
 import com.easycd.nextplace.core.ui.notify.HeadsUp
+import com.easycd.nextplace.core.ui.notify.HeadsUpAnswers
+import com.easycd.nextplace.core.ui.notify.HeadsUpButtons
 import com.easycd.nextplace.core.ui.text.TimeText
 import com.easycd.nextplace.feature.remind.R
 import com.easycd.nextplace.feature.remind.geofence.ProximityEvent
@@ -41,6 +43,7 @@ import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.async
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -70,6 +73,7 @@ class RemindPipeline @Inject constructor(
     private val routes: RouteStarter,
     private val permissions: PermissionChecker,
     private val headsUp: HeadsUp,
+    private val answers: HeadsUpAnswers,
     private val messages: Messages,
     private val navigator: Navigator,
     private val clock: Clock,
@@ -115,12 +119,18 @@ class RemindPipeline @Inject constructor(
         val dist = e.distanceM.toInt()
         val asking = RemindState.Asking(name, whenSaved, dist, e.ahead, e.side, null)
         _state.value = asking
-        headsUp.show(HeadsUp.REMIND_ID, name, context.getString(R.string.remind_notify_text, distanceLabel(dist, e.ahead)), Tunables.REMIND_BUTTON_WAIT_MS * 2)
+        val buttons = HeadsUpButtons(context.getString(R.string.remind_close), context.getString(R.string.remind_start))
+        headsUp.show(HeadsUp.REMIND_ID, name, context.getString(R.string.remind_notify_text, distanceLabel(dist, e.ahead)), Tunables.REMIND_BUTTON_WAIT_MS * 2, buttons)
         try {
-            button = CompletableDeferred()
-            tts.speak(VoicePrompt.RemindAsk(name, whenSaved, dist, e.ahead))
-            _state.value = asking.copy(waitStartedAt = clock.now())
-            if (awaitYes()) route(p, name)
+            val yes = coroutineScope {
+                button = CompletableDeferred()
+                // 차량 알림(heads-up)의 버튼도 앱 카드 버튼과 같다 (먼저 들어온 대답 하나만)
+                val taps = launch { answers.of(HeadsUp.REMIND_ID).collect { press(it) } }
+                tts.speak(VoicePrompt.RemindAsk(name, whenSaved, dist, e.ahead))
+                _state.value = asking.copy(waitStartedAt = clock.now())
+                awaitYes().also { taps.cancel() }
+            }
+            if (yes) route(p, name)
         } finally {
             button = null
             headsUp.cancel(HeadsUp.REMIND_ID)
@@ -156,7 +166,7 @@ class RemindPipeline @Inject constructor(
         val changing = routes.hasDestination()
         _state.value = RemindState.Routing(name, changing)
         tts.speak(if (changing) VoicePrompt.RouteChange(name) else VoicePrompt.RouteStart(name))
-        val ok = routes.send(p)
+        val ok = routes.send(p, changing)
         if (!ok) {
             messages.show(UserMessage.RouteFailed)
             tts.speak(VoicePrompt.RouteFailed)

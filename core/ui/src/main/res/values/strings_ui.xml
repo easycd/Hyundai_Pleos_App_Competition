@@ -34,4 +34,8 @@
     <string name="drive_title_fallback">주행 중</string>
     <string name="drive_line1">멈추면 볼 수 있어요</string>
     <string name="drive_line2">주행 중에는 음성으로 이용해 주세요</string>
+
+    <!-- 차량 알림(heads-up) 채널과 안내 시작 확인 문구 (S-05b) -->
+    <string name="headsup_channel">근처 알림</string>
+    <string name="headsup_route_title">다음에 가게</string>
 </resources>

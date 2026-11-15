@@ -73,22 +73,32 @@ class ConfirmStage @Inject constructor(
 
     /** 음성(TTS 뒤 5초 무응답이면 끝)과 버튼을 함께 기다리고 먼저 온 하나만 받는다. */
     private suspend fun awaitReply(io: ConfirmIO): Reply = coroutineScope {
-        val voice = async {
-            val out = listen.run(ListenRequest(maxMs = LISTEN_MAX_MS, noSpeechTimeoutMs = Tunables.CONFIRM_WAIT_MS))
-            if (out !is ListenOutcome.Heard) return@async Reply.NONE
-            when (parser.parse(out.text, VoiceStage.CONFIRM).intent) {
-                Intent.YES -> Reply.YES
-                Intent.NO -> Reply.NO
-                Intent.CANCEL -> Reply.CANCEL
-                else -> Reply.NONE
-            }
-        }
+        val voice = async { voiceReply(clock.now() + Tunables.CONFIRM_WAIT_MS) }
         val reply = select {
             voice.onAwait { it }
             io.answers.onReceive { if (it == ConfirmAnswer.YES) Reply.YES else Reply.NO }
         }
         voice.cancel()
         reply
+    }
+
+    /**
+     * 확인 단계(YES · NO · CANCEL)로 듣는다. 알아듣지 못한 말은 무응답과 같아서 대답으로 치지 않고,
+     * TTS 가 끝난 뒤 5초([deadline])가 지날 때까지 계속 듣는다 (화면 설계서 S-03: 5초 뒤 위치만 저장).
+     */
+    private suspend fun voiceReply(deadline: Long): Reply {
+        while (true) {
+            val remaining = deadline - clock.now()
+            if (remaining <= 0) return Reply.NONE
+            val out = listen.run(ListenRequest(maxMs = LISTEN_MAX_MS, noSpeechTimeoutMs = remaining))
+            if (out !is ListenOutcome.Heard) return Reply.NONE
+            when (parser.parse(out.text, VoiceStage.CONFIRM).intent) {
+                Intent.YES -> return Reply.YES
+                Intent.NO -> return Reply.NO
+                Intent.CANCEL -> return Reply.CANCEL
+                else -> Unit
+            }
+        }
     }
 
     private fun state(c: PoiCandidate, second: Boolean, input: ConfirmInput): SaveFlowState.Confirming {

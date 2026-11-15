@@ -102,7 +102,7 @@ class PlaceDetailViewModel @Inject constructor(
             val changing = routes.hasDestination()
             messages.show(UserMessage.Routing(name, changing))
             launch { tts.speak(if (changing) VoicePrompt.RouteChange(name) else VoicePrompt.RouteStart(name)) }
-            if (!routes.send(p)) {
+            if (!routes.send(p, changing)) {
                 messages.show(UserMessage.RouteFailed)
                 tts.speak(VoicePrompt.RouteFailed)
             }

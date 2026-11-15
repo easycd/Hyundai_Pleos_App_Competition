@@ -2,6 +2,7 @@ package com.easycd.nextplace.feature.recommend
 
 import com.easycd.nextplace.core.domain.contract.Messages
 import com.easycd.nextplace.core.domain.contract.Navigator
+import com.easycd.nextplace.core.domain.contract.RouteNotice
 import com.easycd.nextplace.core.domain.model.LocationSnapshot
 import com.easycd.nextplace.core.domain.model.PlaceSource
 import com.easycd.nextplace.core.domain.model.PlaceWithVisits
@@ -91,7 +92,7 @@ class AuditRecommendTest {
         val session = RecommendSession(
             places, RecommendScorer(DistanceRule(), MemoRule(), LastVisitRule()),
             RecommendDialogue(tts, ListenStage(recognizer, clock), IntentParser(SlotExtractor())),
-            RouteStarter(navi, sessions, clock), tts, VoiceSession(), permissions, Navigator(), Messages(), clock,
+            RouteStarter(navi, sessions, clock, RouteNotice { _, _ -> }), tts, VoiceSession(), permissions, Navigator(), Messages(), clock,
         )
         session.open(null, LocationSnapshot(1, clock.now(), null, emptyList(), PlaceSource.VOICE))
         assertTrue(entered.await(3, TimeUnit.SECONDS))
