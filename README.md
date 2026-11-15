@@ -110,7 +110,7 @@ core/map             카카오맵 지도
 core/ui              리퀴드 글라스 디자인 시스템, 공통 컴포넌트, 주행 중 잠금, 차량 알림
 feature/*            voicesave · remind · recommend · visit · myplaces · share · settings
 web/nextplace/s      공유 링크를 폰에서 열 때 보이는 웹 목록 (https://easycd.github.io/nextplace/s, 저장소 easycd/nextplace)
-docs/                기획서 · 화면 설계서 · 기술서 · 화면 그림 · 앱 아이콘 · 개인정보 동의서
+docs/                기획서 · 화면 설계서 · 기술서 · 화면 그림 · 앱 아이콘
 ```
 
 기능 모듈끼리는 서로 import하지 않고 `core/domain`의 계약으로만 연결하며, 이 규칙은 `ArchitectureTest`(Konsist)가 검사합니다.

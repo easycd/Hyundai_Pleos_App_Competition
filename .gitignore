@@ -8,3 +8,6 @@ local.properties
 *.iml
 .kotlin/
 captures/
+
+# 개인정보 동의서(서명 포함)는 저장소에 올리지 않는다
+*consent*.docx
