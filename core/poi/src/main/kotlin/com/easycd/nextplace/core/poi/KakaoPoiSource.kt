@@ -64,6 +64,16 @@ internal class KakaoPoiSource @Inject constructor(
         }
     }
 
+    override suspend fun warmUp() {
+        try {
+            api.ping()
+        } catch (e: CancellationException) {
+            throw e
+        } catch (e: Exception) {
+            Unit
+        }
+    }
+
     override suspend fun searchAnywhere(keyword: String): PoiResult = try {
         val docs = api.keywordAnywhere(keyword.trim()).documents
         PoiResult.Found(

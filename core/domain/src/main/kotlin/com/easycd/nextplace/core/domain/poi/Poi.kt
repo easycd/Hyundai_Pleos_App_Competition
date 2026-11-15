@@ -28,6 +28,12 @@ interface PoiSource {
      * 결과의 distanceM 은 모름(NaN).
      */
     suspend fun searchAnywhere(keyword: String): PoiResult = PoiResult.Failed
+
+    /**
+     * 검색 서버 연결을 미리 연다 (DNS · TLS). 말하기 버튼을 누른 순간 부르면, 말하는 동안 연결이 준비되어
+     * 5단계 검색이 1.2초 제한 안에 끝난다 (기술서 9장 '말 끝 → 되묻기 3초'). 실패해도 아무 일 없다.
+     */
+    suspend fun warmUp() = Unit
 }
 
 /** 좌표 → 도로명 (홈 현재 위치, 30초에 1회). */

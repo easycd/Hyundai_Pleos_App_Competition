@@ -19,6 +19,7 @@ class AuditPoiTest {
                 KakaoSearchResponse(listOf(KakaoPlace("1", "스타벅스 강남역점", "카페", "서울 강남구", null, "127.0", "37.5")))
             override suspend fun keywordAnywhere(query: String, sort: String, size: Int) = KakaoSearchResponse()
             override suspend fun coord2address(lon: Double, lat: Double) = KakaoAddressResponse()
+            override suspend fun ping(): retrofit2.Response<Void> = retrofit2.Response.success(null)
         }
         val store = object : PoiCacheStore {
             val rows = mutableMapOf<String, CachedPoi>()

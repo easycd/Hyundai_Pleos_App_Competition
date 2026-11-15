@@ -59,6 +59,7 @@ class FindAndConfirm @Inject constructor(
     fun startPrefetchWindow(snapshot: LocationSnapshot, lookbackSec: Int) {
         clearPrefetch()
         window = snapshot to lookbackSec
+        if (snapshot.hasLocation) scope.launch { search.warmUp() }
     }
 
     fun onPartial(text: String) {

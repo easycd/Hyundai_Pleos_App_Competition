@@ -1,6 +1,13 @@
 package com.easycd.nextplace.core.pleos.stt
 
+import android.content.BroadcastReceiver
+import android.content.Context
+import android.content.Intent
+import android.content.IntentFilter
+import androidx.core.content.ContextCompat
 import com.easycd.nextplace.core.domain.sdk.DevVoiceInput
+import com.easycd.nextplace.core.pleos.BuildConfig
+import dagger.hilt.android.qualifiers.ApplicationContext
 import com.easycd.nextplace.core.domain.sdk.SdkStatus
 import com.easycd.nextplace.core.domain.sdk.SpeechRecognizer
 import com.easycd.nextplace.core.domain.sdk.SttEvent
@@ -20,9 +27,23 @@ import javax.inject.Singleton
  * 듣는 동안 화면의 '가짜 음성 입력' 칸에 적은 문장을 한 단어씩 부분 결과로 흘린 뒤 최종 결과로 낸다.
  */
 @Singleton
-class FakeSpeechRecognizer @Inject constructor() : SpeechRecognizer, DevVoiceInput {
+class FakeSpeechRecognizer @Inject constructor(@ApplicationContext context: Context) : SpeechRecognizer, DevVoiceInput {
     override val status: StateFlow<SdkStatus> = MutableStateFlow(SdkStatus.READY)
-    override val enabled: Boolean = true
+
+    /** 시연 녹화 빌드(DEMO_VOICE)는 입력 칸을 숨기고 adb 방송으로만 문장을 받는다. */
+    override val enabled: Boolean = !BuildConfig.DEMO_VOICE
+
+    init {
+        if (BuildConfig.DEMO_VOICE) {
+            // adb shell am broadcast -a com.easycd.nextplace.DEMO_SAY --es text "방금 지난 카페 저장해줘"
+            val receiver = object : BroadcastReceiver() {
+                override fun onReceive(c: Context, intent: Intent) {
+                    intent.getStringExtra(EXTRA_TEXT)?.takeIf { it.isNotBlank() }?.let(::submit)
+                }
+            }
+            ContextCompat.registerReceiver(context, receiver, IntentFilter(ACTION_DEMO_SAY), ContextCompat.RECEIVER_EXPORTED)
+        }
+    }
     private val typed = MutableSharedFlow<String>(extraBufferCapacity = 1, onBufferOverflow = BufferOverflow.DROP_OLDEST)
     private val _listening = MutableStateFlow(false)
     override val listening: StateFlow<Boolean> = _listening
@@ -52,6 +73,8 @@ class FakeSpeechRecognizer @Inject constructor() : SpeechRecognizer, DevVoiceInp
     }
 
     private companion object {
+        const val ACTION_DEMO_SAY = "com.easycd.nextplace.DEMO_SAY"
+        const val EXTRA_TEXT = "text"
         const val WORD_MS = 120L
         val LEVELS = listOf(0.4f, 0.8f, 0.6f, 1f, 0.5f)
     }

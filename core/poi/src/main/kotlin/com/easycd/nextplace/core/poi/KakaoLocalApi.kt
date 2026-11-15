@@ -3,6 +3,7 @@ package com.easycd.nextplace.core.poi
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import retrofit2.http.GET
+import retrofit2.http.HEAD
 import retrofit2.http.Query
 
 /** 카카오 로컬 REST API (기획서 9장 1안). 키는 OkHttp 인터셉터가 붙인다. */
@@ -35,6 +36,10 @@ internal interface KakaoLocalApi {
         @Query("sort") sort: String = "accuracy",
         @Query("size") size: Int = 15,
     ): KakaoSearchResponse
+
+    /** 연결 미리 열기: 응답 본문은 쓰지 않는다 (검색 할당량을 쓰지 않는 HEAD). */
+    @HEAD("/")
+    suspend fun ping(): retrofit2.Response<Void>
 
     @GET("v2/local/geo/coord2address.json")
     suspend fun coord2address(@Query("x") lon: Double, @Query("y") lat: Double): KakaoAddressResponse

@@ -43,11 +43,11 @@ object PleosModule {
 
     @Provides @Singleton
     fun recognizer(real: Lazy<RealSpeechRecognizer>, fakeImpl: Lazy<FakeSpeechRecognizer>): SpeechRecognizer =
-        if (fake) fakeImpl.get() else real.get()
+        if (fake || BuildConfig.DEMO_VOICE) fakeImpl.get() else real.get()
 
     @Provides @Singleton
     fun devVoice(fakeImpl: Lazy<FakeSpeechRecognizer>): DevVoiceInput =
-        if (fake) fakeImpl.get() else DisabledDevVoice
+        if (fake || BuildConfig.DEMO_VOICE) fakeImpl.get() else DisabledDevVoice
 
     @Provides @Singleton
     fun synthesizer(real: Lazy<RealSpeechSynthesizer>, fakeImpl: Lazy<FakeSpeechSynthesizer>): SpeechSynthesizer =

@@ -12,4 +12,7 @@ class SearchStage @Inject constructor(private val poi: PoiSource) : Stage<PoiQue
     override val name = "5 Search"
     override val timeoutMs = Tunables.POI_TIMEOUT_MS
     override suspend fun run(input: PoiQuery): PoiResult = poi.search(input)
+
+    /** 듣기를 시작할 때 검색 서버 연결을 미리 연다 (말하는 동안 DNS·TLS 를 끝내 둔다). */
+    suspend fun warmUp() = poi.warmUp()
 }
