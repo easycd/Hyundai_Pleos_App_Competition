@@ -11,6 +11,7 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -45,6 +46,33 @@ fun ScrimOverlay(visible: Boolean, modifier: Modifier = Modifier, content: @Comp
     }
 }
 
+/**
+ * 취소 왼쪽 · 실행 오른쪽, 오른쪽 끝에 붙임 (설계서 S-08c · S-11b). 창이 두 버튼을 나란히 둘 만큼 넓지 않으면
+ * (설계 기준보다 좁은 창) 위아래로 쌓고 실행을 아래에 둔다: 나란히 두면 실행 버튼이 눌러지지 않을 만큼 찌그러진다.
+ */
+@Composable
+private fun DialogButtons(confirmText: String, cancelText: String, onConfirm: () -> Unit, onCancel: () -> Unit, danger: Boolean) {
+    val kind = if (danger) PillKind.DANGER else PillKind.PRIMARY
+    val icon = if (danger) NpIcons.Trash else null
+    BoxWithConstraints(Modifier.fillMaxWidth()) {
+        if (maxWidth >= CANCEL_MIN + CONFIRM_MIN + GAP) {
+            Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(GAP, Alignment.End)) {
+                PillButton(cancelText, onCancel, Modifier.widthIn(min = CANCEL_MIN))
+                PillButton(confirmText, onConfirm, Modifier.widthIn(min = CONFIRM_MIN), kind = kind, icon = icon)
+            }
+        } else {
+            Column(Modifier.fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(GAP / 2)) {
+                PillButton(cancelText, onCancel, Modifier.fillMaxWidth())
+                PillButton(confirmText, onConfirm, Modifier.fillMaxWidth(), kind = kind, icon = icon)
+            }
+        }
+    }
+}
+
+private val CANCEL_MIN = 240.dp
+private val CONFIRM_MIN = 280.dp
+private val GAP = 24.dp
+
 /** 확인 창 (S-08c, S-11b 등): 가운데 폭 800dp, 질문 40 + 설명 28 + 버튼. 취소 왼쪽, 실행 오른쪽. */
 @Composable
 fun ConfirmDialog(
@@ -67,17 +95,7 @@ fun ConfirmDialog(
                     Text(description, style = NpType.body, color = Np.colors.muted)
                 }
                 Spacer(Modifier.height(40.dp))
-                // 취소 왼쪽 · 실행 오른쪽, 오른쪽 끝에 붙임 (설계서 S-08c · S-11b)
-                Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(24.dp, Alignment.End)) {
-                    PillButton(cancelText, onCancel, Modifier.widthIn(min = 240.dp))
-                    PillButton(
-                        confirmText,
-                        onConfirm,
-                        Modifier.widthIn(min = 280.dp),
-                        kind = if (danger) PillKind.DANGER else PillKind.PRIMARY,
-                        icon = if (danger) NpIcons.Trash else null,
-                    )
-                }
+                DialogButtons(confirmText, cancelText, onConfirm, onCancel, danger)
             }
         }
     }
